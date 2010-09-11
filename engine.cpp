@@ -9,14 +9,16 @@
 // specific language governing permissions and limitations under the License.
 //
 // Author: Jeff Cameron (jeff@jpcameron.com)
+// ported to C++ by Albert Zeyer
 //
 // Plays a game of Planet Wars between two computer programs.
 
-import java.io.*;
-import java.util.*;
+#include <string>
+#include <iostream>
+#include <stdlib.h>
 
-public class Engine {
-    public static void KillClients(List<Process> clients) {
+namespace Engine {
+    void KillClients(List<Process> clients) {
 		for (Process p : clients) {
 			if (p != null) {
 				p.destroy();
@@ -24,7 +26,7 @@ public class Engine {
 		}
     }
 	
-    public static boolean AllTrue(boolean[] v) {
+    bool AllTrue(boolean[] v) {
 		for (int i = 0; i < v.length; ++i) {
 			if (!v[i]) {
 				return false;
@@ -32,139 +34,144 @@ public class Engine {
 		}
 		return true;
     }
-	
-    public static void main(String[] args) {
-		// Check the command-line arguments.
-		if (args.length < 5) {
-			System.err.println("ERROR: wrong number of command-line " +
-							   "arguments.");
-			System.err.println("USAGE: engine map_file_name max_turn_time " +
-							   "max_num_turns log_filename player_one " +
-							   "player_two [more_players]");
-			System.exit(1);
-		}
-		// Initialize the game. Load the map.
-		std::string mapFilename = args[0];
-		int maxTurnTime = Integer.parseInt(args[1]);
-		int maxNumTurns = Integer.parseInt(args[2]);
-		std::string logFilename = args[3];
-		Game game = new Game(mapFilename, maxNumTurns, 0, logFilename);
-		if (game.Init() == 0) {
-			System.err.println("ERROR: failed to start game. map: " +
-							   mapFilename);
-		}
-		long max_turn_time = Integer.parseInt(args[1]);
-		// Start the client programs (players).
-		List<Process> clients = new ArrayList<Process>();
-		for (int i = 4; i < args.length; ++i) {
-			std::string command = args[i];
-			Process client = null;
-			try {
-				client = Runtime.getRuntime().exec(command);
-			} catch (Exception e) {
-				client = null;
-			}
-			if (client == null) {
-				KillClients(clients);
-				System.err.println("ERROR: failed to start client: " +
-								   command);
-				System.exit(1);
-			}
-			clients.add(client);
-		}
-		boolean[] isAlive = new boolean[clients.size()];
-		for (int i = 0; i < clients.size(); ++i) {
-			isAlive[i] = (clients.get(i) != null);
-		}
-		int numTurns = 0;
-		// Enter the main game loop.
-		while (game.Winner() < 0) {
-			// Send the game state to the clients.
-			//System.err.println("The game state:");
-			//System.err.print(game);
-			for (int i = 0; i < clients.size(); ++i) {
-				if (clients.get(i) == null || !game.IsAlive(i + 1)) {
-					continue;
-				}
-				std::string message = game.PovRepresentation(i + 1) + "go\n";
-				try {
-					OutputStream out = clients.get(i).getOutputStream();
-					OutputStreamWriter writer = new OutputStreamWriter(out);
-					writer.write(message, 0, message.length());
-					writer.flush();
-					game.WriteLogMessage("engine > player" + (i + 1) + ": " +
-										 message);
-				} catch (Exception e) {
-					clients.set(i, null);
-				}
-			}
-			// Get orders from the clients.
-			StringBuilder[] buffers = new StringBuilder[clients.size()];
-			boolean[] clientDone = new boolean[clients.size()];
-			for (int i = 0; i < clients.size(); ++i) {
-				buffers[i] = new StringBuilder();
-				clientDone[i] = false;
-			}
-			long startTime = System.currentTimeMillis();
-			while (!AllTrue(clientDone) &&
-				   System.currentTimeMillis() - startTime < maxTurnTime) {
-				for (int i = 0 ; i < clients.size(); ++i) {
-					if (!isAlive[i] || !game.IsAlive(i + 1) || clientDone[i]) {
-						clientDone[i] = true;
-						continue;
-					}
-					try {
-						InputStream inputStream =
-						clients.get(i).getInputStream();
-						while (inputStream.available() > 0) {
-							char c = (char)inputStream.read();
-							if (c == '\n') {
-								std::string line = buffers[i].toString();
-								//System.err.println("P" + (i+1) + ": " + line);
-								line = line.toLowerCase().trim();
-								game.WriteLogMessage("player" + (i + 1) + " > engine: " + line);
-								if (line.equals("go")) {
-									clientDone[i] = true;
-								} else {
-									game.IssueOrder(i + 1, line);
-								}
-								buffers[i] = new StringBuilder();
-							} else {
-								buffers[i].append(c);
-							}
-						}
-					} catch (Exception e) {
-						System.err.println("WARNING: player " + (i+1) +
-										   " crashed.");
-						clients.get(i).destroy();
-						game.DropPlayer(i + 1);
-						isAlive[i] = false;
-					}
-				}
-			}
-			for (int i = 0 ; i < clients.size(); ++i) {
-				if (!isAlive[i] || !game.IsAlive(i + 1)) {
-					continue;
-				}
-				if (clientDone[i]) {
-					continue;
-				}
-				System.err.println("WARNING: player " + (i+1) +
-								   " timed out.");
-				clients.get(i).destroy();
-				game.DropPlayer(i + 1);
-				isAlive[i] = false;
-			}
-			++numTurns;
-			System.err.println("Turn " + numTurns);
-			game.DoTimeStep();
-		}
-		KillClients(clients);
-		if (game.Winner() > 0) {
-			System.err.println("Player " + game.Winner() + " Wins!");
-		} else {
-			System.err.println("Draw!");
-		}
-		System.out.println(game.GamePlaybackString());
-    }
 }
+
+int main(int argc, char** args) {
+	using namespace std;
+	
+	// Check the command-line arguments.
+	if (argc < 5) {
+		cerr << "ERROR: wrong number of command-line arguments." << endl;
+		cerr << "USAGE: engine map_file_name max_turn_time "
+			 << "max_num_turns log_filename player_one "
+			 << "player_two [more_players]" << endl;
+		return 1;
+	}
+
+	// Initialize the game. Load the map.
+	std::string mapFilename = args[0];
+	long maxTurnTime = atol(args[1]);
+	int maxNumTurns = atoi(args[2]);
+	std::string logFilename = args[3];
+
+	Game game(mapFilename, maxNumTurns, 0, logFilename);
+	if (game.Init() == 0) {
+		cerr << "ERROR: failed to start game. map: " << mapFilename << endl;
+		return 1;
+	}
+
+	// Start the client programs (players).
+	std::vector<Process> clients;
+	for (int i = 4; i < argc; ++i) {
+		std::string command = args[i];
+		Process client = null;
+		try {
+			client = Runtime.getRuntime().exec(command);
+		} catch (Exception e) {
+			client = null;
+		}
+		if (client == null) {
+			KillClients(clients);
+			cerr << "ERROR: failed to start client: " << command << endl;
+			return 1;
+		}
+		clients.push_back(client);
+	}
+	
+	std::vector<bool> isAlive(clients.size());
+	for (int i = 0; i < clients.size(); ++i) {
+		isAlive[i] = clients[i] != null;
+	}
+	
+	int numTurns = 0;
+	// Enter the main game loop.
+	while (game.Winner() < 0) {
+		// Send the game state to the clients.
+		//cout << "The game state:" << endl;
+		//cout << game.toString() << endl;
+		for (int i = 0; i < clients.size(); ++i) {
+			if (clients[i] == null || !game.IsAlive(i + 1)) {
+				continue;
+			}
+			std::string message = game.PovRepresentation(i + 1) + "go\n";
+			try {
+				OutputStream out = clients.get(i).getOutputStream();
+				OutputStreamWriter writer = new OutputStreamWriter(out);
+				writer.write(message, 0, message.length());
+				writer.flush();
+				game.WriteLogMessage("engine > player" + (i + 1) + ": " +
+									 message);
+			} catch (Exception e) {
+				clients.set(i, null);
+			}
+		}
+		// Get orders from the clients.
+		StringBuilder[] buffers = new StringBuilder[clients.size()];
+		boolean[] clientDone = new boolean[clients.size()];
+		for (int i = 0; i < clients.size(); ++i) {
+			buffers[i] = new StringBuilder();
+			clientDone[i] = false;
+		}
+		long startTime = System.currentTimeMillis();
+		while (!AllTrue(clientDone) &&
+			   System.currentTimeMillis() - startTime < maxTurnTime) {
+			for (int i = 0 ; i < clients.size(); ++i) {
+				if (!isAlive[i] || !game.IsAlive(i + 1) || clientDone[i]) {
+					clientDone[i] = true;
+					continue;
+				}
+				try {
+					InputStream inputStream =
+					clients.get(i).getInputStream();
+					while (inputStream.available() > 0) {
+						char c = (char)inputStream.read();
+						if (c == '\n') {
+							std::string line = buffers[i].toString();
+							//System.err.println("P" + (i+1) + ": " + line);
+							line = line.toLowerCase().trim();
+							game.WriteLogMessage("player" + (i + 1) + " > engine: " + line);
+							if (line.equals("go")) {
+								clientDone[i] = true;
+							} else {
+								game.IssueOrder(i + 1, line);
+							}
+							buffers[i] = new StringBuilder();
+						} else {
+							buffers[i].append(c);
+						}
+					}
+				} catch (Exception e) {
+					System.err.println("WARNING: player " + (i+1) +
+									   " crashed.");
+					clients.get(i).destroy();
+					game.DropPlayer(i + 1);
+					isAlive[i] = false;
+				}
+			}
+		}
+		for (int i = 0 ; i < clients.size(); ++i) {
+			if (!isAlive[i] || !game.IsAlive(i + 1)) {
+				continue;
+			}
+			if (clientDone[i]) {
+				continue;
+			}
+			System.err.println("WARNING: player " + (i+1) +
+							   " timed out.");
+			clients.get(i).destroy();
+			game.DropPlayer(i + 1);
+			isAlive[i] = false;
+		}
+		++numTurns;
+		System.err.println("Turn " + numTurns);
+		game.DoTimeStep();
+	}
+	KillClients(clients);
+	if (game.Winner() > 0) {
+		System.err.println("Player " + game.Winner() + " Wins!");
+	} else {
+		System.err.println("Draw!");
+	}
+	System.out.println(game.GamePlaybackString());
+}
+
