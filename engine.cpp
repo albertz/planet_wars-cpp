@@ -44,10 +44,10 @@ public class Engine {
 			System.exit(1);
 		}
 		// Initialize the game. Load the map.
-		String mapFilename = args[0];
+		std::string mapFilename = args[0];
 		int maxTurnTime = Integer.parseInt(args[1]);
 		int maxNumTurns = Integer.parseInt(args[2]);
-		String logFilename = args[3];
+		std::string logFilename = args[3];
 		Game game = new Game(mapFilename, maxNumTurns, 0, logFilename);
 		if (game.Init() == 0) {
 			System.err.println("ERROR: failed to start game. map: " +
@@ -57,7 +57,7 @@ public class Engine {
 		// Start the client programs (players).
 		List<Process> clients = new ArrayList<Process>();
 		for (int i = 4; i < args.length; ++i) {
-			String command = args[i];
+			std::string command = args[i];
 			Process client = null;
 			try {
 				client = Runtime.getRuntime().exec(command);
@@ -86,7 +86,7 @@ public class Engine {
 				if (clients.get(i) == null || !game.IsAlive(i + 1)) {
 					continue;
 				}
-				String message = game.PovRepresentation(i + 1) + "go\n";
+				std::string message = game.PovRepresentation(i + 1) + "go\n";
 				try {
 					OutputStream out = clients.get(i).getOutputStream();
 					OutputStreamWriter writer = new OutputStreamWriter(out);
@@ -119,7 +119,7 @@ public class Engine {
 						while (inputStream.available() > 0) {
 							char c = (char)inputStream.read();
 							if (c == '\n') {
-								String line = buffers[i].toString();
+								std::string line = buffers[i].toString();
 								//System.err.println("P" + (i+1) + ": " + line);
 								line = line.toLowerCase().trim();
 								game.WriteLogMessage("player" + (i + 1) + " > engine: " + line);

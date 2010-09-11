@@ -9,17 +9,13 @@
 // specific language governing permissions and limitations under the License.
 //
 // Author:	Jeff Cameron (jeff@jpcameron.com)
+// ported to C++ by Albert Zeyer
 //
 // Stores the game state.
 
-import java.awt.*;
-import java.awt.image.*;
-import java.awt.geom.AffineTransform;
-import java.util.*;
-import java.lang.Math;
-import java.io.*;
+#include <string>
 
-public class Game implements Cloneable {
+struct Game {
     // There are two modes:
     //   * If mode == 0, then s is interpreted as a filename, and the game is
     //     initialized by reading map data out of the named file.
@@ -29,7 +25,7 @@ public class Game implements Cloneable {
     // This constructor does not actually initialize the game object. You must
     // always call Init() before the game object will be in any kind of
     // coherent state.
-    public Game(String s, int maxGameLength, int mode, String logFilename) {
+    Game(const std::string& s, int maxGameLength, int mode, const std::string& logFilename) {
 		this.logFilename = logFilename;
 		planets = new ArrayList<Planet>();
 		fleets = new ArrayList<Fleet>();
@@ -73,7 +69,7 @@ public class Game implements Cloneable {
 		}
     }
 	
-    public void WriteLogMessage(String message) {
+    public void WriteLogMessage(const std::string& message) {
 		if (logFilename == null) {
 			return;
 		}
@@ -114,7 +110,7 @@ public class Game implements Cloneable {
 	
     // Writes a string which represents the current game state. No point-of-
     // view switching is performed.
-    public String toString() {
+    public std::string toString() {
 		return PovRepresentation(-1);
     }
 	
@@ -126,14 +122,14 @@ public class Game implements Cloneable {
     // will be swapped in the game state output. This is used when sending the
     // game state to individual players, so that they can always assume that
     // they are player number 1.
-    public String PovRepresentation(int pov) {
+    public std::string PovRepresentation(int pov) {
 		StringBuilder s = new StringBuilder();
 		for (Planet p : planets) {
-			s.append(String.format("P %f %f %d %d %d\n", p.X(), p.Y(),
+			s.append(std::string.format("P %f %f %d %d %d\n", p.X(), p.Y(),
 								   PovSwitch(pov, p.Owner()), p.NumShips(), p.GrowthRate()));
 		}
 		for (Fleet f : fleets) {
-			s.append(String.format("F %d %d %d %d %d %d\n", PovSwitch(pov, f.Owner()),
+			s.append(std::string.format("F %d %d %d %d %d %d\n", PovSwitch(pov, f.Owner()),
 								   f.NumShips(), f.SourcePlanet(), f.DestinationPlanet(),
 								   f.TotalTripLength(), f.TurnsRemaining()));
 		}
@@ -300,8 +296,8 @@ public class Game implements Cloneable {
     // Behaves just like the longer form of IssueOrder, but takes a string
     // of the form "source_planet destination_planet num_ships". That is, three
     // integers separated by space characters.
-    public int IssueOrder(int playerID, String order) {
-		String[] tokens = order.split(" ");
+    public int IssueOrder(int playerID, const std::string& order) {
+		std::string[] tokens = order.split(" ");
 		if (tokens.length != 3) {
 			return -1;
 		}
@@ -381,7 +377,7 @@ public class Game implements Cloneable {
 	
     // Returns the game playback string. This is a complete record of the game,
     // and can be passed to a visualization program to playback the game.
-    public String GamePlaybackString() {
+    public std::string GamePlaybackString() {
 		return gamePlayback.toString();
     }
 	
@@ -547,12 +543,12 @@ public class Game implements Cloneable {
 	
 	// Parses a game state from a string. On success, returns 1. On failure,
 	// returns 0.
-	private int ParseGameState(String s) {
+	private int ParseGameState(const std::string& s) {
 		planets.clear();
 		fleets.clear();
-		String[] lines = s.split("\n");
+		std::string[] lines = s.split("\n");
 		for (int i = 0; i < lines.length; ++i) {
-			String line = lines[i];
+			std::string line = lines[i];
 			int commentBegin = line.indexOf('#');
 			if (commentBegin >= 0) {
 				line = line.substring(0, commentBegin);
@@ -560,7 +556,7 @@ public class Game implements Cloneable {
 			if (line.trim().length() == 0) {
 				continue;
 			}
-			String[] tokens = line.split(" ");
+			std::string[] tokens = line.split(" ");
 			if (tokens.length == 0) {
 				continue;
 			}
@@ -608,12 +604,12 @@ public class Game implements Cloneable {
 	// the starting state of a game. See the project wiki for a description of
 	// the file format. It should be called the Planet Wars Point-in-Time
 	// format. On success, return 1. On failure, returns 0.
-	private int LoadMapFromFile(String mapFilename) {
+	private int LoadMapFromFile(const std::string& mapFilename) {
 		StringBuffer s = new StringBuffer();
 		BufferedReader in = null;
 		try {
 			in = new BufferedReader(new FileReader(mapFilename));
-			String line;
+			std::string line;
 			while ((line = in.readLine()) != null) {
 				s.append(line);
 				s.append("\n");
@@ -636,10 +632,10 @@ public class Game implements Cloneable {
     private ArrayList<Fleet> fleets;
 	
     // The filename of the map that this game is being played on.
-    private String mapFilename;
+    private std::string mapFilename;
 	
     // The string of map data to parse.
-    private String mapData;
+    private std::string mapData;
 	
     // Stores a mode identifier which determines how to initialize this object.
     // See the constructor for details.
@@ -656,7 +652,7 @@ public class Game implements Cloneable {
     private int numTurns;
 	
     // This is the name of the file in which to write log messages.
-    private String logFilename;
+    private std::string logFilename;
     private BufferedWriter logFile;
 	
 	private Game (Game _g) {
@@ -669,9 +665,9 @@ public class Game implements Cloneable {
 			fleets.add((Fleet)(f.clone()));
 		}
 		if (_g.mapFilename != null)
-			mapFilename = new String(_g.mapFilename);
+			mapFilename = new std::string(_g.mapFilename);
 		if (_g.mapData != null)
-			mapData = new String(_g.mapData);
+			mapData = new std::string(_g.mapData);
 		initMode = _g.initMode;
 		if (_g.gamePlayback != null)
 			gamePlayback = new StringBuffer(_g.gamePlayback);
