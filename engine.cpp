@@ -55,8 +55,8 @@ int main(int argc, char** args) {
 	std::vector<Process> clients;
 	for (int i = 4; i < argc; ++i) {
 		std::string command = args[i];
-		Process client;
-		client.run(command);
+		Process client(command);
+		client.run();
 		if (!client) {
 			KillClients(clients);
 			cerr << "ERROR: failed to start client: " << command << endl;
@@ -85,7 +85,7 @@ int main(int argc, char** args) {
 				game.WriteLogMessage("engine > player" + to_string(i + 1) + ": " +
 									 message);
 			} catch (...) {
-				clients[i].reset();
+				clients[i].destroy();
 			}
 		}
 		
