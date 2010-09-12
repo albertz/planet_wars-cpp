@@ -26,4 +26,10 @@ bool AllTrue(const T& container) {
 std::string TrimSpaces(const std::string& str);
 std::string	ToLower(const std::string& str);
 
+struct Process {
+	operator bool();
+	void destroy();
+	
+};
+
 #endif

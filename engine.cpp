@@ -15,25 +15,16 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 #include <stdlib.h>
+#include "utils.h"
+#include "game.h"
 
-namespace Engine {
-    void KillClients(List<Process> clients) {
-		for (Process p : clients) {
-			if (p != null) {
-				p.destroy();
-			}
-		}
-    }
-	
-    bool AllTrue(boolean[] v) {
-		for (int i = 0; i < v.length; ++i) {
-			if (!v[i]) {
-				return false;
-			}
-		}
-		return true;
-    }
+void KillClients(std::vector<Process>& clients) {
+	for (size_t i = 0; i < clients.size(); ++i) {
+		if (clients[i])
+			clients[i].destroy();
+	}
 }
 
 int main(int argc, char** args) {
@@ -64,11 +55,11 @@ int main(int argc, char** args) {
 	std::vector<Process> clients;
 	for (int i = 4; i < argc; ++i) {
 		std::string command = args[i];
-		Process client = null;
+		Process client;
 		try {
 			client = Runtime.getRuntime().exec(command);
 		} catch (Exception e) {
-			client = null;
+			client.reset();
 		}
 		if (client == null) {
 			KillClients(clients);
@@ -95,26 +86,20 @@ int main(int argc, char** args) {
 			}
 			std::string message = game.PovRepresentation(i + 1) + "go\n";
 			try {
-				OutputStream out = clients.get(i).getOutputStream();
-				OutputStreamWriter writer = new OutputStreamWriter(out);
-				writer.write(message, 0, message.length());
-				writer.flush();
-				game.WriteLogMessage("engine > player" + (i + 1) + ": " +
+				clients[i] << message << flush;
+				game.WriteLogMessage("engine > player" + to_string(i + 1) + ": " +
 									 message);
-			} catch (Exception e) {
-				clients.set(i, null);
+			} catch (...) {
+				clients[i].reset();
 			}
 		}
+		
 		// Get orders from the clients.
-		StringBuilder[] buffers = new StringBuilder[clients.size()];
-		boolean[] clientDone = new boolean[clients.size()];
-		for (int i = 0; i < clients.size(); ++i) {
-			buffers[i] = new StringBuilder();
-			clientDone[i] = false;
-		}
-		long startTime = System.currentTimeMillis();
+		std::vector<std::string> buffers(clients.size());
+		std::vector<bool> clientDone(clients.size(), false);
+		long startTime = currentTimeMillis();
 		while (!AllTrue(clientDone) &&
-			   System.currentTimeMillis() - startTime < maxTurnTime) {
+			   currentTimeMillis() - startTime < maxTurnTime) {
 			for (int i = 0 ; i < clients.size(); ++i) {
 				if (!isAlive[i] || !game.IsAlive(i + 1) || clientDone[i]) {
 					clientDone[i] = true;
@@ -126,24 +111,22 @@ int main(int argc, char** args) {
 					while (inputStream.available() > 0) {
 						char c = (char)inputStream.read();
 						if (c == '\n') {
-							std::string line = buffers[i].toString();
-							//System.err.println("P" + (i+1) + ": " + line);
-							line = line.toLowerCase().trim();
-							game.WriteLogMessage("player" + (i + 1) + " > engine: " + line);
-							if (line.equals("go")) {
+							std::string line = ToLower(TrimSpaces(buffers[i]));
+							//cerr << "P" << (i+1) << ": " << line << endl;
+							game.WriteLogMessage("player" + to_string(i + 1) + " > engine: " + line);
+							if (line == "go") {
 								clientDone[i] = true;
 							} else {
 								game.IssueOrder(i + 1, line);
 							}
-							buffers[i] = new StringBuilder();
+							buffers[i] = "";
 						} else {
-							buffers[i].append(c);
+							buffers[i] += c;
 						}
 					}
-				} catch (Exception e) {
-					System.err.println("WARNING: player " + (i+1) +
-									   " crashed.");
-					clients.get(i).destroy();
+				} catch (...) {
+					cerr << "WARNING: player " << (i+1) << " crashed." << endl;
+					clients[i].destroy();
 					game.DropPlayer(i + 1);
 					isAlive[i] = false;
 				}
@@ -156,22 +139,24 @@ int main(int argc, char** args) {
 			if (clientDone[i]) {
 				continue;
 			}
-			System.err.println("WARNING: player " + (i+1) +
-							   " timed out.");
-			clients.get(i).destroy();
+			cerr << "WARNING: player " << (i+1) << " timed out." << endl;
+			clients[i].destroy();
 			game.DropPlayer(i + 1);
 			isAlive[i] = false;
 		}
 		++numTurns;
-		System.err.println("Turn " + numTurns);
+		cerr << "Turn " << numTurns << endl;
 		game.DoTimeStep();
 	}
+	
 	KillClients(clients);
+	
 	if (game.Winner() > 0) {
-		System.err.println("Player " + game.Winner() + " Wins!");
+		cerr << "Player " << game.Winner() << " Wins!" << endl;
 	} else {
-		System.err.println("Draw!");
+		cerr << "Draw!" << endl;
 	}
-	System.out.println(game.GamePlaybackString());
+	
+	cout << game.GamePlaybackString() << endl;
 }
 
