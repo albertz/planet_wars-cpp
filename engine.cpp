@@ -56,12 +56,8 @@ int main(int argc, char** args) {
 	for (int i = 4; i < argc; ++i) {
 		std::string command = args[i];
 		Process client;
-		try {
-			client = Runtime.getRuntime().exec(command);
-		} catch (Exception e) {
-			client.reset();
-		}
-		if (client == null) {
+		client.run(command);
+		if (!client) {
 			KillClients(clients);
 			cerr << "ERROR: failed to start client: " << command << endl;
 			return 1;
@@ -70,8 +66,8 @@ int main(int argc, char** args) {
 	}
 	
 	std::vector<bool> isAlive(clients.size());
-	for (int i = 0; i < clients.size(); ++i) {
-		isAlive[i] = clients[i] != null;
+	for (size_t i = 0; i < clients.size(); ++i) {
+		isAlive[i] = (bool)clients[i];
 	}
 	
 	int numTurns = 0;
@@ -80,10 +76,9 @@ int main(int argc, char** args) {
 		// Send the game state to the clients.
 		//cout << "The game state:" << endl;
 		//cout << game.toString() << endl;
-		for (int i = 0; i < clients.size(); ++i) {
-			if (clients[i] == null || !game.IsAlive(i + 1)) {
-				continue;
-			}
+		for (size_t i = 0; i < clients.size(); ++i) {
+			if (!clients[i] || !game.IsAlive(i + 1)) continue;
+			
 			std::string message = game.PovRepresentation(i + 1) + "go\n";
 			try {
 				clients[i] << message << flush;
@@ -95,50 +90,39 @@ int main(int argc, char** args) {
 		}
 		
 		// Get orders from the clients.
-		std::vector<std::string> buffers(clients.size());
 		std::vector<bool> clientDone(clients.size(), false);
 		long startTime = currentTimeMillis();
-		while (!AllTrue(clientDone) &&
-			   currentTimeMillis() - startTime < maxTurnTime) {
-			for (int i = 0 ; i < clients.size(); ++i) {
-				if (!isAlive[i] || !game.IsAlive(i + 1) || clientDone[i]) {
-					clientDone[i] = true;
-					continue;
+		for (size_t i = 0; i < clients.size(); ++i) {
+			if (!isAlive[i] || !game.IsAlive(i + 1) || clientDone[i]) {
+				clientDone[i] = true;
+				continue;
+			}
+			try {
+				std::string line;
+				while(true) {
+					long dt = currentTimeMillis() - startTime;
+					if(dt > maxTurnTime) break;
+					if(!clients[i].readLine(line, maxTurnTime - dt)) break;
+
+					line = ToLower(TrimSpaces(line));
+					//cerr << "P" << (i+1) << ": " << line << endl;
+					game.WriteLogMessage("player" + to_string(i + 1) + " > engine: " + line);
+					if (line == "go")
+						clientDone[i] = true;
+					else
+						game.IssueOrder(i + 1, line);
 				}
-				try {
-					InputStream inputStream =
-					clients.get(i).getInputStream();
-					while (inputStream.available() > 0) {
-						char c = (char)inputStream.read();
-						if (c == '\n') {
-							std::string line = ToLower(TrimSpaces(buffers[i]));
-							//cerr << "P" << (i+1) << ": " << line << endl;
-							game.WriteLogMessage("player" + to_string(i + 1) + " > engine: " + line);
-							if (line == "go") {
-								clientDone[i] = true;
-							} else {
-								game.IssueOrder(i + 1, line);
-							}
-							buffers[i] = "";
-						} else {
-							buffers[i] += c;
-						}
-					}
-				} catch (...) {
-					cerr << "WARNING: player " << (i+1) << " crashed." << endl;
-					clients[i].destroy();
-					game.DropPlayer(i + 1);
-					isAlive[i] = false;
-				}
+			} catch (...) {
+				cerr << "WARNING: player " << (i+1) << " crashed." << endl;
+				clients[i].destroy();
+				game.DropPlayer(i + 1);
+				isAlive[i] = false;
 			}
 		}
-		for (int i = 0 ; i < clients.size(); ++i) {
-			if (!isAlive[i] || !game.IsAlive(i + 1)) {
-				continue;
-			}
-			if (clientDone[i]) {
-				continue;
-			}
+		for (size_t i = 0; i < clients.size(); ++i) {
+			if (!isAlive[i] || !game.IsAlive(i + 1)) continue;
+			if (clientDone[i]) continue;
+
 			cerr << "WARNING: player " << (i+1) << " timed out." << endl;
 			clients[i].destroy();
 			game.DropPlayer(i + 1);
