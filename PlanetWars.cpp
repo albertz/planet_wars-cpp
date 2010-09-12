@@ -47,7 +47,7 @@ const Fleet& PlanetWars::GetFleet(int fleet_id) const {
 
 std::vector<Planet> PlanetWars::Planets() const {
   std::vector<Planet> r;
-  for (int i = 0; i < planets_.size(); ++i) {
+  for (size_t i = 0; i < planets_.size(); ++i) {
     const Planet& p = planets_[i];
     r.push_back(p);
   }
@@ -56,9 +56,9 @@ std::vector<Planet> PlanetWars::Planets() const {
 
 std::vector<Planet> PlanetWars::MyPlanets() const {
   std::vector<Planet> r;
-  for (int i = 0; i < planets_.size(); ++i) {
+  for (size_t i = 0; i < planets_.size(); ++i) {
     const Planet& p = planets_[i];
-    if (p.Owner() == 1) {
+    if (p.owner == 1) {
       r.push_back(p);
     }
   }
@@ -67,9 +67,9 @@ std::vector<Planet> PlanetWars::MyPlanets() const {
 
 std::vector<Planet> PlanetWars::NeutralPlanets() const {
   std::vector<Planet> r;
-  for (int i = 0; i < planets_.size(); ++i) {
+  for (size_t i = 0; i < planets_.size(); ++i) {
     const Planet& p = planets_[i];
-    if (p.Owner() == 0) {
+    if (p.owner == 0) {
       r.push_back(p);
     }
   }
@@ -78,9 +78,9 @@ std::vector<Planet> PlanetWars::NeutralPlanets() const {
 
 std::vector<Planet> PlanetWars::EnemyPlanets() const {
   std::vector<Planet> r;
-  for (int i = 0; i < planets_.size(); ++i) {
+  for (size_t i = 0; i < planets_.size(); ++i) {
     const Planet& p = planets_[i];
-    if (p.Owner() > 1) {
+    if (p.owner > 1) {
       r.push_back(p);
     }
   }
@@ -89,9 +89,9 @@ std::vector<Planet> PlanetWars::EnemyPlanets() const {
 
 std::vector<Planet> PlanetWars::NotMyPlanets() const {
   std::vector<Planet> r;
-  for (int i = 0; i < planets_.size(); ++i) {
+  for (size_t i = 0; i < planets_.size(); ++i) {
     const Planet& p = planets_[i];
-    if (p.Owner() != 1) {
+    if (p.owner != 1) {
       r.push_back(p);
     }
   }
@@ -100,7 +100,7 @@ std::vector<Planet> PlanetWars::NotMyPlanets() const {
 
 std::vector<Fleet> PlanetWars::Fleets() const {
   std::vector<Fleet> r;
-  for (int i = 0; i < fleets_.size(); ++i) {
+  for (size_t i = 0; i < fleets_.size(); ++i) {
     const Fleet& f = fleets_[i];
     r.push_back(f);
   }
@@ -109,9 +109,9 @@ std::vector<Fleet> PlanetWars::Fleets() const {
 
 std::vector<Fleet> PlanetWars::MyFleets() const {
   std::vector<Fleet> r;
-  for (int i = 0; i < fleets_.size(); ++i) {
+  for (size_t i = 0; i < fleets_.size(); ++i) {
     const Fleet& f = fleets_[i];
-    if (f.Owner() == 1) {
+    if (f.owner == 1) {
       r.push_back(f);
     }
   }
@@ -120,9 +120,9 @@ std::vector<Fleet> PlanetWars::MyFleets() const {
 
 std::vector<Fleet> PlanetWars::EnemyFleets() const {
   std::vector<Fleet> r;
-  for (int i = 0; i < fleets_.size(); ++i) {
+  for (size_t i = 0; i < fleets_.size(); ++i) {
     const Fleet& f = fleets_[i];
-    if (f.Owner() > 1) {
+    if (f.owner > 1) {
       r.push_back(f);
     }
   }
@@ -131,16 +131,16 @@ std::vector<Fleet> PlanetWars::EnemyFleets() const {
 
 std::string PlanetWars::ToString() const {
   std::stringstream s;
-  for (unsigned int i = 0; i < planets_.size(); ++i) {
+  for (size_t i = 0; i < planets_.size(); ++i) {
     const Planet& p = planets_[i];
-    s << "P " << p.X() << " " << p.Y() << " " << p.Owner()
-      << " " << p.NumShips() << " " << p.GrowthRate() << std::endl;
+    s << "P " << p.x << " " << p.y << " " << p.owner
+      << " " << p.numShips << " " << p.growthRate << std::endl;
   }
-  for (unsigned int i = 0; i < fleets_.size(); ++i) {
+  for (size_t i = 0; i < fleets_.size(); ++i) {
     const Fleet& f = fleets_[i];
-    s << "F " << f.Owner() << " " << f.NumShips() << " "
-      << f.SourcePlanet() << " " << f.DestinationPlanet() << " "
-      << f.TotalTripLength() << " " << f.TurnsRemaining() << std::endl;
+    s << "F " << f.owner << " " << f.numShips << " "
+      << f.sourcePlanet << " " << f.destinationPlanet << " "
+      << f.totalTripLength << " " << f.turnsRemaining << std::endl;
   }
   return s.str();
 }
@@ -148,8 +148,8 @@ std::string PlanetWars::ToString() const {
 int PlanetWars::Distance(int source_planet, int destination_planet) const {
   const Planet& source = planets_[source_planet];
   const Planet& destination = planets_[destination_planet];
-  double dx = source.X() - destination.X();
-  double dy = source.Y() - destination.Y();
+  double dx = source.x - destination.x;
+  double dy = source.y - destination.y;
   return (int)ceil(sqrt(dx * dx + dy * dy));
 }
 
@@ -163,13 +163,13 @@ void PlanetWars::IssueOrder(int source_planet,
 }
 
 bool PlanetWars::IsAlive(int player_id) const {
-  for (unsigned int i = 0; i < planets_.size(); ++i) {
-    if (planets_[i].Owner() == player_id) {
+  for (size_t i = 0; i < planets_.size(); ++i) {
+    if (planets_[i].owner == player_id) {
       return true;
     }
   }
-  for (unsigned int i = 0; i < fleets_.size(); ++i) {
-    if (fleets_[i].Owner() == player_id) {
+  for (size_t i = 0; i < fleets_.size(); ++i) {
+    if (fleets_[i].owner == player_id) {
       return true;
     }
   }
@@ -181,7 +181,7 @@ int PlanetWars::ParseGameState(const std::string& s) {
   fleets_.clear();
   std::vector<std::string> lines = StringUtil::Tokenize(s, "\n");
   int planet_id = 0;
-  for (unsigned int i = 0; i < lines.size(); ++i) {
+  for (size_t i = 0; i < lines.size(); ++i) {
     std::string& line = lines[i];
     size_t comment_begin = line.find_first_of('#');
     if (comment_begin != std::string::npos) {

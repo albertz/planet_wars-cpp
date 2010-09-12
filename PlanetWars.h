@@ -44,6 +44,14 @@ struct Fleet {
 	: owner(_owner), numShips(_num_ships), sourcePlanet(_source_planet),
 	destinationPlanet(_destination_planet), totalTripLength(_total_trip_length),
 	turnsRemaining(_turns_remaining) {}
+	
+	void TimeStep() {
+		if (turnsRemaining > 0) {
+            --turnsRemaining;
+        } else {
+            turnsRemaining = 0;
+        }
+	}
 };
 
 // Stores information about one planet. There is one instance of this class
@@ -64,9 +72,6 @@ struct Planet {
 		   double _y)
 	: planetId(_planet_id), owner(_owner), numShips(_num_ships),
 	growthRate(_growth_rate), x(_x), y(_y) {}
-	
-	void AddShips(int amount) { numShips += amount; }
-	void RemoveShips(int amount) { numShips -= amount; }
 };
 
 class PlanetWars {
