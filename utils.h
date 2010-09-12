@@ -7,6 +7,7 @@
 #include <string>
 #include <sstream>
 #include <list>
+#include <vector>
 
 template<typename T>
 std::string to_string(T val) {
@@ -26,6 +27,19 @@ bool AllTrue(const T& container) {
 
 std::string TrimSpaces(const std::string& str);
 std::string	ToLower(const std::string& str);
+
+void Tokenize(const std::string& s,
+			  const std::string& delimiters,
+			  std::vector<std::string>& tokens);
+	
+inline
+std::vector<std::string>
+Tokenize(const std::string& s, const std::string& delimiters = " ") {
+	std::vector<std::string> tokens;
+	Tokenize(s, delimiters, tokens);
+	return tokens;	
+}
+
 
 inline std::list<std::string>& operator+=(std::list<std::string>& l, const std::string& s) {
 	l.push_back(s);

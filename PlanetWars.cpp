@@ -1,29 +1,11 @@
 #include "PlanetWars.h"
+#include "utils.h"
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
-
-void StringUtil::Tokenize(const std::string& s,
-                          const std::string& delimiters,
-                          std::vector<std::string>& tokens) {
-  std::string::size_type lastPos = s.find_first_not_of(delimiters, 0);
-  std::string::size_type pos = s.find_first_of(delimiters, lastPos);
-  while (std::string::npos != pos || std::string::npos != lastPos) {
-    tokens.push_back(s.substr(lastPos, pos - lastPos));
-    lastPos = s.find_first_not_of(delimiters, pos);
-    pos = s.find_first_of(delimiters, lastPos);
-  }
-}
-
-std::vector<std::string> StringUtil::Tokenize(const std::string& s,
-                                              const std::string& delimiters) {
-  std::vector<std::string> tokens;
-  Tokenize(s, delimiters, tokens);
-  return tokens;
-}
 
 PlanetWars::PlanetWars(const std::string& gameState) {
   ParseGameState(gameState);
@@ -179,7 +161,7 @@ bool PlanetWars::IsAlive(int player_id) const {
 int PlanetWars::ParseGameState(const std::string& s) {
   planets_.clear();
   fleets_.clear();
-  std::vector<std::string> lines = StringUtil::Tokenize(s, "\n");
+  std::vector<std::string> lines = Tokenize(s, "\n");
   int planet_id = 0;
   for (size_t i = 0; i < lines.size(); ++i) {
     std::string& line = lines[i];
@@ -187,7 +169,7 @@ int PlanetWars::ParseGameState(const std::string& s) {
     if (comment_begin != std::string::npos) {
       line = line.substr(0, comment_begin);
     }
-    std::vector<std::string> tokens = StringUtil::Tokenize(line);
+    std::vector<std::string> tokens = Tokenize(line);
     if (tokens.size() == 0) {
       continue;
     }
