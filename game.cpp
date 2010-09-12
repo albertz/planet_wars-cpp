@@ -19,6 +19,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <iterator>
 #include "game.h"
 #include "utils.h"
 
@@ -233,78 +234,73 @@ void Game::DoTimeStep() {
 // order. If not, the offending player is kicked from the game. If the
 // order was carried out without any issue, and everything is peachy, then
 // 0 is returned. Otherwise, -1 is returned.
-public int IssueOrder(int playerID,
-					  int sourcePlanet,
-					  int destinationPlanet,
-					  int numShips) {
-	Planet source = planets.get(sourcePlanet);
-	if (source.Owner() != playerID ||
-		numShips > source.NumShips() ||
+int Game::IssueOrder(int playerID,
+					 int sourcePlanet,
+					 int destinationPlanet,
+					 int numShips) {
+	Planet& source = planets[sourcePlanet];
+	if (source.owner != playerID ||
+		numShips > source.numShips ||
 		numShips < 0) {
-		WriteLogMessage("Dropping player " + playerID +
-						". source.Owner() = " + source.Owner() + ", playerID = " +
-						playerID + ", numShips = " + numShips +
-						", source.NumShips() = " + source.NumShips());
+		WriteLogMessage("Dropping player " + to_string(playerID) +
+						". source.Owner() = " + to_string(source.owner) + ", playerID = " +
+						to_string(playerID) + ", numShips = " + to_string(numShips) +
+						", source.NumShips() = " + to_string(source.numShips));
 		DropPlayer(playerID);
 		return -1;
 	}
-	source.RemoveShips(numShips);
+	source.numShips -= numShips;
 	int distance = Distance(sourcePlanet, destinationPlanet);
-	Fleet f = new Fleet(source.Owner(),
-						numShips,
-						sourcePlanet,
-						destinationPlanet,
-						distance,
-						distance);
-	fleets.add(f);
+	Fleet f(source.owner,
+			numShips,
+			sourcePlanet,
+			destinationPlanet,
+			distance,
+			distance);
+	fleets.push_back(f);
 	return 0;
 }
 
-public void AddFleet(Fleet f) {
-	fleets.add(f);
+void Game::AddFleet(Fleet f) {
+	fleets.push_back(f);
 }
 
 // Behaves just like the longer form of IssueOrder, but takes a string
 // of the form "source_planet destination_planet num_ships". That is, three
 // integers separated by space characters.
-public int IssueOrder(int playerID, const std::string& order) {
-	std::string[] tokens = order.split(" ");
-	if (tokens.length != 3) {
-		return -1;
-	}
-	int sourcePlanet = Integer.parseInt(tokens[0]);
-	int destinationPlanet = Integer.parseInt(tokens[1]);
-	int numShips = Integer.parseInt(tokens[2]);
+int Game::IssueOrder(int playerID, const std::string& order) {
+	std::vector<std::string> tokens = Tokenize(order, " ");
+	if (tokens.size() != 3) return -1;
+	
+	int sourcePlanet = atoi(tokens[0].c_str());
+	int destinationPlanet = atoi(tokens[1].c_str());
+	int numShips = atoi(tokens[2].c_str());
 	return IssueOrder(playerID, sourcePlanet, destinationPlanet, numShips);
 }
 
 // Kicks a player out of the game. This is used in cases where a player
 // tries to give an illegal order or runs over the time limit.
-public void DropPlayer(int playerID) {
-	for (Planet p : planets) {
-		if (p.Owner() == playerID) {
-			p.Owner(0);
-		}
+void Game::DropPlayer(int playerID) {
+	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+		if (p->owner == playerID)
+			p->owner = 0;
 	}
-	for (Fleet::iterator f = fleets.begin(); p != fleets.end(); ++f) {
-		if (f.Owner() == playerID) {
-			f.Kill();
-		}
+	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+		if (f->owner == playerID)
+			f->Kill();
 	}
 }
 
 // Returns true if the named player owns at least one planet or fleet.
 // Otherwise, the player is deemed to be dead and false is returned.
-public bool IsAlive(int playerID) {
-	for (Planet p : planets) {
-		if (p.Owner() == playerID) {
+bool Game::IsAlive(int playerID) {
+	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+		if (p->owner == playerID)
 			return true;
-		}
 	}
-	for (Fleet::iterator f = fleets.begin(); p != fleets.end(); ++f) {
-		if (f.Owner() == playerID) {
+	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+		if (f->owner == playerID)
 			return true;
-		}
 	}
 	return false;
 }
@@ -314,18 +310,19 @@ public bool IsAlive(int playerID) {
 // is left) then that player's number is returned. If there are no
 // remaining players, then the game is a draw and 0 is returned.
 int Game::Winner() {
-	std::set<int> remainingPlayers = new TreeSet<Integer>();
-	for (Planet p : planets) {
-		remainingPlayers.add(p.Owner());
+	std::set<int> remainingPlayers;
+	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+		remainingPlayers.insert(p->owner);
 	}
-	for (Fleet::iterator f = fleets.begin(); p != fleets.end(); ++f) {
-		remainingPlayers.add(f.Owner());
+	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+		remainingPlayers.insert(f->owner);
 	}
-	remainingPlayers.remove(0);
+	remainingPlayers.erase(0);
 	if (numTurns > maxGameLength) {
 		int leadingPlayer = -1;
 		int mostShips = -1;
-		for (int playerID : remainingPlayers) {
+		for (std::set<int>::iterator p = remainingPlayers.begin(); p != remainingPlayers.end(); ++p) {
+			int playerID = *p;
 			int numShips = NumShips(playerID);
 			if (numShips == mostShips) {
 				leadingPlayer = 0;
@@ -340,10 +337,9 @@ int Game::Winner() {
 		case 0:
 			return 0;
 		case 1:
-			return ((Integer)remainingPlayers.toArray()[0]).intValue();
-		default:
-			return -1;
+			return *remainingPlayers.begin();
 	}
+	return -1;
 }
 
 // Returns the number of ships that the current player has, either located
@@ -351,14 +347,12 @@ int Game::Winner() {
 int Game::NumShips(int playerID) {
 	int numShips = 0;
 	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
-		if (p->Owner() == playerID) {
-			numShips += p->NumShips();
-		}
+		if (p->owner == playerID)
+			numShips += p->numShips;
 	}
 	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
-		if (f->Owner() == playerID) {
-			numShips += f->NumShips();
-		}
+		if (f->owner == playerID)
+			numShips += f->numShips;
 	}
 	return numShips;
 }
@@ -369,57 +363,53 @@ int Game::NumShips(int playerID) {
 int Game::ParseGameState(const std::string& s) {
 	planets.clear();
 	fleets.clear();
-	std::string[] lines = s.split("\n");
-	for (int i = 0; i < lines.length; ++i) {
-		std::string line = lines[i];
-		int commentBegin = line.indexOf('#');
-		if (commentBegin >= 0) {
-			line = line.substring(0, commentBegin);
-		}
-		if (line.trim().length() == 0) {
-			continue;
-		}
-		std::string[] tokens = line.split(" ");
-		if (tokens.length == 0) {
-			continue;
-		}
-		if (tokens[0].equals("P")) {
-			if (tokens.length != 6) {
-				return 0;
-			}
-			double x = Double.parseDouble(tokens[1]);
-			double y = Double.parseDouble(tokens[2]);
-			int owner = Integer.parseInt(tokens[3]);
-			int numShips = Integer.parseInt(tokens[4]);
-			int growthRate = Integer.parseInt(tokens[5]);
-			Planet p = new Planet(owner, numShips, growthRate, x, y);
-			planets.add(p);
-			if (gamePlayback.length() > 0) {
-				gamePlayback.append(":");
-			}
-			gamePlayback.append("" + x + "," + y + "," + owner + "," + numShips + "," + growthRate);
-		} else if (tokens[0].equals("F")) {
-			if (tokens.length != 7) {
-				return 0;
-			}
-			int owner = Integer.parseInt(tokens[1]);
-			int numShips = Integer.parseInt(tokens[2]);
-			int source = Integer.parseInt(tokens[3]);
-			int destination = Integer.parseInt(tokens[4]);
-			int totalTripLength = Integer.parseInt(tokens[5]);
-			int turnsRemaining = Integer.parseInt(tokens[6]);
-			Fleet f = new Fleet(owner,
-								numShips,
-								source,
-								destination,
-								totalTripLength,
-								turnsRemaining);
-			fleets.add(f);
-		} else {
+	std::vector<std::string> lines = Tokenize(s, "\n");
+	for (size_t i = 0; i < lines.size(); ++i) {
+		std::string& line = lines[i];
+		size_t commentBegin = line.find('#');
+		if (commentBegin != std::string::npos)
+			line = line.substr(0, commentBegin);
+		if (TrimSpaces(line).size() == 0) continue;
+		
+		std::vector<std::string> tokens = Tokenize(line, " ");
+		if (tokens.size() == 0) continue;
+		
+		std::ostringstream playbackStr;
+		if (tokens[0] == "P") {
+			if (tokens.size() != 6) return 0;
+			
+			double x = atof(tokens[1].c_str());
+			double y = atof(tokens[2].c_str());
+			int owner = atoi(tokens[3].c_str());
+			int numShips = atoi(tokens[4].c_str());
+			int growthRate = atoi(tokens[5].c_str());
+			int planet_id = planets.size();
+			Planet p(planet_id, owner, numShips, growthRate, x, y);
+			planets.push_back(p);
+			if (gamePlayback.size() > 0)
+				playbackStr << ":";
+			playbackStr << x << "," << y << "," << owner << "," << numShips << "," << growthRate;
+		} else if (tokens[0] == "F") {
+			if (tokens.size() != 7) return 0;
+
+			int owner = atoi(tokens[1].c_str());
+			int numShips = atoi(tokens[2].c_str());
+			int source = atoi(tokens[3].c_str());
+			int destination = atoi(tokens[4].c_str());
+			int totalTripLength = atoi(tokens[5].c_str());
+			int turnsRemaining = atoi(tokens[6].c_str());
+			Fleet f(owner,
+					numShips,
+					source,
+					destination,
+					totalTripLength,
+					turnsRemaining);
+			fleets.push_back(f);
+		} else
 			return 0;
-		}
+		gamePlayback.push_back(playbackStr.str());
 	}
-	gamePlayback.append("|");
+	gamePlayback.push_back("|");
 	return 1;
 }
 
@@ -428,25 +418,9 @@ int Game::ParseGameState(const std::string& s) {
 // the file format. It should be called the Planet Wars Point-in-Time
 // format. On success, return 1. On failure, returns 0.
 int Game::LoadMapFromFile(const std::string& mapFilename) {
-	StringBuffer s = new StringBuffer();
-	BufferedReader in = null;
-	try {
-		in = new BufferedReader(new FileReader(mapFilename));
-		std::string line;
-		while ((line = in.readLine()) != null) {
-			s.append(line);
-			s.append("\n");
-		}
-	} catch (Exception e) {
-		return 0;
-	} finally {
-		try {
-			in.close();
-		} catch (Exception e) {
-			// Fucked.
-		}
-	}
-	return ParseGameState(s.toString());
+	std::ifstream f(mapFilename.c_str());
+	std::string s = std::string(std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>());
+	return ParseGameState(s);
 }
 
 
@@ -580,7 +554,7 @@ void Render(int width, // Desired image width
 	// Draw fleets
 	g.setFont(fleetFont);
 	fm = g.getFontMetrics(fleetFont);
-	for (Fleet::iterator f = fleets.begin(); p != fleets.end(); ++f) {
+	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
 		Point sPos = planetPos[f.SourcePlanet()];
 		Point dPos = planetPos[f.DestinationPlanet()];
 		double tripProgress =
