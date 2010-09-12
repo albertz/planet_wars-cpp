@@ -11,4 +11,6 @@ std::string to_string(T val) {
 	return oss.str();
 }
 
+long getMilliseconds();
+
 #endif
