@@ -55,8 +55,7 @@ int Game::Init() {
 	// Delete the contents of the log file.
 	if (logFilename != "") {
 		try {
-			std::ofstream fos(logFilename.c_str());
-			fos.close();
+			{ std::ofstream fos(logFilename.c_str()); }
 			WriteLogMessage("initializing");
 		} catch (...) {
 			// do nothing.

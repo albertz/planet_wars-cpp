@@ -31,7 +31,7 @@ int main(int argc, char** args) {
 	using namespace std;
 	
 	// Check the command-line arguments.
-	if (argc < 5) {
+	if (argc < 6) {
 		cerr << "ERROR: wrong number of command-line arguments." << endl;
 		cerr << "USAGE: engine map_file_name max_turn_time "
 			 << "max_num_turns log_filename player_one "
@@ -40,10 +40,10 @@ int main(int argc, char** args) {
 	}
 
 	// Initialize the game. Load the map.
-	std::string mapFilename = args[0];
-	long maxTurnTime = atol(args[1]);
-	int maxNumTurns = atoi(args[2]);
-	std::string logFilename = args[3];
+	std::string mapFilename = args[1];
+	long maxTurnTime = atol(args[2]);
+	int maxNumTurns = atoi(args[3]);
+	std::string logFilename = args[4];
 
 	Game game(mapFilename, maxNumTurns, 0, logFilename);
 	if (game.Init() == 0) {
@@ -53,7 +53,7 @@ int main(int argc, char** args) {
 
 	// Start the client programs (players).
 	std::vector<Process> clients;
-	for (int i = 4; i < argc; ++i) {
+	for (int i = 5; i < argc; ++i) {
 		std::string command = args[i];
 		Process client(command);
 		client.run();
