@@ -19,6 +19,7 @@
 #include <string>
 #include <ostream>
 #include <vector>
+#include "PlanetWars.h"
 
 class Game {
 public:
@@ -135,13 +136,25 @@ private:
 	//Resolves the battle at planet p, if there is one.
     //* Removes all fleets involved in the battle
     //* Sets the number of ships and owner of the planet according the outcome
-    void FightBattle(Planet p);
+    void FightBattle(Planet& p);
+
+	// Parses a game state from a string. On success, returns 1. On failure,
+	// returns 0.
+	int ParseGameState(const std::string& s);
 	
-public:
+	// Loads a map from a test file. The text file contains a description of
+	// the starting state of a game. See the project wiki for a description of
+	// the file format. It should be called the Planet Wars Point-in-Time
+	// format. On success, return 1. On failure, returns 0.
+	int LoadMapFromFile(const std::string& mapFilename);
+	
+private:
 	// Store all the planets and fleets. OMG we wouldn't wanna lose all the
 	// planets and fleets, would we!?
-	std::vector<Planet> planets;
-	std::vector<Fleet> fleets;
+	typedef std::vector<Planet> Planets;
+	typedef std::vector<Fleet> Fleets;
+	Planets planets;
+	Fleets fleets;
 	
 	// The filename of the map that this game is being played on.
 	std::string mapFilename;

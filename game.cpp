@@ -14,6 +14,9 @@
 // Stores the game state.
 
 #include <string>
+#include <set>
+#include <math.h>
+#include "game.h"
 
 // There are two modes:
 //   * If mode == 0, then s is interpreted as a filename, and the game is
@@ -123,17 +126,17 @@ static int Game::PovSwitch(int pov, int playerID) {
 // integer. This is the number of discrete time steps it takes to get
 // between the two planets.
 int Game::Distance(int sourcePlanet, int destinationPlanet) {
-	Planet source = planets.get(sourcePlanet);
-	Planet destination = planets.get(destinationPlanet);
+	Planet& source = planets[sourcePlanet];
+	Planet& destination = planets[destinationPlanet];
 	double dx = source.X() - destination.X();
 	double dy = source.Y() - destination.Y();
-	return (int)Math.ceil(Math.sqrt(dx * dx + dy * dy));
+	return (int)ceil(sqrt(dx * dx + dy * dy));
 }
 
 //Resolves the battle at planet p, if there is one.
 //* Removes all fleets involved in the battle
 //* Sets the number of ships and owner of the planet according the outcome
-void Game::FightBattle(Planet p) {
+void Game::FightBattle(Planet& p) {
 	
 	Map<Integer, Integer> participants = new TreeMap<Integer, Integer>();
 	
@@ -309,8 +312,8 @@ public bool IsAlive(int playerID) {
 // fleets remaining), returns -1. If the game is over (ie: only one player
 // is left) then that player's number is returned. If there are no
 // remaining players, then the game is a draw and 0 is returned.
-public int Winner() {
-	Set<Integer> remainingPlayers = new TreeSet<Integer>();
+int Game::Winner() {
+	std::set<int> remainingPlayers = new TreeSet<Integer>();
 	for (Planet p : planets) {
 		remainingPlayers.add(p.Owner());
 	}
@@ -344,20 +347,114 @@ public int Winner() {
 
 // Returns the number of ships that the current player has, either located
 // on planets or in flight.
-public int NumShips(int playerID) {
+int Game::NumShips(int playerID) {
 	int numShips = 0;
-	for (Planet p : planets) {
-		if (p.Owner() == playerID) {
-			numShips += p.NumShips();
+	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+		if (p->Owner() == playerID) {
+			numShips += p->NumShips();
 		}
 	}
-	for (Fleet f : fleets) {
-		if (f.Owner() == playerID) {
-			numShips += f.NumShips();
+	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+		if (f->Owner() == playerID) {
+			numShips += f->NumShips();
 		}
 	}
 	return numShips;
 }
+
+
+// Parses a game state from a string. On success, returns 1. On failure,
+// returns 0.
+int Game::ParseGameState(const std::string& s) {
+	planets.clear();
+	fleets.clear();
+	std::string[] lines = s.split("\n");
+	for (int i = 0; i < lines.length; ++i) {
+		std::string line = lines[i];
+		int commentBegin = line.indexOf('#');
+		if (commentBegin >= 0) {
+			line = line.substring(0, commentBegin);
+		}
+		if (line.trim().length() == 0) {
+			continue;
+		}
+		std::string[] tokens = line.split(" ");
+		if (tokens.length == 0) {
+			continue;
+		}
+		if (tokens[0].equals("P")) {
+			if (tokens.length != 6) {
+				return 0;
+			}
+			double x = Double.parseDouble(tokens[1]);
+			double y = Double.parseDouble(tokens[2]);
+			int owner = Integer.parseInt(tokens[3]);
+			int numShips = Integer.parseInt(tokens[4]);
+			int growthRate = Integer.parseInt(tokens[5]);
+			Planet p = new Planet(owner, numShips, growthRate, x, y);
+			planets.add(p);
+			if (gamePlayback.length() > 0) {
+				gamePlayback.append(":");
+			}
+			gamePlayback.append("" + x + "," + y + "," + owner + "," + numShips + "," + growthRate);
+		} else if (tokens[0].equals("F")) {
+			if (tokens.length != 7) {
+				return 0;
+			}
+			int owner = Integer.parseInt(tokens[1]);
+			int numShips = Integer.parseInt(tokens[2]);
+			int source = Integer.parseInt(tokens[3]);
+			int destination = Integer.parseInt(tokens[4]);
+			int totalTripLength = Integer.parseInt(tokens[5]);
+			int turnsRemaining = Integer.parseInt(tokens[6]);
+			Fleet f = new Fleet(owner,
+								numShips,
+								source,
+								destination,
+								totalTripLength,
+								turnsRemaining);
+			fleets.add(f);
+		} else {
+			return 0;
+		}
+	}
+	gamePlayback.append("|");
+	return 1;
+}
+
+// Loads a map from a test file. The text file contains a description of
+// the starting state of a game. See the project wiki for a description of
+// the file format. It should be called the Planet Wars Point-in-Time
+// format. On success, return 1. On failure, returns 0.
+int Game::LoadMapFromFile(const std::string& mapFilename) {
+	StringBuffer s = new StringBuffer();
+	BufferedReader in = null;
+	try {
+		in = new BufferedReader(new FileReader(mapFilename));
+		std::string line;
+		while ((line = in.readLine()) != null) {
+			s.append(line);
+			s.append("\n");
+		}
+	} catch (Exception e) {
+		return 0;
+	} finally {
+		try {
+			in.close();
+		} catch (Exception e) {
+			// Fucked.
+		}
+	}
+	return ParseGameState(s.toString());
+}
+
+
+
+
+
+
+// ------------ drawing stuff -------------------
+// commented out for now, maybe we can reimplement that later for SDL or so
 
 #if 0
 // Gets a color for a player (clamped)
@@ -503,89 +600,3 @@ void Render(int width, // Desired image width
 	}
 }
 #endif
-
-// Parses a game state from a string. On success, returns 1. On failure,
-// returns 0.
-private int ParseGameState(const std::string& s) {
-	planets.clear();
-	fleets.clear();
-	std::string[] lines = s.split("\n");
-	for (int i = 0; i < lines.length; ++i) {
-		std::string line = lines[i];
-		int commentBegin = line.indexOf('#');
-		if (commentBegin >= 0) {
-			line = line.substring(0, commentBegin);
-		}
-		if (line.trim().length() == 0) {
-			continue;
-		}
-		std::string[] tokens = line.split(" ");
-		if (tokens.length == 0) {
-			continue;
-		}
-		if (tokens[0].equals("P")) {
-			if (tokens.length != 6) {
-				return 0;
-			}
-			double x = Double.parseDouble(tokens[1]);
-			double y = Double.parseDouble(tokens[2]);
-			int owner = Integer.parseInt(tokens[3]);
-			int numShips = Integer.parseInt(tokens[4]);
-			int growthRate = Integer.parseInt(tokens[5]);
-			Planet p = new Planet(owner, numShips, growthRate, x, y);
-			planets.add(p);
-			if (gamePlayback.length() > 0) {
-				gamePlayback.append(":");
-			}
-			gamePlayback.append("" + x + "," + y + "," + owner + "," + numShips + "," + growthRate);
-		} else if (tokens[0].equals("F")) {
-			if (tokens.length != 7) {
-				return 0;
-			}
-			int owner = Integer.parseInt(tokens[1]);
-			int numShips = Integer.parseInt(tokens[2]);
-			int source = Integer.parseInt(tokens[3]);
-			int destination = Integer.parseInt(tokens[4]);
-			int totalTripLength = Integer.parseInt(tokens[5]);
-			int turnsRemaining = Integer.parseInt(tokens[6]);
-			Fleet f = new Fleet(owner,
-								numShips,
-								source,
-								destination,
-								totalTripLength,
-								turnsRemaining);
-			fleets.add(f);
-		} else {
-			return 0;
-		}
-	}
-	gamePlayback.append("|");
-	return 1;
-}
-
-// Loads a map from a test file. The text file contains a description of
-// the starting state of a game. See the project wiki for a description of
-// the file format. It should be called the Planet Wars Point-in-Time
-// format. On success, return 1. On failure, returns 0.
-private int LoadMapFromFile(const std::string& mapFilename) {
-	StringBuffer s = new StringBuffer();
-	BufferedReader in = null;
-	try {
-		in = new BufferedReader(new FileReader(mapFilename));
-		std::string line;
-		while ((line = in.readLine()) != null) {
-			s.append(line);
-			s.append("\n");
-		}
-	} catch (Exception e) {
-		return 0;
-	} finally {
-		try {
-			in.close();
-		} catch (Exception e) {
-			// Fucked.
-		}
-	}
-	return ParseGameState(s.toString());
-}
-
