@@ -65,6 +65,7 @@ struct Process {
 	Process(const std::string& __cmd = "")
 	: cmd(__cmd), running(false),
 	forkInputFd(0), forkOutputFd(0), forkId(0) {}
+	~Process() { destroy(); }
 
 	operator bool() const { return running; }
 	void destroy();

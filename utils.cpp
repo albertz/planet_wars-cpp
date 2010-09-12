@@ -54,7 +54,7 @@ std::string TrimSpaces(const std::string& str) {
 	size_t n = 0;
 	for(size_t i = str.size(); i > start; --i)
 		if(!isspace((uchar)str[i-1]) || isgraph((uchar)str[i-1])) {
-			n = i - start - 1;
+			n = i - start;
 			break;
 		}
 	
@@ -97,8 +97,14 @@ void Process::run() {
 		dup2(pipe_mainToFork[0], STDIN_FILENO);
 		dup2(pipe_forkToMain[1], STDOUT_FILENO);
 		
-		// run. using system because we also want to support more complex stuff here
-		system(cmd.c_str());
+		// run
+		std::vector<std::string> paramsS = Tokenize(cmd, " ");
+		char** params = new char*[paramsS.size() + 1];
+		for(size_t i = 0; i < paramsS.size(); ++i)
+			params[i] = (char*)paramsS[i].c_str();
+		params[paramsS.size()] = NULL;
+		execvp(params[0], params);
+		cerr << "ERROR: cannot run " << params[0] << ": " << strerror(errno) << endl;
 		_exit(0);
 	}
 	else { // parent
@@ -118,7 +124,8 @@ void Process::run() {
 
 void Process::destroy() {
 	if(running) {
-		kill(forkId, SIGKILL);
+		kill(forkId, SIGTERM);
+		waitpid(forkId, NULL, 0);
 		close(forkInputFd);
 		close(forkOutputFd);
 		*this = Process(); // reset
@@ -140,13 +147,6 @@ bool Process::readLine(std::string& s, size_t timeout) {
 	FD_SET(forkOutputFd, &fdset);
 		
 	while(true) {
-		size_t dt = currentTimeMillis() -  startTime;
-		if((size_t)dt > timeout) return false;
-		timeval t = millisecsToTimeval(timeout - dt);
-		
-		if(select(FD_SETSIZE, &fdset, NULL, NULL, &t) <= 0) // timeout or error
-			return false;
-		
 		char c;
 		while(read(forkOutputFd, &c, 1) > 0) {
 			if(c == '\n') {
@@ -154,8 +154,15 @@ bool Process::readLine(std::string& s, size_t timeout) {
 				outbuffer = "";
 				return true;
 			}
-			outbuffer += c;			
+			outbuffer += c;
 		}
+
+		size_t dt = currentTimeMillis() - startTime;
+		if((size_t)dt > timeout) return false;
+		timeval t = millisecsToTimeval(timeout - dt);
+		
+		if(select(FD_SETSIZE, &fdset, NULL, NULL, &t) <= 0) // timeout or error
+			return false;		
 	}
 	return false;
 }
