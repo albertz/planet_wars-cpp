@@ -8,6 +8,7 @@
 #include <sstream>
 #include <list>
 #include <vector>
+#include <ostream>
 
 template<typename T>
 std::string to_string(T val) {
@@ -46,10 +47,29 @@ inline std::list<std::string>& operator+=(std::list<std::string>& l, const std::
 	return l;
 }
 
+template<typename A, typename B, typename C>
+std::basic_ostream<A,B>& operator<<(std::basic_ostream<A,B>& _s, const std::list<C>& l) {
+	std::basic_ostream<A,B>* s = &_s;
+	for(typename std::list<C>::const_iterator i = l.begin(); i != l.end(); ++i)
+		s = &( *s << *i );
+	return *s;
+}
+
 struct Process {
 	operator bool();
 	void destroy();
+	void reset();
+	void run(const std::string& cmd);
 	
+	
+	Process& operator<<(const std::string& s);
+	Process& operator<<(void (*func)(Process&)) { (*func)(*this); return *this; }
+
+	bool readLine(std::string& s, size_t timeout = 0);
+
+	void flush();
 };
+
+inline void flush(Process& p) { p.flush(); }
 
 #endif
