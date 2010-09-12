@@ -8,7 +8,7 @@ clean:
 	rm -rf *.o 
 
 %.o: %.cpp
-	$(CC) -Wall -O2 $< -c -o $@
+	$(CC) -Wall -O2 -g $< -c -o $@
 
 engine: $(OBJ_FILES)
-	$(CC) *.o -o $@
+	$(CC) *.o -g -o $@
