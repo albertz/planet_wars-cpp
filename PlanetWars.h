@@ -31,12 +31,13 @@ struct Fleet {
 	turnsRemaining(_turns_remaining) {}
 	
 	void TimeStep() {
-		if (turnsRemaining > 0) {
+		if (turnsRemaining > 0)
             --turnsRemaining;
-        } else {
+        else
             turnsRemaining = 0;
-        }
 	}
+
+	void Kill() { owner = numShips = turnsRemaining = 0; }
 };
 
 // Stores information about one planet. There is one instance of this class
