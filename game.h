@@ -20,6 +20,7 @@
 #include <ostream>
 #include <vector>
 #include <list>
+#include <memory>
 #include "PlanetWars.h"
 
 class Game {
@@ -44,7 +45,7 @@ public:
 	
     // Returns the planet with the given planet_id. There are NumPlanets()
     // planets. They are numbered starting at 0.
-    const Planet& GetPlanet(size_t planetID) { return planets.get(planetID); }
+    const Planet& GetPlanet(size_t planetID) { return planets[planetID]; }
 	
     // Returns the number of fleets.
     int NumFleets() { return fleets.size(); }
@@ -52,7 +53,7 @@ public:
     // Returns the fleet with the given fleet_id. Fleets are numbered starting
     // with 0. There are NumFleets() fleets. fleet_id's are not consistent from
     // one turn to the next.
-    const Fleet& GetFleet(size_t fleetID) { return fleets.get(fleetID); }
+    const Fleet& GetFleet(size_t fleetID) { return fleets[fleetID]; }
 	
 	// Writes a string which represents the current game state. No point-of-
     // view switching is performed.
@@ -97,7 +98,7 @@ public:
 	// order. If not, the offending player is kicked from the game. If the
 	// order was carried out without any issue, and everything is peachy, then
 	// 0 is returned. Otherwise, -1 is returned.
-	public int IssueOrder(int playerID,
+	int IssueOrder(int playerID,
 						  int sourcePlanet,
 						  int destinationPlanet,
 						  int numShips);		
@@ -105,7 +106,7 @@ public:
 	// Behaves just like the longer form of IssueOrder, but takes a string
 	// of the form "source_planet destination_planet num_ships". That is, three
 	// integers separated by space characters.
-	public int IssueOrder(int playerID, const std::string& order);
+	int IssueOrder(int playerID, const std::string& order);
 		
 	void AddFleet(Fleet f);
 	
@@ -125,7 +126,7 @@ public:
 	
 	// Returns the game playback string. This is a complete record of the game,
 	// and can be passed to a visualization program to playback the game.
-	std::string GamePlaybackString() { return gamePlayback; }
+	const std::list<std::string>& GamePlaybackString() { return gamePlayback; }
 		
 	// Returns the number of ships that the current player has, either located
 	// on planets or in flight.
@@ -179,7 +180,7 @@ private:
 	
 	// This is the name of the file in which to write log messages.
 	std::string logFilename;
-	std::ostream* logFile;
+	std::auto_ptr<std::ostream> logFile;
 };
 
 #endif

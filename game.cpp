@@ -16,7 +16,11 @@
 #include <string>
 #include <set>
 #include <math.h>
+#include <fstream>
+#include <sstream>
+#include <map>
 #include "game.h"
+#include "utils.h"
 
 // There are two modes:
 //   * If mode == 0, then s is interpreted as a filename, and the game is
@@ -50,10 +54,10 @@ int Game::Init() {
 	// Delete the contents of the log file.
 	if (logFilename != "") {
 		try {
-			FileOutputStream fos = new FileOutputStream(logFilename);
+			std::ofstream fos(logFilename.c_str());
 			fos.close();
 			WriteLogMessage("initializing");
-		} catch (Exception e) {
+		} catch (...) {
 			// do nothing.
 		}
 	}
@@ -69,17 +73,17 @@ int Game::Init() {
 }
 
 void Game::WriteLogMessage(const std::string& message) {
-	if (logFilename == null) {
+	if (logFilename == "") {
 		return;
 	}
 	try {
-		if (logFile == null) {
-			logFile = new BufferedWriter(new FileWriter(logFilename, true));
+		if (logFile.get() == NULL) {
+			logFile.reset( new std::ofstream(logFilename.c_str(), std::ios::app) );
 		}
-		logFile.write(message);
-		logFile.newLine();
-		logFile.flush();
-	} catch (Exception e) {
+		logFile->write(message.c_str(), message.size());
+		logFile->put('\n');
+		logFile->flush();
+	} catch (...) {
 		// whatev
 	}
 }
@@ -93,17 +97,21 @@ void Game::WriteLogMessage(const std::string& message) {
 // game state to individual players, so that they can always assume that
 // they are player number 1.
 std::string Game::PovRepresentation(int pov) {
-	StringBuilder s = new StringBuilder();
-	for (Planet p : planets) {
-		s.append(std::string.format("P %f %f %d %d %d\n", p.X(), p.Y(),
-							   PovSwitch(pov, p.Owner()), p.NumShips(), p.GrowthRate()));
+	std::ostringstream s;
+	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+		s
+		<< "P " << p->x << " " << p->y << " "
+		<< PovSwitch(pov, p->owner) << " "
+		<< p->numShips << " " << p->growthRate << std::endl;
 	}
-	for (Fleet f : fleets) {
-		s.append(std::string.format("F %d %d %d %d %d %d\n", PovSwitch(pov, f.Owner()),
-							   f.NumShips(), f.SourcePlanet(), f.DestinationPlanet(),
-							   f.TotalTripLength(), f.TurnsRemaining()));
+	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+		s
+		<< "F " << PovSwitch(pov, f->owner) << " "
+		<< f->numShips << " " << f->sourcePlanet << " "
+		<< f->destinationPlanet << " " << f->totalTripLength << " "
+		<< f->turnsRemaining << std::endl;
 	}
-	return s.toString();
+	return s.str();
 }
 
 // Carries out the point-of-view switch operation, so that each player can
@@ -115,7 +123,7 @@ std::string Game::PovRepresentation(int pov) {
 //    like he is player number "pov".
 // 4. Otherwise return player_id, since players other than 1 and pov are
 //    unaffected by the pov switch.
-static int Game::PovSwitch(int pov, int playerID) {
+int Game::PovSwitch(int pov, int playerID) {
 	if (pov < 0) return playerID;
 	if (playerID == pov) return 1;
 	if (playerID == 1) return pov;
@@ -126,10 +134,10 @@ static int Game::PovSwitch(int pov, int playerID) {
 // integer. This is the number of discrete time steps it takes to get
 // between the two planets.
 int Game::Distance(int sourcePlanet, int destinationPlanet) {
-	Planet& source = planets[sourcePlanet];
-	Planet& destination = planets[destinationPlanet];
-	double dx = source.X() - destination.X();
-	double dy = source.Y() - destination.Y();
+	const Planet& source = planets[sourcePlanet];
+	const Planet& destination = planets[destinationPlanet];
+	double dx = source.x - destination.x;
+	double dy = source.y - destination.y;
 	return (int)ceil(sqrt(dx * dx + dy * dy));
 }
 
@@ -137,33 +145,27 @@ int Game::Distance(int sourcePlanet, int destinationPlanet) {
 //* Removes all fleets involved in the battle
 //* Sets the number of ships and owner of the planet according the outcome
 void Game::FightBattle(Planet& p) {
+	std::map<int,int> participants;	
+	participants[p.owner] = p.numShips;
 	
-	Map<Integer, Integer> participants = new TreeMap<Integer, Integer>();
-	
-	participants.put(p.Owner(), p.NumShips());
-	
-	Iterator<Fleet> it = fleets.iterator();
-	while (it.hasNext()) {
-		Fleet f = it.next();
-		if (f.TurnsRemaining() <= 0 && GetPlanet(f.DestinationPlanet()) == p) {
-			if (!participants.containsKey(f.Owner())) {
-				participants.put(f.Owner(), f.NumShips());
-			} else {
-				participants.put(f.Owner(), f.NumShips() + participants.get(f.Owner()));
-			}
-			it.remove();
+	for (Fleets::iterator it = fleets.begin(); it != fleets.end(); ) {
+		Fleet& f = *it;
+		if (f.turnsRemaining <= 0 && &GetPlanet(f.destinationPlanet) == &p) {
+			participants[f.owner] += f.numShips;
+			it = fleets.erase(it);
 		}
+		else ++it;
 	}
 	
 	Fleet winner(0, 0);
 	Fleet second(0, 0);
-	for (Map.Entry<Integer, Integer> f : participants.entrySet()) {
-		if (f.getValue() > second.NumShips()) {
-			if(f.getValue() > winner.NumShips()) {
+	for (std::map<int,int>::iterator f = participants.begin(); f != participants.end(); ++f) {
+		if (f->second > second.numShips) {
+			if(f->second > winner.numShips) {
 				second = winner;
-				winner = new Fleet(f.getKey(), f.getValue());
+				winner = Fleet(f->first, f->second);
 			} else {
-				second = new Fleet(f.getKey(), f.getValue());
+				second = Fleet(f->first, f->second);
 			}
 		}
 	}
@@ -183,8 +185,8 @@ void Game::FightBattle(Planet& p) {
 void Game::DoTimeStep() {
 	// Add ships to each non-neutral planet according to its growth rate.
 	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
-		if (p->Owner() > 0) {
-			p->numShips += p.GrowthRate();
+		if (p->owner > 0) {
+			p->numShips += p->growthRate;
 		}
 	}
 	// Advance all fleets by one time step.
@@ -196,31 +198,30 @@ void Game::DoTimeStep() {
 		FightBattle(*p);
 	}
 	
+	std::ostringstream playbackStr;
 	bool needcomma=false;
 	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
 		if(needcomma)
-			gamePlayback.append(",");
-		gamePlayback.append(p.Owner());
-		gamePlayback.append(".");
-		gamePlayback.append(p.NumShips());
+			playbackStr << ",";
+		playbackStr
+		<< p->owner << "."
+		<< p->numShips;
 		needcomma = true;
 	}
 	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
 		if(needcomma)
-			gamePlayback.append(",");
-		gamePlayback.append(f.Owner());
-		gamePlayback.append(".");
-		gamePlayback.append(f.NumShips());
-		gamePlayback.append(".");
-		gamePlayback.append(f.SourcePlanet());
-		gamePlayback.append(".");
-		gamePlayback.append(f.DestinationPlanet());
-		gamePlayback.append(".");
-		gamePlayback.append(f.TotalTripLength());
-		gamePlayback.append(".");
-		gamePlayback.append(f.TurnsRemaining());
+			playbackStr << ",";
+		playbackStr
+		<< f->owner << "."
+		<< f->numShips << "."
+		<< f->sourcePlanet << "."
+		<< f->destinationPlanet << "."
+		<< f->totalTripLength << "."
+		<< f->turnsRemaining;
 	}
-	gamePlayback.append(":");
+	playbackStr << ":";
+	gamePlayback.push_back(playbackStr.str());
+	
 	// Check to see if the maximum number of turns has been reached.
 	++numTurns;
 }
@@ -285,7 +286,7 @@ public void DropPlayer(int playerID) {
 			p.Owner(0);
 		}
 	}
-	for (Fleet f : fleets) {
+	for (Fleet::iterator f = fleets.begin(); p != fleets.end(); ++f) {
 		if (f.Owner() == playerID) {
 			f.Kill();
 		}
@@ -300,7 +301,7 @@ public bool IsAlive(int playerID) {
 			return true;
 		}
 	}
-	for (Fleet f : fleets) {
+	for (Fleet::iterator f = fleets.begin(); p != fleets.end(); ++f) {
 		if (f.Owner() == playerID) {
 			return true;
 		}
@@ -317,7 +318,7 @@ int Game::Winner() {
 	for (Planet p : planets) {
 		remainingPlayers.add(p.Owner());
 	}
-	for (Fleet f : fleets) {
+	for (Fleet::iterator f = fleets.begin(); p != fleets.end(); ++f) {
 		remainingPlayers.add(f.Owner());
 	}
 	remainingPlayers.remove(0);
@@ -579,7 +580,7 @@ void Render(int width, // Desired image width
 	// Draw fleets
 	g.setFont(fleetFont);
 	fm = g.getFontMetrics(fleetFont);
-	for (Fleet f : fleets) {
+	for (Fleet::iterator f = fleets.begin(); p != fleets.end(); ++f) {
 		Point sPos = planetPos[f.SourcePlanet()];
 		Point dPos = planetPos[f.DestinationPlanet()];
 		double tripProgress =
