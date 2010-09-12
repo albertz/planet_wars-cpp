@@ -6,6 +6,7 @@
 
 #include <string>
 #include <sstream>
+#include <list>
 
 template<typename T>
 std::string to_string(T val) {
@@ -25,6 +26,11 @@ bool AllTrue(const T& container) {
 
 std::string TrimSpaces(const std::string& str);
 std::string	ToLower(const std::string& str);
+
+inline std::list<std::string>& operator+=(std::list<std::string>& l, const std::string& s) {
+	l.push_back(s);
+	return l;
+}
 
 struct Process {
 	operator bool();

@@ -19,6 +19,7 @@
 #include <string>
 #include <ostream>
 #include <vector>
+#include <list>
 #include "PlanetWars.h"
 
 class Game {
@@ -168,7 +169,7 @@ private:
 	
 	// This is the game playback string. It's a complete description of the
 	// game. It can be read by a visualization program to visualize the game.
-	std::string gamePlayback;
+	std::list<std::string> gamePlayback;
 	
 	// The maximum length of the game in turns. After this many turns, the game
 	// will end, with whoever has the most ships as the winner. If there is no

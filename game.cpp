@@ -155,8 +155,8 @@ void Game::FightBattle(Planet& p) {
 		}
 	}
 	
-	Fleet winner = new Fleet(0, 0);
-	Fleet second = new Fleet(0, 0);
+	Fleet winner(0, 0);
+	Fleet second(0, 0);
 	for (Map.Entry<Integer, Integer> f : participants.entrySet()) {
 		if (f.getValue() > second.NumShips()) {
 			if(f.getValue() > winner.NumShips()) {
@@ -168,11 +168,11 @@ void Game::FightBattle(Planet& p) {
 		}
 	}
 	
-	if (winner.NumShips() > second.NumShips()) {
-		p.NumShips(winner.NumShips() - second.NumShips());
-		p.Owner(winner.Owner());
+	if (winner.numShips > second.numShips) {
+		p.numShips = winner.numShips - second.numShips;
+		p.owner = winner.owner;
 	} else {
-		p.NumShips(0);
+		p.numShips = 0;
 	}
 }
 
@@ -182,22 +182,22 @@ void Game::FightBattle(Planet& p) {
 //   * Fleets that arrive at their destination are dealt with.
 void Game::DoTimeStep() {
 	// Add ships to each non-neutral planet according to its growth rate.
-	for (Planet p : planets) {
-		if (p.Owner() > 0) {
-			p.AddShips(p.GrowthRate());
+	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+		if (p->Owner() > 0) {
+			p->numShips += p.GrowthRate();
 		}
 	}
 	// Advance all fleets by one time step.
-	for (Fleet f : fleets) {
-		f.TimeStep();
+	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+		f->TimeStep();
 	}
 	// Determine the result of any battles
-	for (Planet p : planets) {
-		FightBattle(p);
+	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+		FightBattle(*p);
 	}
 	
 	bool needcomma=false;
-	for (Planet p : planets) {
+	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
 		if(needcomma)
 			gamePlayback.append(",");
 		gamePlayback.append(p.Owner());
@@ -205,7 +205,7 @@ void Game::DoTimeStep() {
 		gamePlayback.append(p.NumShips());
 		needcomma = true;
 	}
-	for (Fleet f : fleets) {
+	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
 		if(needcomma)
 			gamePlayback.append(",");
 		gamePlayback.append(f.Owner());
