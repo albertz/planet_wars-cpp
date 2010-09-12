@@ -56,13 +56,21 @@ std::basic_ostream<A,B>& operator<<(std::basic_ostream<A,B>& _s, const std::list
 }
 
 struct Process {
-	operator bool();
+	std::string cmd;
+	bool running;
+	int forkInputFd, forkOutputFd;
+	std::string inbuffer, outbuffer;
+	pid_t forkId;
+
+	Process(const std::string& __cmd = "")
+	: cmd(__cmd), running(false),
+	forkInputFd(0), forkOutputFd(0), forkId(0) {}
+
+	operator bool() const { return running; }
 	void destroy();
-	void reset();
-	void run(const std::string& cmd);
+	void run();
 	
-	
-	Process& operator<<(const std::string& s);
+	Process& operator<<(const std::string& s) { inbuffer += s; return *this; }
 	Process& operator<<(void (*func)(Process&)) { (*func)(*this); return *this; }
 
 	bool readLine(std::string& s, size_t timeout = 0);
@@ -71,5 +79,6 @@ struct Process {
 };
 
 inline void flush(Process& p) { p.flush(); }
+inline void endl(Process& p) { p << "\n"; p.flush(); }
 
 #endif
