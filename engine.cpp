@@ -20,10 +20,10 @@
 #include "utils.h"
 #include "game.h"
 
-void KillClients(std::vector<Process>& clients) {
+void KillClients(std::vector<Process*>& clients) {
 	for (size_t i = 0; i < clients.size(); ++i) {
-		if (clients[i])
-			clients[i].destroy();
+		delete clients[i];
+		clients[i] = NULL;
 	}
 }
 
@@ -52,17 +52,18 @@ int main(int argc, char** args) {
 	}
 
 	// Start the client programs (players).
-	std::vector<Process> clients;
+	std::vector<Process*> clients;
 	for (int i = 5; i < argc; ++i) {
 		std::string command = args[i];
-		Process client(command);
-		client.run();
-		if (!client) {
+		Process* client = new Process(command);
+		clients.push_back(client);
+
+		client->run();
+		if (!*client) {
 			KillClients(clients);
 			cerr << "ERROR: failed to start client: " << command << endl;
 			return 1;
 		}
-		clients.push_back(client);
 	}
 	
 	std::vector<bool> isAlive(clients.size());
@@ -77,15 +78,16 @@ int main(int argc, char** args) {
 		//cout << "The game state:" << endl;
 		//cout << game.toString() << endl;
 		for (size_t i = 0; i < clients.size(); ++i) {
-			if (!clients[i] || !game.IsAlive(i + 1)) continue;
+			if (!*clients[i] || !game.IsAlive(i + 1)) continue;
 			
 			std::string message = game.PovRepresentation(i + 1) + "go\n";
 			try {
-				clients[i] << message << flush;
+				*clients[i] << message << flush;
 				game.WriteLogMessage("engine > player" + to_string(i + 1) + ": " +
 									 message);
 			} catch (...) {
-				clients[i].destroy();
+				cerr << "ERROR while writing to client " << (i+1) << endl;
+				clients[i]->destroy();
 			}
 		}
 		
@@ -98,23 +100,25 @@ int main(int argc, char** args) {
 				continue;
 			}
 			try {
-				std::string line;
 				while(true) {
 					long dt = currentTimeMillis() - startTime;
 					if(dt > maxTurnTime) break;
-					if(!clients[i].readLine(line, maxTurnTime - dt)) break;
+					std::string line;
+					if(!clients[i]->readLine(line, maxTurnTime - dt)) break;
 
 					line = ToLower(TrimSpaces(line));
 					//cerr << "P" << (i+1) << ": " << line << endl;
 					game.WriteLogMessage("player" + to_string(i + 1) + " > engine: " + line);
-					if (line == "go")
+					if (line == "go") {						
 						clientDone[i] = true;
+						break;
+					}
 					else
 						game.IssueOrder(i + 1, line);
 				}
 			} catch (...) {
 				cerr << "WARNING: player " << (i+1) << " crashed." << endl;
-				clients[i].destroy();
+				clients[i]->destroy();
 				game.DropPlayer(i + 1);
 				isAlive[i] = false;
 			}
@@ -124,7 +128,7 @@ int main(int argc, char** args) {
 			if (clientDone[i]) continue;
 
 			cerr << "WARNING: player " << (i+1) << " timed out." << endl;
-			clients[i].destroy();
+			clients[i]->destroy();
 			game.DropPlayer(i + 1);
 			isAlive[i] = false;
 		}
