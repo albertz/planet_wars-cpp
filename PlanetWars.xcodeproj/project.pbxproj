@@ -18,6 +18,11 @@
 		23915593123E5520002C2060 /* SDLmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 23915592123E5520002C2060 /* SDLmain.m */; };
 		239155A0123E55CA002C2060 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2391559F123E55CA002C2060 /* Cocoa.framework */; };
 		239155E6123E5E30002C2060 /* SDL_draw.c in Sources */ = {isa = PBXBuildFile; fileRef = 239155E5123E5E30002C2060 /* SDL_draw.c */; };
+		239155F7123E60B2002C2060 /* viewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239155F6123E60B2002C2060 /* viewer.cpp */; };
+		23915610123E690F002C2060 /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2391553E123E4817002C2060 /* game.cpp */; };
+		23915625123E6A38002C2060 /* gfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915624123E6A38002C2060 /* gfx.cpp */; };
+		2391799E123E7C4E002C2060 /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 2391799B123E7C4E002C2060 /* font.c */; };
+		2391799F123E7C4E002C2060 /* SDL_picofont.c in Sources */ = {isa = PBXBuildFile; fileRef = 2391799C123E7C4E002C2060 /* SDL_picofont.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +41,13 @@
 		2391559F123E55CA002C2060 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		239155E5123E5E30002C2060 /* SDL_draw.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_draw.c; sourceTree = "<group>"; };
 		239155E7123E5E41002C2060 /* SDL_draw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_draw.h; sourceTree = "<group>"; };
+		239155F5123E60B2002C2060 /* viewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = viewer.h; sourceTree = "<group>"; };
+		239155F6123E60B2002C2060 /* viewer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = viewer.cpp; sourceTree = "<group>"; };
+		23915623123E6A38002C2060 /* gfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gfx.h; sourceTree = "<group>"; };
+		23915624123E6A38002C2060 /* gfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gfx.cpp; sourceTree = "<group>"; };
+		2391799B123E7C4E002C2060 /* font.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = font.c; sourceTree = "<group>"; };
+		2391799C123E7C4E002C2060 /* SDL_picofont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_picofont.c; sourceTree = "<group>"; };
+		2391799D123E7C4E002C2060 /* SDL_picofont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_picofont.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,10 +124,17 @@
 		2391554A123E4854002C2060 /* viewgame */ = {
 			isa = PBXGroup;
 			children = (
+				2391799B123E7C4E002C2060 /* font.c */,
+				2391799C123E7C4E002C2060 /* SDL_picofont.c */,
+				2391799D123E7C4E002C2060 /* SDL_picofont.h */,
+				239155F5123E60B2002C2060 /* viewer.h */,
+				239155F6123E60B2002C2060 /* viewer.cpp */,
 				239155E7123E5E41002C2060 /* SDL_draw.h */,
 				239155E5123E5E30002C2060 /* SDL_draw.c */,
 				23915557123E491E002C2060 /* viewgame.cpp */,
 				23915592123E5520002C2060 /* SDLmain.m */,
+				23915623123E6A38002C2060 /* gfx.h */,
+				23915624123E6A38002C2060 /* gfx.cpp */,
 			);
 			name = viewgame;
 			sourceTree = "<group>";
@@ -189,11 +208,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				23915610123E690F002C2060 /* game.cpp in Sources */,
 				23915552123E48C5002C2060 /* PlanetWars.cpp in Sources */,
 				23915553123E48C5002C2060 /* utils.cpp in Sources */,
 				23915558123E491E002C2060 /* viewgame.cpp in Sources */,
 				23915593123E5520002C2060 /* SDLmain.m in Sources */,
 				239155E6123E5E30002C2060 /* SDL_draw.c in Sources */,
+				239155F7123E60B2002C2060 /* viewer.cpp in Sources */,
+				23915625123E6A38002C2060 /* gfx.cpp in Sources */,
+				2391799E123E7C4E002C2060 /* font.c in Sources */,
+				2391799F123E7C4E002C2060 /* SDL_picofont.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
