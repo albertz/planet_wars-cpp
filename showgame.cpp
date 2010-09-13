@@ -118,8 +118,10 @@ int main(int argc, char** argv) {
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 	SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE);
 	
+#define SETVIDEOMODE SDL_SetVideoMode(screenw, screenh, screenbpp, SDL_RESIZABLE)
+	
 	// init window
-	if(SDL_SetVideoMode(screenw, screenh, screenbpp, 0) == NULL) {
+	if(SETVIDEOMODE == NULL) {
 		cerr << "setting video mode " << screenw << "x" << screenh << "x" << screenbpp << " failed: "
 			 << SDL_GetError() << endl;
 		PrintHelpAndExit();
@@ -136,6 +138,11 @@ int main(int argc, char** argv) {
 	while ( SDL_WaitEvent(&event) >= 0 ) {
 		switch(event.type) {
 			case SDL_QUIT: goto exit;
+			case SDL_VIDEORESIZE:
+				screenw = event.resize.w;
+				screenh = event.resize.h;
+				SETVIDEOMODE;
+				break;
 			case SDL_USEREVENT: {
 				char* str = (char*)event.user.data1;
 				switch(event.user.code) {
