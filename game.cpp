@@ -24,11 +24,6 @@
 #include "game.h"
 #include "utils.h"
 
-void Game::WriteLogMessage(const std::string& message) {
-	if(logFile)
-		*logFile << message << std::endl;
-}
-
 // Writes a string which represents the current game state. This string
 // conforms to the Point-in-Time format from the project Wiki.
 //
@@ -85,13 +80,13 @@ int Game::Distance(int sourcePlanet, int destinationPlanet) {
 //Resolves the battle at planet p, if there is one.
 //* Removes all fleets involved in the battle
 //* Sets the number of ships and owner of the planet according the outcome
-void Game::FightBattle(Planet& p) {
+void Game::__FightBattle(Planet& p) {
 	std::map<int,int> participants;	
 	participants[p.owner] = p.numShips;
 	
 	for (Fleets::iterator it = fleets.begin(); it != fleets.end(); ) {
 		Fleet& f = *it;
-		if (f.turnsRemaining <= 0 && &GetPlanet(f.destinationPlanet) == &p) {
+		if (f.turnsRemaining <= 0 && &planets[f.destinationPlanet] == &p) {
 			participants[f.owner] += f.numShips;
 			it = fleets.erase(it);
 		}
@@ -136,7 +131,7 @@ void Game::DoTimeStep() {
 	}
 	// Determine the result of any battles
 	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
-		FightBattle(*p);
+		__FightBattle(*p);
 	}
 	
 	if(gamePlayback) {
@@ -296,9 +291,8 @@ int Game::NumShips(int playerID) {
 }
 
 
-// Parses a game state from a string. On success, returns 1. On failure,
-// returns 0.
-int Game::ParseGameState(const std::string& s) {
+// Parses a game state from a string. On success, returns true. On failure, returns false.
+bool Game::ParseGameState(const std::string& s) {
 	planets.clear();
 	fleets.clear();
 	std::vector<std::string> lines = Tokenize(s, "\n");
@@ -349,10 +343,31 @@ int Game::ParseGameState(const std::string& s) {
 			fleets.push_back(f);
 
 		} else
-			return 0;
+			return false;
 	}
 	if(gamePlayback) *gamePlayback << "|" << std::flush;
-	return 1;
+	return true;
+}
+
+bool Game::ParseGamePlaybackInitial(const std::string& s) {
+	planets.clear();
+	fleets.clear();
+	std::vector<std::string> toks = Tokenize(s, ":");
+	for (size_t i = 0; i < toks.size(); ++i) {
+		std::vector<std::string> planetData = Tokenize(toks[i], ",");		
+		if (planetData.size() != 5) return false;
+			
+		double x = atof(planetData[0].c_str());
+		double y = atof(planetData[1].c_str());
+		int owner = atoi(planetData[2].c_str());
+		int numShips = atoi(planetData[3].c_str());
+		int growthRate = atoi(planetData[4].c_str());
+		int planet_id = planets.size();
+					
+		Planet p(planet_id, owner, numShips, growthRate, x, y);
+		planets.push_back(p);
+	}
+	return true;	
 }
 
 // Loads a map from a test file. The text file contains a description of

@@ -22,18 +22,37 @@
 #include <list>
 #include "PlanetWars.h"
 
-class Game {
-public:
+struct Game {
+	// Store all the planets and fleets. OMG we wouldn't wanna lose all the
+	// planets and fleets, would we!?
+	typedef std::vector<Planet> Planets;
+	typedef std::vector<Fleet> Fleets;
+	Planets planets;
+	Fleets fleets;
+	
+	// The maximum length of the game in turns. After this many turns, the game
+	// will end, with whoever has the most ships as the winner. If there is no
+	// player with the most ships, then the game is a draw.
+	int maxGameLength;
+	int numTurns;
+	
+	// This is the game playback string. It's a complete description of the
+	// game. It can be read by a visualization program to visualize the game.
+	std::ostream* gamePlayback;
+	
+	// This is the name of the file in which to write log messages.
+	std::ostream* logFile;
+
     // This constructor does not actually initialize the game object. You must
     // always call Init() before the game object will be in any kind of
     // coherent state.
-	Game(int _maxGameLength, std::ostream* _gamePlayback = NULL, std::ostream* _logFile = NULL)
+	Game(int _maxGameLength = 0, std::ostream* _gamePlayback = NULL, std::ostream* _logFile = NULL)
 	: maxGameLength(_maxGameLength), numTurns(0),
 	gamePlayback(_gamePlayback), logFile(_logFile) {}
 
-	// Parses a game state from a string. On success, returns 1. On failure,
-	// returns 0.
-	int ParseGameState(const std::string& s);
+	// Parses a game state from a string. On success, returns true. On failure, returns false.
+	bool ParseGameState(const std::string& s);
+	bool ParseGamePlaybackInitial(const std::string& s);
 	
 	// Loads a map from a text file. The text file contains a description of
 	// the starting state of a game. See the project wiki for a description of
@@ -43,19 +62,10 @@ public:
 		
 	// Returns the number of planets. Planets are numbered starting with 0.
 	int NumPlanets() { return planets.size(); }
-	
-    // Returns the planet with the given planet_id. There are NumPlanets()
-    // planets. They are numbered starting at 0.
-    const Planet& GetPlanet(size_t planetID) { return planets[planetID]; }
-	
+		
     // Returns the number of fleets.
     int NumFleets() { return fleets.size(); }
-	
-    // Returns the fleet with the given fleet_id. Fleets are numbered starting
-    // with 0. There are NumFleets() fleets. fleet_id's are not consistent from
-    // one turn to the next.
-    const Fleet& GetFleet(size_t fleetID) { return fleets[fleetID]; }
-	
+		
 	// Writes a string which represents the current game state. No point-of-
     // view switching is performed.
     std::string toString() { return PovRepresentation(-1); }
@@ -129,34 +139,14 @@ public:
 	// on planets or in flight.
 	int NumShips(int playerID);
 	
-	void WriteLogMessage(const std::string& message);
-
-private:
 	//Resolves the battle at planet p, if there is one.
     //* Removes all fleets involved in the battle
     //* Sets the number of ships and owner of the planet according the outcome
-    void FightBattle(Planet& p);
+    void __FightBattle(Planet& p);
 	
-private:
-	// Store all the planets and fleets. OMG we wouldn't wanna lose all the
-	// planets and fleets, would we!?
-	typedef std::vector<Planet> Planets;
-	typedef std::vector<Fleet> Fleets;
-	Planets planets;
-	Fleets fleets;
-				
-	// The maximum length of the game in turns. After this many turns, the game
-	// will end, with whoever has the most ships as the winner. If there is no
-	// player with the most ships, then the game is a draw.
-	int maxGameLength;
-	int numTurns;
-
-	// This is the game playback string. It's a complete description of the
-	// game. It can be read by a visualization program to visualize the game.
-	std::ostream* gamePlayback;
-	
-	// This is the name of the file in which to write log messages.
-	std::ostream* logFile;
+	void WriteLogMessage(const std::string& message) {
+		if(logFile) *logFile << message << std::endl;
+	}
 };
 
 #endif
