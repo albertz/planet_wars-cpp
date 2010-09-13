@@ -1,7 +1,7 @@
 Google AI Challenge
 http://ai-contest.com/
 
-This is the C++ implementation of the game engine and some other stuff.
+This is the C++ implementation of the game engine, the game viewer and some other stuff.
 
 Java/Python code can be found here:
 http://code.google.com/p/ai-contest/source/browse/trunk/planet_wars/
