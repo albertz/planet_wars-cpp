@@ -194,10 +194,6 @@ int Game::IssueOrder(int playerID,
 	return 0;
 }
 
-void Game::AddFleet(Fleet f) {
-	fleets.push_back(f);
-}
-
 // Behaves just like the longer form of IssueOrder, but takes a string
 // of the form "source_planet destination_planet num_ships". That is, three
 // integers separated by space characters.
@@ -369,6 +365,32 @@ bool Game::ParseGamePlaybackInitial(const std::string& s) {
 	}
 	return true;	
 }
+
+bool Game::ParseGamePlaybackChunk(const std::string& s, const Game& initialGame) {
+	*this = initialGame;
+	
+	std::vector<std::string> items = Tokenize(s, ",");
+	for (size_t j = 0; j < planets.size(); ++j) {
+        Planet& p = planets[j];
+		std::vector<std::string> fields = Tokenize(items[j], ".");
+		if(fields.size() != 2) return false;
+        p.owner = atoi(fields[0].c_str());
+        p.numShips = atoi(fields[1].c_str());
+	}
+	for (size_t j = planets.size(); j < items.size(); ++j) {
+		std::vector<std::string> fields = Tokenize(items[j], ".");
+		if(fields.size() != 6) return false;
+        Fleet f(atoi(fields[0].c_str()),
+                atoi(fields[1].c_str()),
+                atoi(fields[2].c_str()),
+                atoi(fields[3].c_str()),
+                atoi(fields[4].c_str()),
+                atoi(fields[5].c_str()));
+        AddFleet(f);
+	}
+	return true;
+}
+
 
 // Loads a map from a test file. The text file contains a description of
 // the starting state of a game. See the project wiki for a description of

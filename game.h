@@ -53,6 +53,7 @@ struct Game {
 	// Parses a game state from a string. On success, returns true. On failure, returns false.
 	bool ParseGameState(const std::string& s);
 	bool ParseGamePlaybackInitial(const std::string& s);
+	bool ParseGamePlaybackChunk(const std::string& s, const Game& initialGame);
 	
 	// Loads a map from a text file. The text file contains a description of
 	// the starting state of a game. See the project wiki for a description of
@@ -119,7 +120,7 @@ struct Game {
 	// integers separated by space characters.
 	int IssueOrder(int playerID, const std::string& order);
 		
-	void AddFleet(Fleet f);
+	void AddFleet(const Fleet& f) { fleets.push_back(f); }
 	
 	// Kicks a player out of the game. This is used in cases where a player
 	// tries to give an illegal order or runs over the time limit.
