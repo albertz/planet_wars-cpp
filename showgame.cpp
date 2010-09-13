@@ -1,5 +1,5 @@
 /*
- *  viewgame.cpp
+ *  showgame.cpp
  *  PlanetWars
  *
  *  Created by Albert Zeyer on 13.09.10.
@@ -152,6 +152,7 @@ int main(int argc, char** argv) {
 				switch(event.key.keysym.sym) {
 					case SDLK_LEFT: viewer.last(); break;
 					case SDLK_RIGHT: viewer.next(); break;
+					default: break; // ignore
 				}
 				break;
 		}
