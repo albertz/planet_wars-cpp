@@ -12,7 +12,11 @@
 #include <iostream>
 #include <unistd.h>
 #include <string>
+#include <list>
 #include "utils.h"
+#include "game.h"
+#include "gfx.h"
+#include "viewer.h"
 
 using namespace std;
 
@@ -94,6 +98,10 @@ int main(int argc, char** argv) {
 	ParseParams(argc, argv);
 	assert(SDL_Init(SDL_INIT_VIDEO) >= 0);
 	
+	// we want to redraw when these occur
+	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+	SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE);
+
 	SDL_Thread* stdinReader = SDL_CreateThread(&ReadStdinThread, NULL);
 	
 	// init window
@@ -103,22 +111,41 @@ int main(int argc, char** argv) {
 		PrintHelpAndExit();
 	}
 	SDL_WM_SetCaption("PlanetWars visualizer", NULL);
+	FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
+
+	Viewer viewer;
 	
 	// main loop
 	SDL_Event event;
 	while ( SDL_WaitEvent(&event) >= 0 ) {
 		switch(event.type) {
 			case SDL_QUIT: goto exit;
-			case SDL_USEREVENT:
+			case SDL_USEREVENT: {
 				char* str = (char*)event.user.data1;
 				switch(event.user.type) {
-					case EVENT_STDIN_INITIAL:	
-					case EVENT_STDIN_CHUNK: break;
+					case EVENT_STDIN_INITIAL:
+						viewer.gameStates.push_back(Game());
+						viewer.init();
+						assert(viewer.gameStates.back().ParseGamePlaybackInitial(str));
+						break;
+					case EVENT_STDIN_CHUNK:
+						viewer.gameStates.push_back(Game());
+						assert(viewer.gameStates.back().ParseGamePlaybackChunk(str, viewer.gameStates.front()));
+						break;
 					default: assert(0);
 				}
 				free(str);
 				break;
+			}
+			case SDL_KEYDOWN:
+				switch(event.key.keysym.sym) {
+					case SDLK_LEFT: viewer.last(); break;
+					case SDLK_RIGHT: viewer.next(); break;
+				}
+				break;
 		}
+		
+		viewer.draw();
 	}
 
 exit:
