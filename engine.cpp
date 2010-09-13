@@ -17,6 +17,7 @@
 #include <iostream>
 #include <vector>
 #include <stdlib.h>
+#include <fstream>
 #include "utils.h"
 #include "game.h"
 
@@ -43,10 +44,12 @@ int main(int argc, char** args) {
 	std::string mapFilename = args[1];
 	long maxTurnTime = atol(args[2]);
 	int maxNumTurns = atoi(args[3]);
-	std::string logFilename = args[4];
-
-	Game game(mapFilename, maxNumTurns, 0, logFilename);
-	if (game.Init() == 0) {
+	std::string logFilename = args[4];	
+	std::ofstream logStream(logFilename.c_str());
+	
+	Game game(maxNumTurns, &cout, logStream ? &logStream : NULL);	
+	game.WriteLogMessage("initializing");
+	if (game.LoadMapFromFile(mapFilename) == 0) {
 		cerr << "ERROR: failed to start game. map: " << mapFilename << endl;
 		return 1;
 	}
@@ -143,8 +146,6 @@ int main(int argc, char** args) {
 		cerr << "Player " << game.Winner() << " Wins!" << endl;
 	} else {
 		cerr << "Draw!" << endl;
-	}
-	
-	cout << game.GamePlaybackString() << endl;
+	}	
 }
 

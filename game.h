@@ -20,26 +20,27 @@
 #include <ostream>
 #include <vector>
 #include <list>
-#include <memory>
 #include "PlanetWars.h"
 
 class Game {
 public:
-    // There are two modes:
-    //   * If mode == 0, then s is interpreted as a filename, and the game is
-    //     initialized by reading map data out of the named file.
-    //   * If mode == 1, then s is interpreted as a string that contains map
-    //     data directly. The string is parsed in the same way that the
-    //     contents of a map file would be.
     // This constructor does not actually initialize the game object. You must
     // always call Init() before the game object will be in any kind of
     // coherent state.
-	Game(const std::string& s, int maxGameLength, int mode, const std::string& logFilename);
+	Game(int _maxGameLength, std::ostream* _gamePlayback = NULL, std::ostream* _logFile = NULL)
+	: maxGameLength(_maxGameLength), numTurns(0),
+	gamePlayback(_gamePlayback), logFile(_logFile) {}
 
-	// Initializes a game of Planet Wars. Loads the map data from the file
-    // specified in the constructor. Returns 1 on success, 0 on failure.
-	int Init();
+	// Parses a game state from a string. On success, returns 1. On failure,
+	// returns 0.
+	int ParseGameState(const std::string& s);
 	
+	// Loads a map from a text file. The text file contains a description of
+	// the starting state of a game. See the project wiki for a description of
+	// the file format. It should be called the Planet Wars Point-in-Time
+	// format. On success, return 1. On failure, returns 0.
+	int LoadMapFromFile(const std::string& mapFilename);
+		
 	// Returns the number of planets. Planets are numbered starting with 0.
 	int NumPlanets() { return planets.size(); }
 	
@@ -123,11 +124,7 @@ public:
 	// is left) then that player's number is returned. If there are no
 	// remaining players, then the game is a draw and 0 is returned.
 	int Winner();
-	
-	// Returns the game playback string. This is a complete record of the game,
-	// and can be passed to a visualization program to playback the game.
-	const std::list<std::string>& GamePlaybackString() { return gamePlayback; }
-		
+			
 	// Returns the number of ships that the current player has, either located
 	// on planets or in flight.
 	int NumShips(int playerID);
@@ -139,16 +136,6 @@ private:
     //* Removes all fleets involved in the battle
     //* Sets the number of ships and owner of the planet according the outcome
     void FightBattle(Planet& p);
-
-	// Parses a game state from a string. On success, returns 1. On failure,
-	// returns 0.
-	int ParseGameState(const std::string& s);
-	
-	// Loads a map from a test file. The text file contains a description of
-	// the starting state of a game. See the project wiki for a description of
-	// the file format. It should be called the Planet Wars Point-in-Time
-	// format. On success, return 1. On failure, returns 0.
-	int LoadMapFromFile(const std::string& mapFilename);
 	
 private:
 	// Store all the planets and fleets. OMG we wouldn't wanna lose all the
@@ -157,30 +144,19 @@ private:
 	typedef std::vector<Fleet> Fleets;
 	Planets planets;
 	Fleets fleets;
-	
-	// The filename of the map that this game is being played on.
-	std::string mapFilename;
-	
-	// The string of map data to parse.
-	std::string mapData;
-	
-	// Stores a mode identifier which determines how to initialize this object.
-	// See the constructor for details.
-	int initMode;
-	
-	// This is the game playback string. It's a complete description of the
-	// game. It can be read by a visualization program to visualize the game.
-	std::list<std::string> gamePlayback;
-	
+				
 	// The maximum length of the game in turns. After this many turns, the game
 	// will end, with whoever has the most ships as the winner. If there is no
 	// player with the most ships, then the game is a draw.
 	int maxGameLength;
 	int numTurns;
+
+	// This is the game playback string. It's a complete description of the
+	// game. It can be read by a visualization program to visualize the game.
+	std::ostream* gamePlayback;
 	
 	// This is the name of the file in which to write log messages.
-	std::string logFilename;
-	std::auto_ptr<std::ostream> logFile;
+	std::ostream* logFile;
 };
 
 #endif

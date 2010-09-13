@@ -16,76 +16,16 @@
 #include <string>
 #include <set>
 #include <math.h>
-#include <fstream>
 #include <sstream>
 #include <map>
 #include <iterator>
+#include <fstream>
 #include "game.h"
 #include "utils.h"
 
-// There are two modes:
-//   * If mode == 0, then s is interpreted as a filename, and the game is
-//     initialized by reading map data out of the named file.
-//   * If mode == 1, then s is interpreted as a string that contains map
-//     data directly. The string is parsed in the same way that the
-//     contents of a map file would be.
-// This constructor does not actually initialize the game object. You must
-// always call Init() before the game object will be in any kind of
-// coherent state.
-Game::Game(const std::string& s, int maxGameLength, int mode, const std::string& logFilename) {
-	this->logFilename = logFilename;
-	initMode = mode;
-	switch (initMode) {
-		case 0:
-			mapFilename = s;
-			break;
-		case 1:
-			mapData = s;
-			break;
-		default:
-			break;
-	}
-	this->maxGameLength = maxGameLength;
-	numTurns = 0;
-}
-
-// Initializes a game of Planet Wars. Loads the map data from the file
-// specified in the constructor. Returns 1 on success, 0 on failure.
-int Game::Init() {
-	// Delete the contents of the log file.
-	if (logFilename != "") {
-		try {
-			{ std::ofstream fos(logFilename.c_str()); }
-			WriteLogMessage("initializing");
-		} catch (...) {
-			// do nothing.
-		}
-	}
-	
-	switch (initMode) {
-		case 0:
-			return LoadMapFromFile(mapFilename);
-		case 1:
-			return ParseGameState(mapData);
-		default:
-			return 0;
-	}
-}
-
 void Game::WriteLogMessage(const std::string& message) {
-	if (logFilename == "") {
-		return;
-	}
-	try {
-		if (logFile.get() == NULL) {
-			logFile.reset( new std::ofstream(logFilename.c_str(), std::ios::app) );
-		}
-		logFile->write(message.c_str(), message.size());
-		logFile->put('\n');
-		logFile->flush();
-	} catch (...) {
-		// whatev
-	}
+	if(logFile)
+		*logFile << message << std::endl;
 }
 
 // Writes a string which represents the current game state. This string
@@ -198,29 +138,27 @@ void Game::DoTimeStep() {
 		FightBattle(*p);
 	}
 	
-	std::ostringstream playbackStr;
-	bool needcomma=false;
-	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
-		if(needcomma)
-			playbackStr << ",";
-		playbackStr
-		<< p->owner << "."
-		<< p->numShips;
-		needcomma = true;
+	if(gamePlayback) {
+		bool needcomma = false;
+		for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+			if(needcomma) *gamePlayback << ",";
+			*gamePlayback
+			<< p->owner << "."
+			<< p->numShips;
+			needcomma = true;
+		}
+		for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+			*gamePlayback
+			<< ","
+			<< f->owner << "."
+			<< f->numShips << "."
+			<< f->sourcePlanet << "."
+			<< f->destinationPlanet << "."
+			<< f->totalTripLength << "."
+			<< f->turnsRemaining;
+		}
+		*gamePlayback << ":" << std::flush;
 	}
-	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
-		if(needcomma)
-			playbackStr << ",";
-		playbackStr
-		<< f->owner << "."
-		<< f->numShips << "."
-		<< f->sourcePlanet << "."
-		<< f->destinationPlanet << "."
-		<< f->totalTripLength << "."
-		<< f->turnsRemaining;
-	}
-	playbackStr << ":";
-	gamePlayback.push_back(playbackStr.str());
 	
 	// Check to see if the maximum number of turns has been reached.
 	++numTurns;
@@ -373,7 +311,6 @@ int Game::ParseGameState(const std::string& s) {
 		std::vector<std::string> tokens = Tokenize(line, " ");
 		if (tokens.size() == 0) continue;
 		
-		std::ostringstream playbackStr;
 		if (tokens[0] == "P") {
 			if (tokens.size() != 6) return 0;
 			
@@ -383,11 +320,15 @@ int Game::ParseGameState(const std::string& s) {
 			int numShips = atoi(tokens[4].c_str());
 			int growthRate = atoi(tokens[5].c_str());
 			int planet_id = planets.size();
+
+			if(gamePlayback) {
+				if (planets.size() > 0) *gamePlayback << ":";
+				*gamePlayback << x << "," << y << "," << owner << "," << numShips << "," << growthRate;				
+			}
+			
 			Planet p(planet_id, owner, numShips, growthRate, x, y);
 			planets.push_back(p);
-			if (gamePlayback.size() > 0)
-				playbackStr << ":";
-			playbackStr << x << "," << y << "," << owner << "," << numShips << "," << growthRate;
+
 		} else if (tokens[0] == "F") {
 			if (tokens.size() != 7) return 0;
 
@@ -397,6 +338,7 @@ int Game::ParseGameState(const std::string& s) {
 			int destination = atoi(tokens[4].c_str());
 			int totalTripLength = atoi(tokens[5].c_str());
 			int turnsRemaining = atoi(tokens[6].c_str());
+			
 			Fleet f(owner,
 					numShips,
 					source,
@@ -404,11 +346,11 @@ int Game::ParseGameState(const std::string& s) {
 					totalTripLength,
 					turnsRemaining);
 			fleets.push_back(f);
+
 		} else
 			return 0;
-		gamePlayback.push_back(playbackStr.str());
 	}
-	gamePlayback.push_back("|");
+	if(gamePlayback) *gamePlayback << "|" << std::flush;
 	return 1;
 }
 
