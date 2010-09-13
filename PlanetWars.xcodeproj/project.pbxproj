@@ -1,0 +1,324 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		23915544123E4817002C2060 /* engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2391553D123E4817002C2060 /* engine.cpp */; };
+		23915545123E4817002C2060 /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2391553E123E4817002C2060 /* game.cpp */; };
+		23915546123E4817002C2060 /* PlanetWars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915540123E4817002C2060 /* PlanetWars.cpp */; };
+		23915547123E4817002C2060 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915542123E4817002C2060 /* utils.cpp */; };
+		23915552123E48C5002C2060 /* PlanetWars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915540123E4817002C2060 /* PlanetWars.cpp */; };
+		23915553123E48C5002C2060 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915542123E4817002C2060 /* utils.cpp */; };
+		23915558123E491E002C2060 /* viewgame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915557123E491E002C2060 /* viewgame.cpp */; };
+		2391555B123E49DB002C2060 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2391555A123E49DB002C2060 /* SDL.framework */; };
+		23915593123E5520002C2060 /* SDLmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 23915592123E5520002C2060 /* SDLmain.m */; };
+		239155A0123E55CA002C2060 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2391559F123E55CA002C2060 /* Cocoa.framework */; };
+		239155E6123E5E30002C2060 /* SDL_draw.c in Sources */ = {isa = PBXBuildFile; fileRef = 239155E5123E5E30002C2060 /* SDL_draw.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		23915537123E47F6002C2060 /* playgame */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = playgame; sourceTree = BUILT_PRODUCTS_DIR; };
+		2391553D123E4817002C2060 /* engine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cpp; sourceTree = "<group>"; };
+		2391553E123E4817002C2060 /* game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game.cpp; sourceTree = "<group>"; };
+		2391553F123E4817002C2060 /* game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = game.h; sourceTree = "<group>"; };
+		23915540123E4817002C2060 /* PlanetWars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlanetWars.cpp; sourceTree = "<group>"; };
+		23915541123E4817002C2060 /* PlanetWars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlanetWars.h; sourceTree = "<group>"; };
+		23915542123E4817002C2060 /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
+		23915543123E4817002C2060 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
+		2391554E123E48BC002C2060 /* viewgame */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = viewgame; sourceTree = BUILT_PRODUCTS_DIR; };
+		23915557123E491E002C2060 /* viewgame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = viewgame.cpp; sourceTree = "<group>"; };
+		2391555A123E49DB002C2060 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
+		23915592123E5520002C2060 /* SDLmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDLmain.m; sourceTree = "<group>"; };
+		2391559F123E55CA002C2060 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		239155E5123E5E30002C2060 /* SDL_draw.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_draw.c; sourceTree = "<group>"; };
+		239155E7123E5E41002C2060 /* SDL_draw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_draw.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		23915535123E47F6002C2060 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2391554C123E48BC002C2060 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2391555B123E49DB002C2060 /* SDL.framework in Frameworks */,
+				239155A0123E55CA002C2060 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* PlanetWars */ = {
+			isa = PBXGroup;
+			children = (
+				08FB7795FE84155DC02AAC07 /* Source */,
+				1AB674ADFE9D54B511CA2CBB /* Products */,
+				2391555A123E49DB002C2060 /* SDL.framework */,
+				2391559F123E55CA002C2060 /* Cocoa.framework */,
+			);
+			name = PlanetWars;
+			sourceTree = "<group>";
+		};
+		08FB7795FE84155DC02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				2391554A123E4854002C2060 /* viewgame */,
+				23915549123E4836002C2060 /* playgame */,
+				23915548123E4827002C2060 /* common */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				23915537123E47F6002C2060 /* playgame */,
+				2391554E123E48BC002C2060 /* viewgame */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		23915548123E4827002C2060 /* common */ = {
+			isa = PBXGroup;
+			children = (
+				23915540123E4817002C2060 /* PlanetWars.cpp */,
+				23915541123E4817002C2060 /* PlanetWars.h */,
+				23915542123E4817002C2060 /* utils.cpp */,
+				23915543123E4817002C2060 /* utils.h */,
+			);
+			name = common;
+			sourceTree = "<group>";
+		};
+		23915549123E4836002C2060 /* playgame */ = {
+			isa = PBXGroup;
+			children = (
+				2391553E123E4817002C2060 /* game.cpp */,
+				2391553F123E4817002C2060 /* game.h */,
+				2391553D123E4817002C2060 /* engine.cpp */,
+			);
+			name = playgame;
+			sourceTree = "<group>";
+		};
+		2391554A123E4854002C2060 /* viewgame */ = {
+			isa = PBXGroup;
+			children = (
+				239155E7123E5E41002C2060 /* SDL_draw.h */,
+				239155E5123E5E30002C2060 /* SDL_draw.c */,
+				23915557123E491E002C2060 /* viewgame.cpp */,
+				23915592123E5520002C2060 /* SDLmain.m */,
+			);
+			name = viewgame;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		23915536123E47F6002C2060 /* playgame */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2391553C123E4815002C2060 /* Build configuration list for PBXNativeTarget "playgame" */;
+			buildPhases = (
+				23915534123E47F6002C2060 /* Sources */,
+				23915535123E47F6002C2060 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = playgame;
+			productName = playgame;
+			productReference = 23915537123E47F6002C2060 /* playgame */;
+			productType = "com.apple.product-type.tool";
+		};
+		2391554D123E48BC002C2060 /* viewgame */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 23915556123E48F9002C2060 /* Build configuration list for PBXNativeTarget "viewgame" */;
+			buildPhases = (
+				2391554B123E48BC002C2060 /* Sources */,
+				2391554C123E48BC002C2060 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = viewgame;
+			productName = viewgame;
+			productReference = 2391554E123E48BC002C2060 /* viewgame */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "PlanetWars" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* PlanetWars */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				23915536123E47F6002C2060 /* playgame */,
+				2391554D123E48BC002C2060 /* viewgame */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		23915534123E47F6002C2060 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23915544123E4817002C2060 /* engine.cpp in Sources */,
+				23915545123E4817002C2060 /* game.cpp in Sources */,
+				23915546123E4817002C2060 /* PlanetWars.cpp in Sources */,
+				23915547123E4817002C2060 /* utils.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2391554B123E48BC002C2060 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23915552123E48C5002C2060 /* PlanetWars.cpp in Sources */,
+				23915553123E48C5002C2060 /* utils.cpp in Sources */,
+				23915558123E491E002C2060 /* viewgame.cpp in Sources */,
+				23915593123E5520002C2060 /* SDLmain.m in Sources */,
+				239155E6123E5E30002C2060 /* SDL_draw.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB928A08733DD80010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Debug;
+		};
+		1DEB928B08733DD80010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+		23915539123E47F7002C2060 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = playgame;
+			};
+			name = Debug;
+		};
+		2391553A123E47F7002C2060 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = playgame;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		23915550123E48BC002C2060 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = /Library/Frameworks/SDL.framework/Headers;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = viewgame;
+			};
+			name = Debug;
+		};
+		23915551123E48BC002C2060 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				HEADER_SEARCH_PATHS = /Library/Frameworks/SDL.framework/Headers;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = viewgame;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "PlanetWars" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB928A08733DD80010E9CD /* Debug */,
+				1DEB928B08733DD80010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2391553C123E4815002C2060 /* Build configuration list for PBXNativeTarget "playgame" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23915539123E47F7002C2060 /* Debug */,
+				2391553A123E47F7002C2060 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		23915556123E48F9002C2060 /* Build configuration list for PBXNativeTarget "viewgame" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23915550123E48BC002C2060 /* Debug */,
+				23915551123E48BC002C2060 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}
