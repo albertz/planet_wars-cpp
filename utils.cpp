@@ -9,6 +9,8 @@
 #include <errno.h>
 #include <signal.h> // kill etc
 #include <fcntl.h>
+#include <sys/wait.h>
+#include <cstring>
 
 long currentTimeMillis() {
 	struct Timeval : timeval {

@@ -20,6 +20,7 @@
 #include <map>
 #include <iterator>
 #include <fstream>
+#include <cstdlib>
 #include "game.h"
 #include "utils.h"
 
