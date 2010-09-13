@@ -13,7 +13,6 @@
 #include <SDL.h>
 #include <cassert>
 #include "utils.h"
-#include "SDL_draw.h"
 
 inline SDL_PixelFormat* getMainPixelFormat() { return SDL_GetVideoSurface()->format; }
 
