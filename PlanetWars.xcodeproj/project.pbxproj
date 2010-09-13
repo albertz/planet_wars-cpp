@@ -13,7 +13,6 @@
 		23915547123E4817002C2060 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915542123E4817002C2060 /* utils.cpp */; };
 		23915552123E48C5002C2060 /* PlanetWars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915540123E4817002C2060 /* PlanetWars.cpp */; };
 		23915553123E48C5002C2060 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915542123E4817002C2060 /* utils.cpp */; };
-		23915558123E491E002C2060 /* viewgame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915557123E491E002C2060 /* viewgame.cpp */; };
 		2391555B123E49DB002C2060 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2391555A123E49DB002C2060 /* SDL.framework */; };
 		23915593123E5520002C2060 /* SDLmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 23915592123E5520002C2060 /* SDLmain.m */; };
 		239155A0123E55CA002C2060 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2391559F123E55CA002C2060 /* Cocoa.framework */; };
@@ -22,6 +21,7 @@
 		23915625123E6A38002C2060 /* gfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915624123E6A38002C2060 /* gfx.cpp */; };
 		2391799E123E7C4E002C2060 /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 2391799B123E7C4E002C2060 /* font.c */; };
 		2391799F123E7C4E002C2060 /* SDL_picofont.c in Sources */ = {isa = PBXBuildFile; fileRef = 2391799C123E7C4E002C2060 /* SDL_picofont.c */; };
+		23917AEE123E9A48002C2060 /* showgame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23917AED123E9A48002C2060 /* showgame.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,8 +33,7 @@
 		23915541123E4817002C2060 /* PlanetWars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlanetWars.h; sourceTree = "<group>"; };
 		23915542123E4817002C2060 /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
 		23915543123E4817002C2060 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
-		2391554E123E48BC002C2060 /* viewgame */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = viewgame; sourceTree = BUILT_PRODUCTS_DIR; };
-		23915557123E491E002C2060 /* viewgame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = viewgame.cpp; sourceTree = "<group>"; };
+		2391554E123E48BC002C2060 /* showgame */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = showgame; sourceTree = BUILT_PRODUCTS_DIR; };
 		2391555A123E49DB002C2060 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
 		23915592123E5520002C2060 /* SDLmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDLmain.m; sourceTree = "<group>"; };
 		2391559F123E55CA002C2060 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -45,6 +44,7 @@
 		2391799B123E7C4E002C2060 /* font.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = font.c; sourceTree = "<group>"; };
 		2391799C123E7C4E002C2060 /* SDL_picofont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_picofont.c; sourceTree = "<group>"; };
 		2391799D123E7C4E002C2060 /* SDL_picofont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_picofont.h; sourceTree = "<group>"; };
+		23917AED123E9A48002C2060 /* showgame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = showgame.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,7 +92,7 @@
 			isa = PBXGroup;
 			children = (
 				23915537123E47F6002C2060 /* playgame */,
-				2391554E123E48BC002C2060 /* viewgame */,
+				2391554E123E48BC002C2060 /* showgame */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -121,12 +121,12 @@
 		2391554A123E4854002C2060 /* viewgame */ = {
 			isa = PBXGroup;
 			children = (
+				23917AED123E9A48002C2060 /* showgame.cpp */,
 				2391799B123E7C4E002C2060 /* font.c */,
 				2391799C123E7C4E002C2060 /* SDL_picofont.c */,
 				2391799D123E7C4E002C2060 /* SDL_picofont.h */,
 				239155F5123E60B2002C2060 /* viewer.h */,
 				239155F6123E60B2002C2060 /* viewer.cpp */,
-				23915557123E491E002C2060 /* viewgame.cpp */,
 				23915592123E5520002C2060 /* SDLmain.m */,
 				23915623123E6A38002C2060 /* gfx.h */,
 				23915624123E6A38002C2060 /* gfx.cpp */,
@@ -153,9 +153,9 @@
 			productReference = 23915537123E47F6002C2060 /* playgame */;
 			productType = "com.apple.product-type.tool";
 		};
-		2391554D123E48BC002C2060 /* viewgame */ = {
+		2391554D123E48BC002C2060 /* showgame */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 23915556123E48F9002C2060 /* Build configuration list for PBXNativeTarget "viewgame" */;
+			buildConfigurationList = 23915556123E48F9002C2060 /* Build configuration list for PBXNativeTarget "showgame" */;
 			buildPhases = (
 				2391554B123E48BC002C2060 /* Sources */,
 				2391554C123E48BC002C2060 /* Frameworks */,
@@ -164,9 +164,9 @@
 			);
 			dependencies = (
 			);
-			name = viewgame;
+			name = showgame;
 			productName = viewgame;
-			productReference = 2391554E123E48BC002C2060 /* viewgame */;
+			productReference = 2391554E123E48BC002C2060 /* showgame */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -182,7 +182,7 @@
 			projectRoot = "";
 			targets = (
 				23915536123E47F6002C2060 /* playgame */,
-				2391554D123E48BC002C2060 /* viewgame */,
+				2391554D123E48BC002C2060 /* showgame */,
 			);
 		};
 /* End PBXProject section */
@@ -206,12 +206,12 @@
 				23915610123E690F002C2060 /* game.cpp in Sources */,
 				23915552123E48C5002C2060 /* PlanetWars.cpp in Sources */,
 				23915553123E48C5002C2060 /* utils.cpp in Sources */,
-				23915558123E491E002C2060 /* viewgame.cpp in Sources */,
 				23915593123E5520002C2060 /* SDLmain.m in Sources */,
 				239155F7123E60B2002C2060 /* viewer.cpp in Sources */,
 				23915625123E6A38002C2060 /* gfx.cpp in Sources */,
 				2391799E123E7C4E002C2060 /* font.c in Sources */,
 				2391799F123E7C4E002C2060 /* SDL_picofont.c in Sources */,
+				23917AEE123E9A48002C2060 /* showgame.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,7 +286,7 @@
 				HEADER_SEARCH_PATHS = /Library/Frameworks/SDL.framework/Headers;
 				INSTALL_PATH = /usr/local/bin;
 				PREBINDING = NO;
-				PRODUCT_NAME = viewgame;
+				PRODUCT_NAME = showgame;
 			};
 			name = Debug;
 		};
@@ -301,7 +301,7 @@
 				HEADER_SEARCH_PATHS = /Library/Frameworks/SDL.framework/Headers;
 				INSTALL_PATH = /usr/local/bin;
 				PREBINDING = NO;
-				PRODUCT_NAME = viewgame;
+				PRODUCT_NAME = showgame;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -327,7 +327,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		23915556123E48F9002C2060 /* Build configuration list for PBXNativeTarget "viewgame" */ = {
+		23915556123E48F9002C2060 /* Build configuration list for PBXNativeTarget "showgame" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				23915550123E48BC002C2060 /* Debug */,

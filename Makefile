@@ -33,7 +33,7 @@ game.o: game.cpp game.h
 utils.o: utils.cpp utils.h
 	$(CPP) $(CFLAGS) $< -c -o $@
 
-viewgame.o: viewgame.cpp
+showgame.o: showgame.cpp
 	$(CPP) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
 
 viewer.o: viewer.cpp
@@ -53,5 +53,5 @@ SDL_picofont.o: SDL_picofont.c SDL_picofont.h
 playgame: PlanetWars.o engine.o game.o utils.o
 	$(CPP) $(LFLAGS) $^ -o $@
 
-showgame: PlanetWars.o utils.o game.o viewgame.o viewer.o font.o SDL_picofont.o gfx.o
+showgame: PlanetWars.o utils.o game.o showgame.o viewer.o font.o SDL_picofont.o gfx.o
 	$(CPP) $(LFLAGS) $(SDL_LFLAGS) $^ -o $@
