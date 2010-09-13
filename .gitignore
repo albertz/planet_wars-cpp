@@ -1,2 +1,7 @@
 *.o
-engine
+playgame
+viewgame
+build
+*.mode2v3
+*.pbxuser
+*.log
