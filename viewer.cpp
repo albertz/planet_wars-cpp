@@ -63,7 +63,7 @@ void Render(const Game& game,
 			double offset, // Real number between 0 and 1
 			SDL_Surface* surf) { // Rendering context
 	static const Color bgColor(188, 189, 172);
-	static const Color textColor(0, 0, 0);
+	static const Color textColor(30, 30, 30);
 
 	// Determine the dimensions of the viewport in game coordinates.
 	double top = std::numeric_limits<double>::max();
@@ -113,16 +113,16 @@ void Render(const Game& game,
 		double size = minSizeFactor * inherentRadius(*p);
 		int r = (int)std::min(size / (right - left) * width,
 							  size / (bottom - top) * height);
-		Color c = GetColor(p->owner);
 		int cx = x - r / 2;
 		int cy = y - r / 2;
-		DrawCircleFilled(surf, cx, cy, r, r, c);
-		for (int step = 1; step >= 0; step--)
-			DrawCircleFilled(surf, x - (r-step)/2, y - (r-step)/2, r-step, r-step, c * 1.2f);
-		for (int step = 1; step < 3; step++)
-			DrawCircleFilled(surf, x - (r+step)/2, y - (r+step)/2, r+step, r+step, c * 0.8f);
-		
-		DrawText(surf, to_string(p->numShips), c, x, y, true);
+
+		if(r > 0) {
+			Color c = GetColor(p->owner);
+			DrawCircleFilled(surf, x - (r+2)/2, y - (r+2)/2, r+2, r+2, c * 1.2f);
+			DrawCircleFilled(surf, cx, cy, r, r, c);
+			DrawCircleFilled(surf, x - (r-2)/2, y - (r-2)/2, r-2, r-2, c * 0.5f);
+		}
+		DrawText(surf, to_string(p->numShips), textColor, cx, cy, true);
 	}
 
 	// Draw fleets
