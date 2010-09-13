@@ -65,6 +65,7 @@ inline void FillSurface(SDL_Surface* surf, Color col) {
 void DrawText(SDL_Surface* surf, const std::string& txt, Color col, int x, int y, bool center = false);
 void DrawRectFill(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Color color);
 void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color color);
+void DrawCircle(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color color);
 void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour);
 void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour);
 void DrawLine(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Color color);

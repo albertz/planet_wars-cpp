@@ -688,3 +688,40 @@ void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color 
 		DrawVLine(bmpDest, y - h, y + h, x + _x, color);
 	}
 }
+
+static void PutPixel(SDL_Surface* s, int x, int y, Color c) {
+	if(x < 0 || x >= s->w) return;
+	if(y < 0 || y >= s->h) return;
+	PutPixelA(s, x, y, c.get(s->format), c.a);
+}
+
+// TODO: not ready ...
+void DrawCircle(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color color) {
+	if(color.a == SDL_ALPHA_TRANSPARENT) return;
+	if(rx <= 0 || ry <= 0) return;
+	if(rx == 1) { DrawVLine(bmpDest, y - ry, y + ry, x, color); return; }
+	if(ry == 1) { DrawHLine(bmpDest, x - rx, x + rx, y, color); return; }
+	
+	int innerRectW = int(rx / sqrt(2.0));
+	int innerRectH = int(ry / sqrt(2.0));
+	
+	float f = float(rx) / float(ry);
+	for(int _y = innerRectH + 1; _y < ry; _y++) {
+		int w = int(f * sqrt(float(ry*ry - _y*_y))) - 1;
+
+		PutPixel(bmpDest, x - w, y - _y, color);
+		PutPixel(bmpDest, x + w, y - _y, color);
+		PutPixel(bmpDest, x - w, y + _y, color);
+		PutPixel(bmpDest, x + w, y + _y, color);
+	}
+	
+	f = 1.0f / f;
+	for(int _x = innerRectW + 1; _x < rx; _x++) {
+		int h = int(f * sqrt(float(rx*rx - _x*_x))) - 1;
+		
+		PutPixel(bmpDest, x - _x, y - h, color);
+		PutPixel(bmpDest, x + _x, y - h, color);
+		PutPixel(bmpDest, x - _x, y + h, color);
+		PutPixel(bmpDest, x + _x, y + h, color);
+	}
+}
