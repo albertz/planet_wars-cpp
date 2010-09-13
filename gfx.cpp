@@ -328,6 +328,322 @@ static void DrawRectFill_Overlay(SDL_Surface *bmpDest, const SDL_Rect& r, Color 
 	
 }
 
+
+void PutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 a)  {
+	Uint8* px = (Uint8*)bmpDest->pixels + y * bmpDest->pitch + x * bmpDest->format->BytesPerPixel;
+	
+	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
+	Color c = Unpack_solid(colour, bmpDest->format); c.a = a;
+	putter.put(px, bmpDest->format, c);
+}
+
+////////////////////
+// Perform a line draw using a put pixel callback
+// Grabbed from allegro
+inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col, void (*proc)(SDL_Surface * , int, int, Uint32, Uint8))
+{
+	int dx = x2-x1;
+	int dy = y2-y1;
+	int i1, i2;
+	int x, y;
+	int dd;
+	
+	Uint32 d = col.get(bmp->format);
+	
+	LOCK_OR_QUIT(bmp);
+	
+	/* worker macro */
+#define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)     \
+{                                                                         \
+if (d##pri_c == 0) {                                                   \
+proc(bmp, x1, y1, d, col.a);                                               \
+return;                                                             \
+}                                                                      \
+\
+i1 = 2 * d##sec_c;                                                     \
+dd = i1 - (sec_sign (pri_sign d##pri_c));                              \
+i2 = dd - (sec_sign (pri_sign d##pri_c));                              \
+\
+x = x1;                                                                \
+y = y1;                                                                \
+\
+while (pri_c pri_cond pri_c##2) {                                      \
+proc(bmp, x, y, d, col.a);                                                 \
+\
+if (dd sec_cond 0) {                                                \
+sec_c sec_sign##= 1;                                             \
+dd += i2;                                                        \
+}                                                                   \
+else                                                                \
+dd += i1;                                                        \
+\
+pri_c pri_sign##= 1;                                                \
+}                                                                      \
+}
+	
+	if (dx >= 0) {
+		if (dy >= 0) {
+			if (dx >= dy) {
+				/* (x1 <= x2) && (y1 <= y2) && (dx >= dy) */
+				DO_LINE(+, x, <=, +, y, >=);
+			}
+			else {
+				/* (x1 <= x2) && (y1 <= y2) && (dx < dy) */
+				DO_LINE(+, y, <=, +, x, >=);
+			}
+		}
+		else {
+			if (dx >= -dy) {
+				/* (x1 <= x2) && (y1 > y2) && (dx >= dy) */
+				DO_LINE(+, x, <=, -, y, <=);
+			}
+			else {
+				/* (x1 <= x2) && (y1 > y2) && (dx < dy) */
+				DO_LINE(-, y, >=, +, x, >=);
+			}
+		}
+	}
+	else {
+		if (dy >= 0) {
+			if (-dx >= dy) {
+				/* (x1 > x2) && (y1 <= y2) && (dx >= dy) */
+				DO_LINE(-, x, >=, +, y, >=);
+			}
+			else {
+				/* (x1 > x2) && (y1 <= y2) && (dx < dy) */
+				DO_LINE(+, y, <=, -, x, <=);
+			}
+		}
+		else {
+			if (-dx >= -dy) {
+				/* (x1 > x2) && (y1 > y2) && (dx >= dy) */
+				DO_LINE(-, x, >=, -, y, <=);
+			}
+			else {
+				/* (x1 > x2) && (y1 > y2) && (dx < dy) */
+				DO_LINE(-, y, >=, -, x, <=);
+			}
+		}
+	}
+	
+#undef DO_LINE
+	
+	UnlockSurface(bmp);
+}
+
+inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col, void (*proc)(SDL_Surface * , int, int, Uint32))
+{
+	int dx = x2-x1;
+	int dy = y2-y1;
+	int i1, i2;
+	int x, y;
+	int dd;
+	
+	Uint32 d = col.get(bmp->format);
+	
+	LOCK_OR_QUIT(bmp);
+	
+	/* worker macro */
+#define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)     \
+{                                                                         \
+if (d##pri_c == 0) {                                                   \
+proc(bmp, x1, y1, d);                                               \
+return;                                                             \
+}                                                                      \
+\
+i1 = 2 * d##sec_c;                                                     \
+dd = i1 - (sec_sign (pri_sign d##pri_c));                              \
+i2 = dd - (sec_sign (pri_sign d##pri_c));                              \
+\
+x = x1;                                                                \
+y = y1;                                                                \
+\
+while (pri_c pri_cond pri_c##2) {                                      \
+proc(bmp, x, y, d);                                                 \
+\
+if (dd sec_cond 0) {                                                \
+sec_c sec_sign##= 1;                                             \
+dd += i2;                                                        \
+}                                                                   \
+else                                                                \
+dd += i1;                                                        \
+\
+pri_c pri_sign##= 1;                                                \
+}                                                                      \
+}
+	
+	if (dx >= 0) {
+		if (dy >= 0) {
+			if (dx >= dy) {
+				/* (x1 <= x2) && (y1 <= y2) && (dx >= dy) */
+				DO_LINE(+, x, <=, +, y, >=);
+			}
+			else {
+				/* (x1 <= x2) && (y1 <= y2) && (dx < dy) */
+				DO_LINE(+, y, <=, +, x, >=);
+			}
+		}
+		else {
+			if (dx >= -dy) {
+				/* (x1 <= x2) && (y1 > y2) && (dx >= dy) */
+				DO_LINE(+, x, <=, -, y, <=);
+			}
+			else {
+				/* (x1 <= x2) && (y1 > y2) && (dx < dy) */
+				DO_LINE(-, y, >=, +, x, >=);
+			}
+		}
+	}
+	else {
+		if (dy >= 0) {
+			if (-dx >= dy) {
+				/* (x1 > x2) && (y1 <= y2) && (dx >= dy) */
+				DO_LINE(-, x, >=, +, y, >=);
+			}
+			else {
+				/* (x1 > x2) && (y1 <= y2) && (dx < dy) */
+				DO_LINE(+, y, <=, -, x, <=);
+			}
+		}
+		else {
+			if (-dx >= -dy) {
+				/* (x1 > x2) && (y1 > y2) && (dx >= dy) */
+				DO_LINE(-, x, >=, -, y, <=);
+			}
+			else {
+				/* (x1 > x2) && (y1 > y2) && (dx < dy) */
+				DO_LINE(-, y, >=, -, x, <=);
+			}
+		}
+	}
+	
+#undef DO_LINE
+	
+	UnlockSurface(bmp);
+}
+
+
+//
+// Line clipping - grabbed from SDL_gfx
+//
+
+#define CLIP_LEFT_EDGE   0x1
+#define CLIP_RIGHT_EDGE  0x2
+#define CLIP_BOTTOM_EDGE 0x4
+#define CLIP_TOP_EDGE    0x8
+#define CLIP_INSIDE(a)   (!a)
+#define CLIP_REJECT(a,b) (a&b)
+#define CLIP_ACCEPT(a,b) (!(a|b))
+
+static inline int clipEncode(int x, int y, int left, int top, int right, int bottom)
+{
+    int code = 0;
+	
+    if (x < left) {
+		code |= CLIP_LEFT_EDGE;
+    } else if (x > right) {
+		code |= CLIP_RIGHT_EDGE;
+    }
+	
+    if (y < top) {
+		code |= CLIP_TOP_EDGE;
+    } else if (y > bottom) {
+		code |= CLIP_BOTTOM_EDGE;
+    }
+	
+    return code;
+}
+
+bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
+{
+    int left, right, top, bottom;
+    Uint32 code1, code2;
+    bool draw = false;
+    int swaptmp;
+    float m;
+	
+	// No line
+	if (*x1 == *x2 && *y1 == *y2)
+		return false;
+	
+    // Get clipping boundary
+    left = dst->clip_rect.x;
+    right = dst->clip_rect.x + dst->clip_rect.w - 1;
+    top = dst->clip_rect.y;
+    bottom = dst->clip_rect.y + dst->clip_rect.h - 1;
+	
+    while (true) {
+		code1 = clipEncode(*x1, *y1, left, top, right, bottom);
+		code2 = clipEncode(*x2, *y2, left, top, right, bottom);
+		if (CLIP_ACCEPT(code1, code2)) {
+			draw = true;
+			break;
+		} else if (CLIP_REJECT(code1, code2))
+			break;
+		else {
+			if (CLIP_INSIDE(code1)) {
+				swaptmp = *x2;
+				*x2 = *x1;
+				*x1 = swaptmp;
+				swaptmp = *y2;
+				*y2 = *y1;
+				*y1 = swaptmp;
+				swaptmp = code2;
+				code2 = code1;
+				code1 = swaptmp;
+			}
+			
+			if (*x2 != *x1) {
+				m = (*y2 - *y1) / (float) (*x2 - *x1);
+			} else {
+				m = 1.0f;
+			}
+			
+			if (code1 & CLIP_LEFT_EDGE) {
+				*y1 += (int) ((left - *x1) * m);
+				*x1 = left;
+			} else if (code1 & CLIP_RIGHT_EDGE) {
+				*y1 += (int) ((right - *x1) * m);
+				*x1 = right;
+			} else if (code1 & CLIP_BOTTOM_EDGE) {
+				if (*x2 != *x1) {
+					*x1 += (int) ((bottom - *y1) / m);
+				}
+				*y1 = bottom;
+			} else if (code1 & CLIP_TOP_EDGE) {
+				if (*x2 != *x1) {
+					*x1 += (int) ((top - *y1) / m);
+				}
+				*y1 = top;
+			}
+		}
+    }
+	
+    return draw && (*x1 != *x2 || *y1 != *y2);
+}
+
+
+inline void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, Color color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8)) {
+	if (!ClipLine(bmpDest, &x1, &y1, &x2, &y2)) // Clipping
+		return;
+	
+	perform_line(bmpDest, x1, y1, x2, y2, color, proc);
+}
+
+inline void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, Color color, void (*proc)(SDL_Surface *, int, int, Uint32)) {
+	if (!ClipLine(bmpDest, &x1, &y1, &x2, &y2)) // Clipping
+		return;
+	
+	perform_line(bmpDest, x1, y1, x2, y2, color, proc);
+}
+
+///////////////////
+// Line drawing
+void DrawLine(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Color color) {
+	secure_perform_line(dst, x1, y1, x2, y2, color, PutPixelA);
+}
+
+
 //////////////////////
 // Draws a filled rectangle
 void DrawRectFill(SDL_Surface *bmpDest, int x, int y, int x2, int y2, Color color)
