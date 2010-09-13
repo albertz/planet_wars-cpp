@@ -25,7 +25,7 @@ static Color GetColor(int player) {
 		Color(255, 255, 64)
 	};
 	
-	if (player >= sizeof(colors)/sizeof(colors[0]))
+	if (player < 0 || (size_t)player >= sizeof(colors)/sizeof(colors[0]))
 		return colors[sizeof(colors)/sizeof(colors[0])-1];
 	else
 		return colors[player];
