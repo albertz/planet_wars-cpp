@@ -82,4 +82,7 @@ struct Process {
 inline void flush(Process& p) { p.flush(); }
 inline void endl(Process& p) { p << "\n"; p.flush(); }
 
+template <typename T> T CLAMP(const T& num, const T& lower_bound, const T& upper_bound) {
+	return num < lower_bound ? lower_bound : (num > upper_bound ? upper_bound : num); }
+
 #endif
