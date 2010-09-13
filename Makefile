@@ -1,8 +1,6 @@
 CC=g++
-CPP_FILES := $(wildcard *.cpp)
-OBJ_FILES := $(CPP_FILES:.cpp=.o)
 
-all: engine
+all: playgame showgame
 
 clean:
 	rm -rf *.o 
@@ -10,5 +8,8 @@ clean:
 %.o: %.cpp
 	$(CC) -Wall -O2 -g $< -c -o $@
 
-engine: $(OBJ_FILES)
-	$(CC) *.o -g -o $@
+playgame: PlanetWars.o engine.o game.o utils.o
+	$(CC) $^ -g -o $@
+
+showgame: PlanetWars.o utils.o viewgame.o SDL_draw.o
+	$(CC) $^ -g -o $@
