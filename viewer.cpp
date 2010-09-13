@@ -8,39 +8,44 @@
  */
 
 #include <SDL.h>
+#include <cmath>
+#include <limits>
 #include "viewer.h"
 #include "gfx.h"
 #include "game.h"
 
+struct Point { int x, y; Point(int _x = 0, int _y = 0) : x(_x), y(_y) {} };
 
-// ------------ drawing stuff -------------------
-// commented out for now, maybe we can reimplement that later for SDL or so
-
-#if 0
 // Gets a color for a player (clamped)
-private Color GetColor(int player, ArrayList<Color> colors) {
-	if (player > colors.size()) {
-		return Color.PINK;
-	} else {
-		return colors.get(player);
-	}
+static Color GetColor(int player) {
+	static const Color colors[] = {
+		Color(255, 64, 64),
+		Color(64, 255, 64),
+		Color(64, 64, 255),
+		Color(255, 255, 64)
+	};
+	
+	if (player >= sizeof(colors)/sizeof(colors[0]))
+		return colors[sizeof(colors)/sizeof(colors[0])-1];
+	else
+		return colors[player];
 }
 
-private Point getPlanetPos(Planet p, double top, double left,
-						   double right, double bottom, int width,
-						   int height) {
-	int x = (int)((p.X() - left) / (right - left) * width);
-	int y = height - (int)((p.Y() - top) / (bottom - top) * height);
-	return new Point(x, y);
+static Point getPlanetPos(const Planet& p, double top, double left,
+						  double right, double bottom, int width,
+						  int height) {
+	int x = (int)((p.x - left) / (right - left) * width);
+	int y = height - (int)((p.y - top) / (bottom - top) * height);
+	return Point(x, y);
 }
 
 // A planet's inherent radius is its radius before being transformed for
 // rendering. The final rendered radii of all the planets are proportional
 // to their inherent radii. The radii are scaled for maximum aesthetic
 // appeal.
-private double inherentRadius(Planet p) {
-	return Math.sqrt(p.GrowthRate());
-	//return Math.log(p.GrowthRate() + 3.0);
+static double inherentRadius(const Planet& p) {
+	return sqrt(p.growthRate);
+	//return log(p.GrowthRate() + 3.0);
 	//return p.GrowthRate();
 }
 
@@ -52,29 +57,24 @@ private double inherentRadius(Planet p) {
 // fake smooth animation.
 //
 // On success, return an image. If something goes wrong, returns null.
-void Render(int width, // Desired image width
+void Render(const Game& game,
+			int width, // Desired image width
 			int height, // Desired image height
 			double offset, // Real number between 0 and 1
-			BufferedImage bgImage, // Background image
-			ArrayList<Color> colors, // Player colors
-			Graphics2D g) { // Rendering context
-	Font planetFont = new Font("Sans Serif", Font.BOLD, 12);
-	Font fleetFont = new Font("Sans serif", Font.BOLD, 18);
-	Color bgColor = new Color(188, 189, 172);
-	Color textColor = Color.BLACK;
-	if (bgImage != null) {
-		g.drawImage(bgImage, 0, 0, null);
-	}
+			SDL_Surface* surf) { // Rendering context
+	static const Color bgColor(188, 189, 172);
+	static const Color textColor(0, 0, 0);
+
 	// Determine the dimensions of the viewport in game coordinates.
-	double top = Double.MAX_VALUE;
-	double left = Double.MAX_VALUE;
-	double right = Double.MIN_VALUE;
-	double bottom = Double.MIN_VALUE;
-	for (Planet p : planets) {
-		if (p.X() < left) left = p.X();
-		if (p.X() > right) right = p.X();
-		if (p.Y() > bottom) bottom = p.Y();
-		if (p.Y() < top) top = p.Y();
+	double top = std::numeric_limits<double>::max();
+	double left = std::numeric_limits<double>::max();
+	double right = std::numeric_limits<double>::min();
+	double bottom = std::numeric_limits<double>::min();
+	for (Game::Planets::const_iterator p = game.planets.begin(); p != game.planets.end(); ++p) {
+		if (p->x < left) left = p->x;
+		if (p->x > right) right = p->x;
+		if (p->y > bottom) bottom = p->y;
+		if (p->y < top) top = p->y;
 	}
 	double xRange = right - left;
 	double yRange = bottom - top;
@@ -83,86 +83,64 @@ void Render(int width, // Desired image width
 	right += xRange * paddingFactor;
 	top -= yRange * paddingFactor;
 	bottom += yRange * paddingFactor;
-	Point[] planetPos = new Point[planets.size()];
-	g.setFont(planetFont);
-	FontMetrics fm = g.getFontMetrics(planetFont);
+	std::vector<Point> planetPos(game.planets.size());
+	
 	// Determine the best scaling factor for the sizes of the planets.
-	double minSizeFactor = Double.MAX_VALUE;
-	for (int i = 0; i < planets.size(); ++i) {
-		for (int j = i + 1; j < planets.size(); ++j) {
-			Planet a = planets.get(i);
-			Planet b = planets.get(j);
-			double dx = b.X() - a.X();
-			double dy = b.Y() - a.Y();
-			double dist = Math.sqrt(dx * dx + dy * dy);
-			double aSize = inherentRadius(a);
-			double bSize = inherentRadius(b);
-			double sizeFactor = dist / (Math.sqrt(a.GrowthRate()));
-			minSizeFactor = Math.min(sizeFactor, minSizeFactor);
+	double minSizeFactor = std::numeric_limits<double>::max();
+	for (size_t i = 0; i < game.planets.size(); ++i) {
+		for (size_t j = i + 1; j < game.planets.size(); ++j) {
+			const Planet& a = game.planets[i];
+			const Planet& b = game.planets[j];
+			double dx = b.x - a.x;
+			double dy = b.y - a.y;
+			double dist = sqrt(dx * dx + dy * dy);
+			//double aSize = inherentRadius(a);
+			//double bSize = inherentRadius(b);
+			double sizeFactor = dist / sqrt(a.growthRate);
+			minSizeFactor = std::min(sizeFactor, minSizeFactor);
 		}
 	}
 	minSizeFactor *= 1.2;
+	
 	// Draw the planets.
 	int i = 0;
-	for (Planet p : planets) {
-		Point pos = getPlanetPos(p, top, left, right, bottom, width,
+	for (Game::Planets::const_iterator p = game.planets.begin(); p != game.planets.end(); ++p) {
+		Point pos = getPlanetPos(*p, top, left, right, bottom, width,
 								 height);
 		planetPos[i++] = pos;
 		int x = pos.x;
 		int y = pos.y;
-		double size = minSizeFactor * inherentRadius(p);
-		int r = (int)Math.min(size / (right - left) * width,
+		double size = minSizeFactor * inherentRadius(*p);
+		int r = (int)std::min(size / (right - left) * width,
 							  size / (bottom - top) * height);
-		g.setColor(GetColor(p.Owner(), colors));
+		Color c = GetColor(p->owner);
 		int cx = x - r / 2;
 		int cy = y - r / 2;
-		g.fillOval(cx, cy, r, r);
-		Color c = g.getColor();
-		for (int step = 1; step >= 0; step--) {
-			g.setColor(g.getColor().brighter());
-			g.drawOval(x - (r-step)/2, y - (r-step)/2, r-step, r-step);
-		}
-		g.setColor(c);
-		for (int step = 0; step < 3; step++) {
-			g.drawOval(x - (r+step)/2, y - (r+step)/2, r+step, r+step);
-			g.setColor(g.getColor().darker());
-		}
+		DrawCircleFilled(surf, cx, cy, r, r, c);
+		for (int step = 1; step >= 0; step--)
+			DrawCircleFilled(surf, x - (r-step)/2, y - (r-step)/2, r-step, r-step, c * 1.2f);
+		for (int step = 1; step < 3; step++)
+			DrawCircleFilled(surf, x - (r+step)/2, y - (r+step)/2, r+step, r+step, c * 0.8f);
 		
-		java.awt.geom.Rectangle2D bounds =
-		fm.getStringBounds(Integer.toString(p.NumShips()), g);
-		x -= bounds.getWidth()/2;
-		y += fm.getAscent()/2;
-		
-		g.setColor(textColor);
-		g.drawString(Integer.toString(p.NumShips()), x, y);
+		DrawText(surf, to_string(p->numShips), c, x, y, true);
 	}
+
 	// Draw fleets
-	g.setFont(fleetFont);
-	fm = g.getFontMetrics(fleetFont);
-	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
-		Point sPos = planetPos[f.SourcePlanet()];
-		Point dPos = planetPos[f.DestinationPlanet()];
-		double tripProgress =
-		1.0 - (double)f.TurnsRemaining() / f.TotalTripLength();
-		if (tripProgress > 0.99 || tripProgress < 0.01) {
-			continue;
-		}
+	for (Game::Fleets::const_iterator f = game.fleets.begin(); f != game.fleets.end(); ++f) {
+		Point sPos = planetPos[f->sourcePlanet];
+		Point dPos = planetPos[f->destinationPlanet];
+		double tripProgress = 1.0 - (double)f->turnsRemaining / f->totalTripLength;
+		if (tripProgress > 0.99 || tripProgress < 0.01) continue;
 		double dx = dPos.x - sPos.x;
 		double dy = dPos.y - sPos.y;
 		double x = sPos.x + dx * tripProgress;
 		double y = sPos.y + dy * tripProgress;
-		java.awt.geom.Rectangle2D textBounds =
-		fm.getStringBounds(Integer.toString(f.NumShips()), g);
-		g.setColor(GetColor(f.Owner(), colors).darker());
-		g.drawString(Integer.toString(f.NumShips()),
-					 (int)(x-textBounds.getWidth()/2),
-					 (int)(y+textBounds.getHeight()/2));
+		
+		Color c = GetColor(f->owner) * 0.8f;
+		DrawText(surf, to_string(f->numShips), c, x, y, true);
 	}
 }
-#endif
 
 void DrawGame(const Game& game, SDL_Surface* surf) {
-	FillSurface(surf, Color(0, 0, 0));
-
-	
+	Render(game, surf->w, surf->h, 0.0, surf);
 }

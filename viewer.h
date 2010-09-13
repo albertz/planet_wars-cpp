@@ -12,6 +12,7 @@
 
 #include <iterator>
 #include <list>
+#include <cassert>
 #include "game.h"
 
 struct SDL_Surface;
@@ -22,7 +23,7 @@ struct Viewer {
 	std::list<Game> gameStates;
 	std::list<Game>::iterator currentState;
 	
-	void init() { currentState = gameStates.begin(); }
+	void init() { assert(ready()); currentState = gameStates.begin(); }
 	bool ready() { return !gameStates.empty(); }
 	bool next() {
 		if(!ready()) return false;
