@@ -13,6 +13,7 @@
 #include <SDL.h>
 #include <cassert>
 #include "utils.h"
+#include "SDL_draw.h"
 
 inline SDL_PixelFormat* getMainPixelFormat() { return SDL_GetVideoSurface()->format; }
 
@@ -61,5 +62,7 @@ inline void FillSurface(SDL_Surface* surf, Color col) {
 	SDL_Rect r = {0, 0, surf->w, surf->h};
 	SDL_FillRect(surf, &r, col.get(surf->format));
 }
+
+void DrawText(SDL_Surface* surf, const std::string& txt, Color col, int x, int y, bool center = false);
 
 #endif
