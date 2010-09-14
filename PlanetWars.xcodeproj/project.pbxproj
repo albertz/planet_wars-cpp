@@ -19,9 +19,9 @@
 		239155F7123E60B2002C2060 /* viewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239155F6123E60B2002C2060 /* viewer.cpp */; };
 		23915610123E690F002C2060 /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2391553E123E4817002C2060 /* game.cpp */; };
 		23915625123E6A38002C2060 /* gfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915624123E6A38002C2060 /* gfx.cpp */; };
-		2391799E123E7C4E002C2060 /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 2391799B123E7C4E002C2060 /* font.c */; };
-		2391799F123E7C4E002C2060 /* SDL_picofont.c in Sources */ = {isa = PBXBuildFile; fileRef = 2391799C123E7C4E002C2060 /* SDL_picofont.c */; };
 		23917AEE123E9A48002C2060 /* showgame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23917AED123E9A48002C2060 /* showgame.cpp */; };
+		23917BD0123FF052002C2060 /* SDL_picofont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23917BCF123FF052002C2060 /* SDL_picofont.cpp */; };
+		23917BE4123FF339002C2060 /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 23917BE3123FF339002C2060 /* font.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,11 +41,11 @@
 		239155F6123E60B2002C2060 /* viewer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = viewer.cpp; sourceTree = "<group>"; };
 		23915623123E6A38002C2060 /* gfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gfx.h; sourceTree = "<group>"; };
 		23915624123E6A38002C2060 /* gfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gfx.cpp; sourceTree = "<group>"; };
-		2391799B123E7C4E002C2060 /* font.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = font.c; sourceTree = "<group>"; };
-		2391799C123E7C4E002C2060 /* SDL_picofont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_picofont.c; sourceTree = "<group>"; };
 		2391799D123E7C4E002C2060 /* SDL_picofont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_picofont.h; sourceTree = "<group>"; };
 		23917AED123E9A48002C2060 /* showgame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = showgame.cpp; sourceTree = "<group>"; };
 		23917B7D123FE980002C2060 /* vec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec.h; sourceTree = "<group>"; };
+		23917BCF123FF052002C2060 /* SDL_picofont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDL_picofont.cpp; sourceTree = "<group>"; };
+		23917BE3123FF339002C2060 /* font.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = font.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,10 +122,10 @@
 		2391554A123E4854002C2060 /* viewgame */ = {
 			isa = PBXGroup;
 			children = (
+				23917BE3123FF339002C2060 /* font.c */,
+				23917BCF123FF052002C2060 /* SDL_picofont.cpp */,
 				23917B7D123FE980002C2060 /* vec.h */,
 				23917AED123E9A48002C2060 /* showgame.cpp */,
-				2391799B123E7C4E002C2060 /* font.c */,
-				2391799C123E7C4E002C2060 /* SDL_picofont.c */,
 				2391799D123E7C4E002C2060 /* SDL_picofont.h */,
 				239155F5123E60B2002C2060 /* viewer.h */,
 				239155F6123E60B2002C2060 /* viewer.cpp */,
@@ -211,9 +211,9 @@
 				23915593123E5520002C2060 /* SDLmain.m in Sources */,
 				239155F7123E60B2002C2060 /* viewer.cpp in Sources */,
 				23915625123E6A38002C2060 /* gfx.cpp in Sources */,
-				2391799E123E7C4E002C2060 /* font.c in Sources */,
-				2391799F123E7C4E002C2060 /* SDL_picofont.c in Sources */,
 				23917AEE123E9A48002C2060 /* showgame.cpp in Sources */,
+				23917BD0123FF052002C2060 /* SDL_picofont.cpp in Sources */,
+				23917BE4123FF339002C2060 /* font.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
