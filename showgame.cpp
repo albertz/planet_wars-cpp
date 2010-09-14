@@ -126,7 +126,8 @@ int main(int argc, char** argv) {
 			 << SDL_GetError() << endl;
 		PrintHelpAndExit();
 	}
-	FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
+	Color backgroundCol(0,0,0);
+	FillSurface(SDL_GetVideoSurface(), backgroundCol);
 
 	SDL_WM_SetCaption("PlanetWars visualizer", NULL);
 	SDL_EnableKeyRepeat(200, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -169,7 +170,7 @@ int main(int argc, char** argv) {
 				break;
 		}
 		
-		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
+		FillSurface(SDL_GetVideoSurface(), backgroundCol);
 		viewer.draw();
 		SDL_Flip(SDL_GetVideoSurface());
 	}
