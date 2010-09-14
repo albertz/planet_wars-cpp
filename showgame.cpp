@@ -74,7 +74,15 @@ void ParseParams(int argc, char** argv) {
 #define EVENT_STDIN_INITIAL 1
 #define EVENT_STDIN_CHUNK 2
 
-// read stdin and push to SDL queue
+/* Read stdin, parse game state and push to SDL queue.
+ * We do the parsing in this thread to keep the main
+ * application responsible.
+ * This behavior could block the game engine though in case
+ * that the stdin buffer gets full.
+ * If we want to change that later on, we need an own queue
+ * buffer where we push the readed data chunks to and another
+ * separated thread where we parse them.
+ */
 int ReadStdinThread(void*) {
 	int state = EVENT_STDIN_INITIAL;
 	char c;
@@ -186,6 +194,10 @@ int main(int argc, char** argv) {
 		}
 		while(haveEvent) {
 			if(!HandleEvent(event)) goto exit;
+			/* Read further events if there are any. It's important that we do this to keep
+			 * the SDL queue as empty as possible. The ReadStdinThread will push a lot of
+			 * events into it and we want to keep it responsible to other real input events.
+			 */
 			haveEvent = SDL_PollEvent(&event) > 0;			
 		}
 
