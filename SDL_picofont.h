@@ -12,19 +12,24 @@
 #define SDL_PICOFONT_H
 
 #ifdef __cplusplus
+
+#include <SDL.h>
+#include "vec.h"
+#include "gfx.h"
+
+SDL_Surface* FNT_Render(const std::string& txt, size_t len, Color color);
+inline SDL_Surface* FNT_Render(const std::string& txt, Color color) { return FNT_Render(txt, txt.size(), color); }
+
+Vec FNT_GetSize(const std::string& txt, size_t len);
+inline Vec FNT_GetSize(const std::string& txt) { return FNT_GetSize(txt, txt.size()); }
+
 extern "C" {
 #endif /* __cplusplus */
 
-#include <SDL.h>
-
-SDL_Surface* FNT_Render(const char* text, SDL_Color color);
-SDL_Surface* FNT_RenderMax(const char* text, unsigned int len, SDL_Color color);
-
 unsigned char* FNT_GetFont();
-
-
+	
 #ifdef __cplusplus
 };
 #endif /* __cplusplus */
-
+	
 #endif /* SDL_PICOFONT_H */
