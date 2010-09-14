@@ -19,9 +19,9 @@ struct Point { int x, y; Point(int _x = 0, int _y = 0) : x(_x), y(_y) {} };
 // Gets a color for a player (clamped)
 static Color GetColor(int player) {
 	static const Color colors[] = {
-		Color(255, 64, 64),
-		Color(64, 255, 64),
-		Color(64, 64, 255),
+		Color(68, 85, 85),
+		Color(119, 170, 204),
+		Color(204, 0, 0),
 		Color(255, 255, 64)
 	};
 	
@@ -62,8 +62,7 @@ void Render(const Game& game,
 			int height, // Desired image height
 			double offset, // Real number between 0 and 1
 			SDL_Surface* surf) { // Rendering context
-	static const Color bgColor(188, 189, 172);
-	static const Color textColor(30, 30, 30);
+	static const Color textColor(255, 255, 255);
 
 	// Determine the dimensions of the viewport in game coordinates.
 	double top = std::numeric_limits<double>::max();
@@ -120,7 +119,6 @@ void Render(const Game& game,
 			Color c = GetColor(p->owner);
 			DrawCircleFilled(surf, x - (r+1)/2, y - (r+1)/2, r+1, r+1, c * 1.2f);
 			DrawCircleFilled(surf, cx, cy, r, r, c);
-			DrawCircleFilled(surf, x - (r-2)/2, y - (r-2)/2, r-2, r-2, c * 0.5f);
 		}
 		DrawText(surf, to_string(p->numShips), textColor, cx, cy, true);
 	}
