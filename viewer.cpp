@@ -43,7 +43,7 @@ static Point getPlanetPos(const Planet& p, double top, double left,
 // to their inherent radii. The radii are scaled for maximum aesthetic
 // appeal.
 static double inherentRadius(const Planet& p) {
-	return sqrt(p.growthRate) * 0.8;
+	return sqrt(p.growthRate) * 0.5;
 	//return log(p.GrowthRate() + 3.0);
 	//return p.GrowthRate();
 }
