@@ -13,8 +13,7 @@
 #include "viewer.h"
 #include "gfx.h"
 #include "game.h"
-
-struct Point { int x, y; Point(int _x = 0, int _y = 0) : x(_x), y(_y) {} };
+#include "vec.h"
 
 // Gets a color for a player (clamped)
 static Color GetColor(int player) {
@@ -102,7 +101,7 @@ void Render(const Game& game,
 	minSizeFactor *= 1.2;
 	
 	// Draw the planets.
-	int i = 0;
+	size_t i = 0;
 	for (Game::Planets::const_iterator p = game.planets.begin(); p != game.planets.end(); ++p) {
 		Point pos = getPlanetPos(*p, top, left, right, bottom, width,
 								 height);
@@ -112,15 +111,12 @@ void Render(const Game& game,
 		double size = minSizeFactor * inherentRadius(*p);
 		int r = (int)std::min(size / (right - left) * width,
 							  size / (bottom - top) * height);
-		int cx = x - r / 2;
-		int cy = y - r / 2;
-
 		if(r > 0) {
 			Color c = GetColor(p->owner);
-			DrawCircleFilled(surf, x - (r+1)/2, y - (r+1)/2, r+1, r+1, c * 1.2f);
-			DrawCircleFilled(surf, cx, cy, r, r, c);
+			DrawCircleFilled(surf, x, y, r+1, r+1, c * 1.2f);
+			DrawCircleFilled(surf, x, y, r, r, c);
 		}
-		DrawText(surf, to_string(p->numShips), textColor, cx, cy, true);
+		DrawText(surf, to_string(p->numShips), textColor, x, y, true);
 	}
 
 	// Draw fleets
