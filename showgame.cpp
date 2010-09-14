@@ -79,6 +79,8 @@ int ReadStdinThread(void*) {
 	int state = EVENT_STDIN_INITIAL;
 	char c;
 	std::string buf;
+	Game initialGame;
+	
 	while((*readFunc)(STDIN_FILENO, &c, 1) > 0) {		
 		SDL_Event ev; memset(&ev, 0, sizeof(SDL_Event));
 		ev.type = SDL_USEREVENT;
@@ -87,7 +89,10 @@ int ReadStdinThread(void*) {
 		switch (state) {
 			case EVENT_STDIN_INITIAL:
 				if(c == '|') {
-					ev.user.data1 = strdup(buf.c_str());
+					Game* game = new Game();
+					assert(game->ParseGamePlaybackInitial(buf));
+					initialGame = *game;
+					ev.user.data1 = game;
 					buf = "";
 					state = EVENT_STDIN_CHUNK;
 				}
@@ -95,7 +100,9 @@ int ReadStdinThread(void*) {
 				break;
 			case EVENT_STDIN_CHUNK:
 				if(c == ':') {
-					ev.user.data1 = strdup(buf.c_str());
+					Game* game = new Game();
+					assert(game->ParseGamePlaybackChunk(buf, initialGame));
+					ev.user.data1 = game;
 					buf = "";
 				}
 				else buf += c;
@@ -124,20 +131,10 @@ bool HandleEvent(const SDL_Event& event) {
 			SETVIDEOMODE;
 			break;
 		case SDL_USEREVENT: {
-			char* str = (char*)event.user.data1;
-			switch(event.user.code) {
-				case EVENT_STDIN_INITIAL:
-					viewer.gameStates.push_back(Game());
-					viewer.init();
-					assert(viewer.gameStates.back().ParseGamePlaybackInitial(str));
-					break;
-				case EVENT_STDIN_CHUNK:
-					viewer.gameStates.push_back(Game());
-					assert(viewer.gameStates.back().ParseGamePlaybackChunk(str, viewer.gameStates.front()));
-					break;
-				default: assert(0);
-			}
-			free(str);
+			Game* game = (Game*)event.user.data1;
+			viewer.gameStates.push_back(*game);
+			if(event.user.code == EVENT_STDIN_INITIAL) viewer.init();
+			delete game;
 			break;
 		}
 		case SDL_KEYDOWN:
@@ -187,9 +184,11 @@ int main(int argc, char** argv) {
 			haveEvent = SDL_WaitEvent(&event) > 0;
 			lastTime = currentTimeMillis();
 		}
-		if(haveEvent && !HandleEvent(event))
-			break;
-		
+		while(haveEvent) {
+			if(!HandleEvent(event)) goto exit;
+			haveEvent = SDL_PollEvent(&event) > 0;			
+		}
+
 		long dt = currentTimeMillis() - lastTime;
 		lastTime += dt;
 				
@@ -198,6 +197,7 @@ int main(int argc, char** argv) {
 		SDL_Flip(SDL_GetVideoSurface());
 	}
 
+exit:
 	_exit(0); // for now. seems that the reader even keeps busy with the close() below
 	close(STDIN_FILENO);
 	SDL_WaitThread(stdinReader, NULL);
