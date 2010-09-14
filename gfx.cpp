@@ -26,6 +26,10 @@ void DrawText(SDL_Surface* surf, const std::string& txt, Color col, int x, int y
 	SDL_FreeSurface(txtSurf);
 }
 
+Vec TextGetSize(const std::string& txt) {
+	return FNT_GetSize(txt);
+}
+
 inline bool LockSurface(SDL_Surface * bmp)  {
 	if (SDL_MUSTLOCK(bmp))
 		return SDL_LockSurface(bmp) != -1;

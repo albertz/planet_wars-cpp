@@ -75,4 +75,6 @@ inline void DrawLine(SDL_Surface* dst, VectorD2<Sint16> p1, VectorD2<Sint16> p2,
 	DrawLine(dst, p1.x, p1.y, p2.x, p2.y, col);
 }
 
+Vec TextGetSize(const std::string& txt);
+
 #endif

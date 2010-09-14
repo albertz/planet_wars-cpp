@@ -123,10 +123,27 @@ void DrawGame(const Game& game, SDL_Surface* surf, double offset) {
 		if (tripProgress > 0.99 || tripProgress < 0.01) continue;
 		VecD delta = dPos - sPos;
 		VecD pos = sPos + delta * tripProgress;
-		VecD ndelta = delta.Normalize();
-		Color c = GetColor(f->owner);
-		
-		DrawLine(surf, pos + ndelta * 7, pos + ndelta * 12, c * 0.5);
-		DrawText(surf, to_string(f->numShips), c * 0.8, pos.x, pos.y, true);
+		Color c = GetColor(f->owner) * 1.3;
+		std::string txt = to_string(f->numShips);
+		{
+			VecD ndelta = delta.Normalize();
+			VecD txtSize = VecD(TextGetSize(txt)) * 0.5;
+			VecD txtBorderPt;
+			if(ndelta.x == 0 || fabs(ndelta.y/ndelta.x) >= txtSize.y/txtSize.x) {
+				txtBorderPt.x = fabs(txtSize.y * ndelta.x / ndelta.y) * SIGN(ndelta.x);
+				txtBorderPt.y = txtSize.y * SIGN(ndelta.y);
+			}
+			else {
+				txtBorderPt.x = txtSize.x * SIGN(ndelta.x);
+				txtBorderPt.y = fabs(txtSize.x * ndelta.y / ndelta.x) * SIGN(ndelta.y);
+			}
+			txtBorderPt += pos + ndelta * 2;
+			static const MatD ROT90 = MatD::Rotation(0,1);
+			static const double LEN = 5;
+			DrawLine(surf, txtBorderPt, txtBorderPt + ndelta * LEN, c);
+			DrawLine(surf, txtBorderPt + (MatD(1)+ROT90) * ndelta * LEN*0.5, txtBorderPt + ndelta * LEN, c);
+			DrawLine(surf, txtBorderPt + (MatD(1)-ROT90) * ndelta * LEN*0.5, txtBorderPt + ndelta * LEN, c);
+		}
+		DrawText(surf, txt, c, pos.x, pos.y, true);
 	}
 }

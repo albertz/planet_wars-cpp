@@ -136,10 +136,18 @@ struct MatrixD2 {
 	template<typename _T2> bool operator==(const MatrixD2<_T2>& m) const { return v1 == m.v1 && v2 == m.v2; }
 	template<typename _T2> bool operator!=(const MatrixD2<_T2>& m) const { return !(*this == m); }
 
+	MatrixD2<_T> operator+(const MatrixD2<_T>& m) const {
+		return MatrixD2<_T>(v1 + m.v1, v2 + m.v2);
+	}
+
+	MatrixD2<_T> operator-(const MatrixD2<_T>& m) const {
+		return MatrixD2<_T>(v1 - m.v1, v2 - m.v2);
+	}
+	
 	VectorD2<_T> operator*(const VectorD2<_T>& v) const {
 		return VectorD2<_T>( v1.x * v.x + v2.x * v.y, v1.y * v.x + v2.y * v.y );
 	}
-
+	
 	MatrixD2<_T> operator*(const MatrixD2<_T>& m) const {
 		return MatrixD2<_T>( *this * m.v1, *this * m.v2 );
 	}

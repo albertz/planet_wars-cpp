@@ -83,6 +83,8 @@ inline void flush(Process& p) { p.flush(); }
 inline void endl(Process& p) { p << "\n"; p.flush(); }
 
 template <typename T> T CLAMP(const T& num, const T& lower_bound, const T& upper_bound) {
-	return num < lower_bound ? lower_bound : (num > upper_bound ? upper_bound : num); }
+	return (num < lower_bound) ? lower_bound : (num > upper_bound ? upper_bound : num); }
+
+template <typename T> T SIGN(const T& num) { return (num < 0) ? -1 : 1; }
 
 #endif
