@@ -53,24 +53,10 @@ struct VectorD2 {
 
 	_T Cross(const VectorD2& oth) const { return x * oth.y - y * oth.x; }
 	
-	// Overloads
-	VectorD2 operator*(const float scalar) const {		
+	VectorD2 operator*(_T scalar) const {		
 		return VectorD2(x*scalar,y*scalar);
 	}
-	VectorD2 operator*(const int scalar) const {		
-		return VectorD2(x*scalar,y*scalar);
-	}
-	/*
-	VectorD2 operator*(const VectorD2& vec) const {
-		// WARNING: this doesn't make any sense (in most 'mathematical' cases)
-		// TODO: why is it here? I would expect dot product or cross product...
-		return VectorD2(x*vec.x,y*vec.y);
-	}
-	*/
-	VectorD2 operator/(const float scalar) const {		
-		return VectorD2(x/scalar,y/scalar);
-	}
-	VectorD2 operator/(const int scalar) const {		
+	VectorD2 operator/(_T scalar) const {		
 		return VectorD2(x/scalar,y/scalar);
 	}
 	VectorD2 operator+(const VectorD2& vec) const {
@@ -90,11 +76,7 @@ struct VectorD2 {
 		x-=vec.x; y-=vec.y;
 		return *this;
 	}
-	VectorD2& operator*=(const float scalar) {
-		x*=scalar; y*=scalar;
-		return *this;
-	}
-	VectorD2& operator*=(const int scalar) {
+	VectorD2& operator*=(_T scalar) {
 		x*=scalar; y*=scalar;
 		return *this;
 	}
@@ -134,9 +116,10 @@ struct VectorD2__absolute_less {
 
 
 
-typedef VectorD2<float> VectorF;
-typedef VectorD2<int> Vector;
-typedef Vector Point;
+typedef VectorD2<float> VecF;
+typedef VectorD2<int> Vec;
+typedef Vec Point;
+typedef VectorD2<double> VecD;
 
 
 template<typename _T>
@@ -167,6 +150,7 @@ struct MatrixD2 {
 };
 
 typedef MatrixD2<int> Matrix;
+typedef MatrixD2<double> MatD;
 
 
 #endif  //  __CVEC_H__
