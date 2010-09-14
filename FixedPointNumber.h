@@ -28,6 +28,7 @@ struct FixedPointNumber {
 	FixedPointNumber& operator--/* prefix */(int) { number -= factor; return *this; }
 	FixedPointNumber& operator+=(const FixedPointNumber& n) { number += n.number; return *this; }
 	FixedPointNumber& operator-=(const FixedPointNumber& n) { number -= n.number; return *this; }
+	FixedPointNumber& operator%=(const FixedPointNumber& n) { number %= n.number; return *this; }
 
 	FixedPointNumber operator-() const { return raw(-number); }	
 	FixedPointNumber operator+(const FixedPointNumber& n) const { return raw(number + n.number); }

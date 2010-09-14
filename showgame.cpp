@@ -126,6 +126,7 @@ int ReadStdinThread(void*) {
 }
 
 static Viewer viewer;
+static bool pressedAnyKey = false;
 
 #define SETVIDEOMODE SDL_SetVideoMode(screenw, screenh, screenbpp, SDL_RESIZABLE)
 
@@ -141,14 +142,22 @@ bool HandleEvent(const SDL_Event& event) {
 		case SDL_USEREVENT: {
 			Game* game = (Game*)event.user.data1;
 			viewer.gameStates.push_back(*game);
-			if(event.user.code == EVENT_STDIN_INITIAL) viewer.init();
 			delete game;
+			
+			if(event.user.code == EVENT_STDIN_INITIAL) viewer.init();
+			else if(!pressedAnyKey) {
+				viewer.offsetToGo++;
+				viewer.dtForAnimation += 200;
+			}
 			break;
 		}
 		case SDL_KEYDOWN:
+			if(!pressedAnyKey) viewer.offsetToGo %= 1;
+			pressedAnyKey = true;
 			switch(event.key.keysym.sym) {
 				case SDLK_LEFT: viewer.last(); break;
 				case SDLK_RIGHT: viewer.next(); break;
+				case SDLK_q: return false;
 				default: break; // ignore
 			}
 			break;
