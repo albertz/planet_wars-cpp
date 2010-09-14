@@ -54,15 +54,11 @@ static double inherentRadius(const Planet& p) {
 // past this game state, in units of time. As this parameter varies from
 // 0 to 1, the fleets all move in the forward direction. This is used to
 // fake smooth animation.
-//
-// On success, return an image. If something goes wrong, returns null.
-void Render(const Game& game,
-			int width, // Desired image width
-			int height, // Desired image height
-			double offset, // Real number between 0 and 1
-			SDL_Surface* surf) { // Rendering context
+void DrawGame(const Game& game, SDL_Surface* surf, double offset) {
 	static const Color textColor(255, 255, 255);
-
+	const int width = surf->w;
+	const int height = surf->h;
+	
 	// Determine the dimensions of the viewport in game coordinates.
 	double top = std::numeric_limits<double>::max();
 	double left = std::numeric_limits<double>::max();
@@ -125,16 +121,12 @@ void Render(const Game& game,
 		Point dPos = planetPos[f->destinationPlanet];
 		double tripProgress = 1.0 - (double)f->turnsRemaining / f->totalTripLength;
 		if (tripProgress > 0.99 || tripProgress < 0.01) continue;
-		double dx = dPos.x - sPos.x;
-		double dy = dPos.y - sPos.y;
-		double x = sPos.x + dx * tripProgress;
-		double y = sPos.y + dy * tripProgress;
+		VecD delta = dPos - sPos;
+		VecD pos = sPos + delta * tripProgress;
+		VecD ndelta = delta.Normalize();
+		Color c = GetColor(f->owner);
 		
-		Color c = GetColor(f->owner) * 0.8f;
-		DrawText(surf, to_string(f->numShips), c, x, y, true);
+		DrawLine(surf, pos + ndelta * 7, pos + ndelta * 12, c * 0.5);
+		DrawText(surf, to_string(f->numShips), c * 0.8, pos.x, pos.y, true);
 	}
-}
-
-void DrawGame(const Game& game, SDL_Surface* surf) {
-	Render(game, surf->w, surf->h, 0.0, surf);
 }

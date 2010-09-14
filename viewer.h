@@ -17,7 +17,13 @@
 
 struct SDL_Surface;
 
-void DrawGame(const Game& game, SDL_Surface* surf);
+// Renders the current state of the game to a graphics object
+//
+// The offset is a number between 0 and 1 that specifies how far we are
+// past this game state, in units of time. As this parameter varies from
+// 0 to 1, the fleets all move in the forward direction. This is used to
+// fake smooth animation.
+void DrawGame(const Game& game, SDL_Surface* surf, double offset = 0.0);
 
 struct Viewer {
 	std::list<Game> gameStates;
