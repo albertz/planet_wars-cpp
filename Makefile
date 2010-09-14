@@ -45,8 +45,8 @@ font.o: font.c
 gfx.o: gfx.cpp gfx.h
 	$(CPP) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
 	
-SDL_picofont.o: SDL_picofont.c SDL_picofont.h
-	$(CC) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
+SDL_picofont.o: SDL_picofont.cpp SDL_picofont.h
+	$(CPP) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
 	
 #%.o: %.cpp
 
