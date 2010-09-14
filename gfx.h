@@ -13,6 +13,7 @@
 #include <SDL.h>
 #include <cassert>
 #include "utils.h"
+#include "vec.h"
 
 inline SDL_PixelFormat* getMainPixelFormat() { return SDL_GetVideoSurface()->format; }
 
@@ -69,5 +70,9 @@ void DrawCircle(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color color)
 void DrawHLine(SDL_Surface * bmpDest, int x, int x2, int y, Color colour);
 void DrawVLine(SDL_Surface * bmpDest, int y, int y2, int x, Color colour);
 void DrawLine(SDL_Surface * dst, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Color color);
+
+inline void DrawLine(SDL_Surface* dst, VectorD2<Sint16> p1, VectorD2<Sint16> p2, Color col) {
+	DrawLine(dst, p1.x, p1.y, p2.x, p2.y, col);
+}
 
 #endif
