@@ -45,6 +45,7 @@
 		2391799C123E7C4E002C2060 /* SDL_picofont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SDL_picofont.c; sourceTree = "<group>"; };
 		2391799D123E7C4E002C2060 /* SDL_picofont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDL_picofont.h; sourceTree = "<group>"; };
 		23917AED123E9A48002C2060 /* showgame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = showgame.cpp; sourceTree = "<group>"; };
+		23917B7D123FE980002C2060 /* vec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,6 +122,7 @@
 		2391554A123E4854002C2060 /* viewgame */ = {
 			isa = PBXGroup;
 			children = (
+				23917B7D123FE980002C2060 /* vec.h */,
 				23917AED123E9A48002C2060 /* showgame.cpp */,
 				2391799B123E7C4E002C2060 /* font.c */,
 				2391799C123E7C4E002C2060 /* SDL_picofont.c */,
