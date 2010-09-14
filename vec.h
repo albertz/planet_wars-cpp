@@ -134,7 +134,10 @@ struct VectorD2__absolute_less {
 
 
 
-typedef VectorD2<float> CVec;
+typedef VectorD2<float> VectorF;
+typedef VectorD2<int> Vector;
+typedef Vector Point;
+
 
 template<typename _T>
 struct MatrixD2 {
@@ -163,6 +166,7 @@ struct MatrixD2 {
 	}
 };
 
+typedef MatrixD2<int> Matrix;
 
 
 #endif  //  __CVEC_H__
