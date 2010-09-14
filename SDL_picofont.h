@@ -14,6 +14,7 @@
 #ifdef __cplusplus
 
 #include <SDL.h>
+#include <string>
 #include "vec.h"
 #include "gfx.h"
 
