@@ -14,6 +14,7 @@
 #include <list>
 #include <cassert>
 #include "game.h"
+#include "FixedPointNumber.h"
 
 struct SDL_Surface;
 
@@ -28,24 +29,35 @@ void DrawGame(const Game& game, SDL_Surface* surf, double offset = 0.0);
 struct Viewer {
 	std::list<Game> gameStates;
 	std::list<Game>::iterator currentState;
+	bool withAnimation;
+	typedef FixedPointNumber<1000> Offset;
+	Offset offsetToGo;
+	long dtForAnimation;
+	long lastMoveTime;
+	Viewer() : withAnimation(true), dtForAnimation(0) {}
 	
 	void init() { assert(ready()); currentState = gameStates.begin(); }
-	bool ready() { return !gameStates.empty(); }
-	bool next() {
+	bool ready() const { return !gameStates.empty(); }
+	bool isAtStart() const { return currentState == gameStates.begin(); }
+	bool isAtEnd() const { std::list<Game>::iterator n = currentState; ++n; return n == gameStates.end(); }
+	bool _next() {
 		if(!ready()) return false;
-		std::list<Game>::iterator n = currentState; ++n;
-		if(n == gameStates.end()) return false;
+		if(isAtEnd()) return false;
 		++currentState; return true;
 	}
-	bool last() {
+	bool _last() {
 		if(!ready()) return false;
-		if(currentState == gameStates.begin()) return false;
+		if(isAtStart()) return false;
 		--currentState; return true;
 	}
-	void draw(SDL_Surface* surf = SDL_GetVideoSurface()) {
-		if(ready())
-			DrawGame(*currentState, surf);
-	}
+	
+	void move(int d);
+	void next() { move(1); }
+	void last() { move(-1); }
+	
+	bool isCurrentlyAnimating() { return ready() && withAnimation && offsetToGo != 0; }
+	void frame(SDL_Surface* surf, long dt);
+	
 };
 
 #endif

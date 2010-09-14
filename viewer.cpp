@@ -10,10 +10,13 @@
 #include <SDL.h>
 #include <cmath>
 #include <limits>
+#include <iostream>
 #include "viewer.h"
 #include "gfx.h"
 #include "game.h"
 #include "vec.h"
+
+using namespace std;
 
 // Gets a color for a player (clamped)
 static Color GetColor(int player) {
@@ -119,7 +122,7 @@ void DrawGame(const Game& game, SDL_Surface* surf, double offset) {
 	for (Game::Fleets::const_iterator f = game.fleets.begin(); f != game.fleets.end(); ++f) {
 		Point sPos = planetPos[f->sourcePlanet];
 		Point dPos = planetPos[f->destinationPlanet];
-		double tripProgress = 1.0 - (double)f->turnsRemaining / f->totalTripLength;
+		double tripProgress = 1.0 - (double(f->turnsRemaining) - offset) / f->totalTripLength;
 		if (tripProgress > 0.99 || tripProgress < 0.01) continue;
 		VecD delta = dPos - sPos;
 		VecD pos = sPos + delta * tripProgress;
@@ -146,4 +149,57 @@ void DrawGame(const Game& game, SDL_Surface* surf, double offset) {
 		}
 		DrawText(surf, txt, c, pos.x, pos.y, true);
 	}
+}
+
+void Viewer::move(int d) {
+	if(!ready()) return;
+	if(!withAnimation) { if(d >= 0) _next(); else _last(); return; }
+	if(SIGN(offsetToGo) != SIGN(d)) offsetToGo = 0;
+	
+	offsetToGo += d;
+	dtForAnimation = 100;	
+}
+
+void Viewer::frame(SDL_Surface* surf, long dt) {
+	if(!ready()) return;
+
+	if(offsetToGo > 0 && isAtEnd()) {
+		offsetToGo = 0;
+		dtForAnimation = 0;
+	}
+
+	if(offsetToGo < 0 && isAtStart()) {
+		offsetToGo = 0;
+		dtForAnimation = 0;
+	}
+	
+	double aniFrac = (dtForAnimation > 0) ? CLAMP(double(dt) / dtForAnimation, 0.0, 1.0) : 1.0;
+	dtForAnimation -= dt; if(dtForAnimation < 0) dtForAnimation = 0;	
+	Offset dOffset = offsetToGo * aniFrac;
+	if(dOffset == 0 && offsetToGo != 0) dOffset = Offset::minGreater0() * SIGN(offsetToGo);
+	Offset oldOffsetToGo = offsetToGo;
+	offsetToGo -= dOffset;
+	if(SIGN(offsetToGo) != SIGN(oldOffsetToGo)) offsetToGo = 0;
+
+	int numAbsSteps = 
+	(
+	 (oldOffsetToGo - Offset::minGreater0()).floor() -
+	 (offsetToGo - Offset::minGreater0()).floor()
+	 ).asInt();
+	
+	//if(oldOffsetToGo != 0)
+	//cout << "frame: dt=" << dt << ", oldoff=" << oldOffsetToGo.number << ", off=" << offsetToGo.number << ", steps=" << numAbsSteps;
+
+	bool success = true;
+	while(numAbsSteps > 0) { success &= _next(); --numAbsSteps; }
+	while(numAbsSteps < 0) { success &= _last(); ++numAbsSteps; }
+	
+	if(offsetToGo == 0 || dtForAnimation == 0 || !success) {
+		offsetToGo = 0;
+		dtForAnimation = 0;
+	}
+	
+	double offset = ((Offset(1) - offsetToGo % 1) % 1).asDouble();
+	//if(oldOffsetToGo != 0) cout << ", doffset=" << offset << endl;
+	DrawGame(*currentState, surf, offset);
 }

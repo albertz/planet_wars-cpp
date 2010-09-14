@@ -40,7 +40,7 @@ static ssize_t DUMMY_read(int, void* c, size_t n) {
 }
 
 typedef ssize_t (*ReadFunc)(int, void*, size_t);
-ReadFunc readFunc = &read;
+static ReadFunc readFunc = &read;
 
 void ParseParams(int argc, char** argv) {
 	argv0 = argv[0];
@@ -110,6 +110,49 @@ int ReadStdinThread(void*) {
 	return 0;
 }
 
+static Viewer viewer;
+
+#define SETVIDEOMODE SDL_SetVideoMode(screenw, screenh, screenbpp, SDL_RESIZABLE)
+
+// returns false for exit
+bool HandleEvent(const SDL_Event& event) {
+	switch(event.type) {
+		case SDL_QUIT: return false;
+		case SDL_VIDEORESIZE:
+			screenw = event.resize.w;
+			screenh = event.resize.h;
+			SETVIDEOMODE;
+			break;
+		case SDL_USEREVENT: {
+			char* str = (char*)event.user.data1;
+			switch(event.user.code) {
+				case EVENT_STDIN_INITIAL:
+					viewer.gameStates.push_back(Game());
+					viewer.init();
+					assert(viewer.gameStates.back().ParseGamePlaybackInitial(str));
+					break;
+				case EVENT_STDIN_CHUNK:
+					viewer.gameStates.push_back(Game());
+					assert(viewer.gameStates.back().ParseGamePlaybackChunk(str, viewer.gameStates.front()));
+					break;
+				default: assert(0);
+			}
+			free(str);
+			break;
+		}
+		case SDL_KEYDOWN:
+			switch(event.key.keysym.sym) {
+				case SDLK_LEFT: viewer.last(); break;
+				case SDLK_RIGHT: viewer.next(); break;
+				default: break; // ignore
+			}
+			break;
+		default:
+			break;
+	}
+	return true;
+}
+
 int main(int argc, char** argv) {
 	ParseParams(argc, argv);
 	assert(SDL_Init(SDL_INIT_VIDEO) >= 0);
@@ -117,9 +160,7 @@ int main(int argc, char** argv) {
 	// we want to redraw when these occur
 	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 	SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE);
-	
-#define SETVIDEOMODE SDL_SetVideoMode(screenw, screenh, screenbpp, SDL_RESIZABLE)
-	
+		
 	// init window
 	if(SETVIDEOMODE == NULL) {
 		cerr << "setting video mode " << screenw << "x" << screenh << "x" << screenbpp << " failed: "
@@ -130,52 +171,33 @@ int main(int argc, char** argv) {
 	FillSurface(SDL_GetVideoSurface(), backgroundCol);
 
 	SDL_WM_SetCaption("PlanetWars visualizer", NULL);
-	SDL_EnableKeyRepeat(200, SDL_DEFAULT_REPEAT_INTERVAL);
+	SDL_EnableKeyRepeat(100, 30);
 	SDL_Thread* stdinReader = SDL_CreateThread(&ReadStdinThread, NULL);
 	
 	// main loop
-	Viewer viewer;
-	SDL_Event event;
-	while ( SDL_WaitEvent(&event) >= 0 ) {
-		switch(event.type) {
-			case SDL_QUIT: goto exit;
-			case SDL_VIDEORESIZE:
-				screenw = event.resize.w;
-				screenh = event.resize.h;
-				SETVIDEOMODE;
-				break;
-			case SDL_USEREVENT: {
-				char* str = (char*)event.user.data1;
-				switch(event.user.code) {
-					case EVENT_STDIN_INITIAL:
-						viewer.gameStates.push_back(Game());
-						viewer.init();
-						assert(viewer.gameStates.back().ParseGamePlaybackInitial(str));
-						break;
-					case EVENT_STDIN_CHUNK:
-						viewer.gameStates.push_back(Game());
-						assert(viewer.gameStates.back().ParseGamePlaybackChunk(str, viewer.gameStates.front()));
-						break;
-					default: assert(0);
-				}
-				free(str);
-				break;
-			}
-			case SDL_KEYDOWN:
-				switch(event.key.keysym.sym) {
-					case SDLK_LEFT: viewer.last(); break;
-					case SDLK_RIGHT: viewer.next(); break;
-					default: break; // ignore
-				}
-				break;
+	long lastTime = currentTimeMillis();
+	while(true) {
+		bool haveEvent = false;
+		SDL_Event event;
+		if(viewer.isCurrentlyAnimating()) {
+			SDL_Delay(10);
+			haveEvent = SDL_PollEvent(&event) > 0;
 		}
+		else {
+			haveEvent = SDL_WaitEvent(&event) > 0;
+			lastTime = currentTimeMillis();
+		}
+		if(haveEvent && !HandleEvent(event))
+			break;
 		
+		long dt = currentTimeMillis() - lastTime;
+		lastTime += dt;
+				
 		FillSurface(SDL_GetVideoSurface(), backgroundCol);
-		viewer.draw();
+		viewer.frame(SDL_GetVideoSurface(), dt);
 		SDL_Flip(SDL_GetVideoSurface());
 	}
 
-exit:
 	_exit(0); // for now. seems that the reader even keeps busy with the close() below
 	close(STDIN_FILENO);
 	SDL_WaitThread(stdinReader, NULL);
