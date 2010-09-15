@@ -81,7 +81,7 @@ int main(int argc, char** args) {
 		//cout << "The game state:" << endl;
 		//cout << game.toString() << endl;
 		for (size_t i = 0; i < clients.size(); ++i) {
-			if (!*clients[i] || !game.IsAlive(i + 1)) continue;
+			if (!*clients[i] || !game.state.IsAlive(i + 1)) continue;
 			
 			std::string message = game.PovRepresentation(i + 1) + "go\n";
 			try {
@@ -98,7 +98,7 @@ int main(int argc, char** args) {
 		std::vector<bool> clientDone(clients.size(), false);
 		long startTime = currentTimeMillis();
 		for (size_t i = 0; i < clients.size(); ++i) {
-			if (!isAlive[i] || !game.IsAlive(i + 1) || clientDone[i]) {
+			if (!isAlive[i] || !game.state.IsAlive(i + 1) || clientDone[i]) {
 				clientDone[i] = true;
 				continue;
 			}
@@ -117,22 +117,22 @@ int main(int argc, char** args) {
 						break;
 					}
 					else
-						game.IssueOrder(i + 1, line);
+						game.ExecuteOrder(i + 1, line);
 				}
 			} catch (...) {
 				cerr << "WARNING: player " << (i+1) << " crashed." << endl;
 				clients[i]->destroy();
-				game.DropPlayer(i + 1);
+				game.state.DropPlayer(i + 1);
 				isAlive[i] = false;
 			}
 		}
 		for (size_t i = 0; i < clients.size(); ++i) {
-			if (!isAlive[i] || !game.IsAlive(i + 1)) continue;
+			if (!isAlive[i] || !game.state.IsAlive(i + 1)) continue;
 			if (clientDone[i]) continue;
 
 			cerr << "WARNING: player " << (i+1) << " timed out." << endl;
 			clients[i]->destroy();
-			game.DropPlayer(i + 1);
+			game.state.DropPlayer(i + 1);
 			isAlive[i] = false;
 		}
 		++numTurns;

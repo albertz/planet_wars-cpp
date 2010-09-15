@@ -20,15 +20,70 @@
 #include <ostream>
 #include <vector>
 #include <list>
+#include <cmath>
 #include "PlanetWars.h"
 
-struct Game {
-	// Store all the planets and fleets. OMG we wouldn't wanna lose all the
-	// planets and fleets, would we!?
-	typedef std::vector<Planet> Planets;
+struct GameDesc;
+
+struct GameState {
+	typedef std::vector<PlanetState> Planets;
 	typedef std::vector<Fleet> Fleets;
 	Planets planets;
 	Fleets fleets;
+
+	// Parses a chunk from a game playback.
+	// NOTE: the planets.size must fit!
+	bool ParseGamePlaybackChunk(const std::string& s);
+
+	// Executes one time step.
+	//   * Planet bonuses are added to non-neutral planets.
+	//   * Fleets are advanced towards their destinations.
+	//   * Fleets that arrive at their destination are dealt with.
+	void DoTimeStep(const GameDesc& desc);	
+
+	//Resolves the battle at planet p, if there is one.
+    //* Removes all fleets involved in the battle
+    //* Sets the number of ships and owner of the planet according the outcome
+    void __FightBattle(PlanetState& p);
+	
+	// Kicks a player out of the game. This is used in cases where a player
+	// tries to give an illegal order or runs over the time limit.
+	void DropPlayer(int playerID);		
+	
+	// Returns true if the named player owns at least one planet or fleet.
+	// Otherwise, the player is deemed to be dead and false is returned.
+	bool IsAlive(int playerID);
+
+	// If the game is not yet over (ie: at least two players have planets or
+	// fleets remaining), returns -1. If the game is over (ie: only one player
+	// is left) then that player's number is returned. If there are no
+	// remaining players, then the game is a draw and 0 is returned.
+	int Winner(bool maxTurnsReached);
+	
+	// Returns the number of ships that the current player has, either located
+	// on planets or in flight.
+	int NumShips(int playerID);	
+};
+
+struct GameDesc {
+	typedef std::vector<PlanetDesc> Planets;
+	Planets planets;
+
+    // Returns the distance between two planets, rounded up to the next highest
+    // integer. This is the number of discrete time steps it takes to get
+    // between the two planets.
+    int Distance(int sourcePlanet, int destinationPlanet) const {
+		const PlanetDesc& source = planets[sourcePlanet];
+		const PlanetDesc& destination = planets[destinationPlanet];
+		double dx = source.x - destination.x;
+		double dy = source.y - destination.y;
+		return (int)ceil(sqrt(dx * dx + dy * dy));		
+	}
+};
+
+struct Game {
+	GameDesc desc;
+	GameState state;
 	
 	// The maximum length of the game in turns. After this many turns, the game
 	// will end, with whoever has the most ships as the winner. If there is no
@@ -50,10 +105,11 @@ struct Game {
 	: maxGameLength(_maxGameLength), numTurns(0),
 	gamePlayback(_gamePlayback), logFile(_logFile) {}
 
+	void clear() { desc = GameDesc(); state = GameState(); }
+	
 	// Parses a game state from a string. On success, returns true. On failure, returns false.
 	bool ParseGameState(const std::string& s);
 	bool ParseGamePlaybackInitial(const std::string& s);
-	bool ParseGamePlaybackChunk(const std::string& s, const Game& initialGame);
 	
 	// Loads a map from a text file. The text file contains a description of
 	// the starting state of a game. See the project wiki for a description of
@@ -62,10 +118,10 @@ struct Game {
 	int LoadMapFromFile(const std::string& mapFilename);
 		
 	// Returns the number of planets. Planets are numbered starting with 0.
-	int NumPlanets() { return planets.size(); }
+	size_t NumPlanets() const { return desc.planets.size(); }
 		
     // Returns the number of fleets.
-    int NumFleets() { return fleets.size(); }
+	size_t NumFleets() const { return state.fleets.size(); }
 		
 	// Writes a string which represents the current game state. No point-of-
     // view switching is performed.
@@ -91,63 +147,93 @@ struct Game {
     // 4. Otherwise return player_id, since players other than 1 and pov are
     //    unaffected by the pov switch.
     static int PovSwitch(int pov, int playerID);
-			
-    // Returns the distance between two planets, rounded up to the next highest
-    // integer. This is the number of discrete time steps it takes to get
-    // between the two planets.
-    int Distance(int sourcePlanet, int destinationPlanet);
 	
-	// Executes one time step.
-	//   * Planet bonuses are added to non-neutral planets.
-	//   * Fleets are advanced towards their destinations.
-	//   * Fleets that arrive at their destination are dealt with.
 	void DoTimeStep();
+
+	int Winner() { return state.Winner(numTurns > maxGameLength); }
 	
-	// Issue an order. This function takes num_ships off the source_planet,
+	// Execute an order. This function takes num_ships off the source_planet,
 	// puts them into a newly-created fleet, calculates the distance to the
 	// destination_planet, and sets the fleet's total trip time to that
 	// distance. Checks that the given player_id is allowed to give the given
 	// order. If not, the offending player is kicked from the game. If the
 	// order was carried out without any issue, and everything is peachy, then
 	// 0 is returned. Otherwise, -1 is returned.
-	int IssueOrder(int playerID,
-						  int sourcePlanet,
-						  int destinationPlanet,
-						  int numShips);		
-
-	// Behaves just like the longer form of IssueOrder, but takes a string
+	int ExecuteOrder(int playerID,
+					 int sourcePlanet,
+					 int destinationPlanet,
+					 int numShips);		
+	
+	// Behaves just like the longer form of ExecuteOrder, but takes a string
 	// of the form "source_planet destination_planet num_ships". That is, three
 	// integers separated by space characters.
-	int IssueOrder(int playerID, const std::string& order);
-		
-	void AddFleet(const Fleet& f) { fleets.push_back(f); }
-	
-	// Kicks a player out of the game. This is used in cases where a player
-	// tries to give an illegal order or runs over the time limit.
-	void DropPlayer(int playerID);		
-
-	// Returns true if the named player owns at least one planet or fleet.
-	// Otherwise, the player is deemed to be dead and false is returned.
-	bool IsAlive(int playerID);
-	
-	// If the game is not yet over (ie: at least two players have planets or
-	// fleets remaining), returns -1. If the game is over (ie: only one player
-	// is left) then that player's number is returned. If there are no
-	// remaining players, then the game is a draw and 0 is returned.
-	int Winner();
-			
-	// Returns the number of ships that the current player has, either located
-	// on planets or in flight.
-	int NumShips(int playerID);
-	
-	//Resolves the battle at planet p, if there is one.
-    //* Removes all fleets involved in the battle
-    //* Sets the number of ships and owner of the planet according the outcome
-    void __FightBattle(Planet& p);
-	
+	int ExecuteOrder(int playerID, const std::string& order);
+								
 	void WriteLogMessage(const std::string& message) {
 		if(logFile) *logFile << message << std::endl;
 	}
+	
+	
+	// --------------- functions to provide original-kind-of interface ------------
+	
+	// Returns the planet with the given planet_id. There are NumPlanets()
+	// planets. They are numbered starting at 0.
+	Planet GetPlanet(int planet_id) const {
+		return Planet(planet_id, desc.planets[planet_id], state.planets[planet_id]);
+	}
+	
+	// Returns the fleet with the given fleet_id. Fleets are numbered starting
+	// with 0. There are NumFleets() fleets. fleet_id's are not consistent from
+	// one turn to the next.
+	const Fleet& GetFleet(int fleet_id) const {
+		return state.fleets[fleet_id];
+	}
+	
+	// Returns a list of all the planets.
+	std::vector<Planet> Planets() const;
+	
+	// Return a list of all the planets owned by the current player. By
+	// convention, the current player is always player number 1.
+	std::vector<Planet> MyPlanets() const;
+	
+	// Return a list of all neutral planets.
+	std::vector<Planet> NeutralPlanets() const;
+	
+	// Return a list of all the planets owned by rival players. This excludes
+	// planets owned by the current player, as well as neutral planets.
+	std::vector<Planet> EnemyPlanets() const;
+	
+	// Return a list of all the planets that are not owned by the current
+	// player. This includes all enemy planets and neutral planets.
+	std::vector<Planet> NotMyPlanets() const;
+	
+	// Return a list of all the fleets.
+	std::vector<Fleet> Fleets() const;
+	
+	// Return a list of all the fleets owned by the current player.
+	std::vector<Fleet> MyFleets() const;
+	
+	// Return a list of all the fleets owned by enemy players.
+	std::vector<Fleet> EnemyFleets() const;
+	
+	
+	
+	// --------------- bot side control ----------------------
+	
+	// Sends an order to the game engine. The order is to send num_ships ships
+	// from source_planet to destination_planet. The order must be valid, or
+	// else your bot will get kicked and lose the game. For example, you must own
+	// source_planet, and you can't send more ships than you actually have on
+	// that planet.
+	void IssueOrder(int source_planet,
+					int destination_planet,
+					int num_ships) const;
+	
+	// Sends a message to the game engine letting it know that you're done
+	// issuing orders for now.
+	void FinishTurn() const;
+	
+	
 };
 
 #endif

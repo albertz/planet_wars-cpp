@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <string>
 #include <list>
+#include <memory>
 #include "utils.h"
 #include "game.h"
 #include "gfx.h"
@@ -87,7 +88,7 @@ int ReadStdinThread(void*) {
 	int state = EVENT_STDIN_INITIAL;
 	char c;
 	std::string buf;
-	Game initialGame;
+	size_t numPlanets = 0;
 	
 	while((*readFunc)(STDIN_FILENO, &c, 1) > 0) {		
 		SDL_Event ev; memset(&ev, 0, sizeof(SDL_Event));
@@ -99,8 +100,8 @@ int ReadStdinThread(void*) {
 				if(c == '|') {
 					Game* game = new Game();
 					assert(game->ParseGamePlaybackInitial(buf));
-					initialGame = *game;
 					ev.user.data1 = game;
+					numPlanets = game->NumPlanets();
 					buf = "";
 					state = EVENT_STDIN_CHUNK;
 				}
@@ -108,9 +109,10 @@ int ReadStdinThread(void*) {
 				break;
 			case EVENT_STDIN_CHUNK:
 				if(c == ':') {
-					Game* game = new Game();
-					assert(game->ParseGamePlaybackChunk(buf, initialGame));
-					ev.user.data1 = game;
+					GameState* gameState = new GameState();
+					gameState->planets.resize(numPlanets);
+					assert(gameState->ParseGamePlaybackChunk(buf));
+					ev.user.data1 = gameState;
 					buf = "";
 				}
 				else buf += c;
@@ -140,14 +142,24 @@ bool HandleEvent(const SDL_Event& event) {
 			SETVIDEOMODE;
 			break;
 		case SDL_USEREVENT: {
-			Game* game = (Game*)event.user.data1;
-			viewer.gameStates.push_back(*game);
-			delete game;
-			
-			if(event.user.code == EVENT_STDIN_INITIAL) viewer.init();
-			else if(!pressedAnyKey) {
-				viewer.offsetToGo++;
-				viewer.dtForAnimation += 200;
+			switch(event.user.code) {
+				case EVENT_STDIN_INITIAL: {
+					std::auto_ptr<Game> game( (Game*)event.user.data1 );
+					viewer.gameDesc = game->desc;
+					viewer.gameStates.push_back(game->state);
+					viewer.init();
+					break;
+				}
+				case EVENT_STDIN_CHUNK: {
+					std::auto_ptr<GameState> gameState( (GameState*)event.user.data1 );
+					viewer.gameStates.push_back(*gameState);
+					if(!pressedAnyKey) {
+						viewer.offsetToGo++;
+						viewer.dtForAnimation += 200;
+					}
+					break;
+				}
+				default: assert(false);
 			}
 			break;
 		}

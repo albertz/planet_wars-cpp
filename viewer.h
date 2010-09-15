@@ -24,11 +24,12 @@ struct SDL_Surface;
 // past this game state, in units of time. As this parameter varies from
 // 0 to 1, the fleets all move in the forward direction. This is used to
 // fake smooth animation.
-void DrawGame(const Game& game, SDL_Surface* surf, double offset = 0.0);
+void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, double offset = 0.0);
 
 struct Viewer {
-	std::list<Game> gameStates;
-	std::list<Game>::iterator currentState;
+	GameDesc gameDesc;
+	std::list<GameState> gameStates;
+	std::list<GameState>::iterator currentState;
 	bool withAnimation;
 	typedef FixedPointNumber<1000> Offset;
 	Offset offsetToGo;
@@ -39,7 +40,7 @@ struct Viewer {
 	void init() { assert(ready()); currentState = gameStates.begin(); }
 	bool ready() const { return !gameStates.empty(); }
 	bool isAtStart() const { return currentState == gameStates.begin(); }
-	bool isAtEnd() const { std::list<Game>::iterator n = currentState; ++n; return n == gameStates.end(); }
+	bool isAtEnd() const { std::list<GameState>::iterator n = currentState; ++n; return n == gameStates.end(); }
 	bool _next() {
 		if(!ready()) return false;
 		if(isAtEnd()) return false;

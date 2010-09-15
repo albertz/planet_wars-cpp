@@ -33,7 +33,7 @@ static Color GetColor(int player) {
 		return colors[player];
 }
 
-static Point getPlanetPos(const Planet& p, double top, double left,
+static Point getPlanetPos(const PlanetDesc& p, double top, double left,
 						  double right, double bottom, int width,
 						  int height) {
 	int x = (int)((p.x - left) / (right - left) * width);
@@ -45,7 +45,7 @@ static Point getPlanetPos(const Planet& p, double top, double left,
 // rendering. The final rendered radii of all the planets are proportional
 // to their inherent radii. The radii are scaled for maximum aesthetic
 // appeal.
-static double inherentRadius(const Planet& p) {
+static double inherentRadius(const PlanetDesc& p) {
 	return sqrt(p.growthRate) * 0.5;
 	//return log(p.GrowthRate() + 3.0);
 	//return p.GrowthRate();
@@ -57,7 +57,7 @@ static double inherentRadius(const Planet& p) {
 // past this game state, in units of time. As this parameter varies from
 // 0 to 1, the fleets all move in the forward direction. This is used to
 // fake smooth animation.
-void DrawGame(const Game& game, SDL_Surface* surf, double offset) {
+void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, double offset) {
 	static const Color textColor(255, 255, 255);
 	const int width = surf->w;
 	const int height = surf->h;
@@ -67,7 +67,7 @@ void DrawGame(const Game& game, SDL_Surface* surf, double offset) {
 	double left = std::numeric_limits<double>::max();
 	double right = std::numeric_limits<double>::min();
 	double bottom = std::numeric_limits<double>::min();
-	for (Game::Planets::const_iterator p = game.planets.begin(); p != game.planets.end(); ++p) {
+	for (GameDesc::Planets::const_iterator p = desc.planets.begin(); p != desc.planets.end(); ++p) {
 		if (p->x < left) left = p->x;
 		if (p->x > right) right = p->x;
 		if (p->y > bottom) bottom = p->y;
@@ -80,14 +80,14 @@ void DrawGame(const Game& game, SDL_Surface* surf, double offset) {
 	right += xRange * paddingFactor;
 	top -= yRange * paddingFactor;
 	bottom += yRange * paddingFactor;
-	std::vector<Point> planetPos(game.planets.size());
+	std::vector<Point> planetPos(desc.planets.size());
 	
 	// Determine the best scaling factor for the sizes of the planets.
 	double minSizeFactor = std::numeric_limits<double>::max();
-	for (size_t i = 0; i < game.planets.size(); ++i) {
-		for (size_t j = i + 1; j < game.planets.size(); ++j) {
-			const Planet& a = game.planets[i];
-			const Planet& b = game.planets[j];
+	for (size_t i = 0; i < desc.planets.size(); ++i) {
+		for (size_t j = i + 1; j < desc.planets.size(); ++j) {
+			const PlanetDesc& a = desc.planets[i];
+			const PlanetDesc& b = desc.planets[j];
 			double dx = b.x - a.x;
 			double dy = b.y - a.y;
 			double dist = sqrt(dx * dx + dy * dy);
@@ -101,25 +101,24 @@ void DrawGame(const Game& game, SDL_Surface* surf, double offset) {
 	
 	// Draw the planets.
 	size_t i = 0;
-	for (Game::Planets::const_iterator p = game.planets.begin(); p != game.planets.end(); ++p) {
-		Point pos = getPlanetPos(*p, top, left, right, bottom, width,
-								 height);
+	for (size_t p = 0; p < desc.planets.size(); ++p) {
+		Point pos = getPlanetPos(desc.planets[p], top, left, right, bottom, width, height);
 		planetPos[i++] = pos;
 		int x = pos.x;
 		int y = pos.y;
-		double size = minSizeFactor * inherentRadius(*p);
+		double size = minSizeFactor * inherentRadius(desc.planets[p]);
 		int r = (int)std::min(size / (right - left) * width,
 							  size / (bottom - top) * height);
 		if(r > 0) {
-			Color c = GetColor(p->owner);
+			Color c = GetColor(state.planets[p].owner);
 			DrawCircleFilled(surf, x, y, r+1, r+1, c * 1.2f);
 			DrawCircleFilled(surf, x, y, r, r, c);
 		}
-		DrawText(surf, to_string(p->numShips), textColor, x, y, true);
+		DrawText(surf, to_string(state.planets[p].numShips), textColor, x, y, true);
 	}
 
 	// Draw fleets
-	for (Game::Fleets::const_iterator f = game.fleets.begin(); f != game.fleets.end(); ++f) {
+	for (GameState::Fleets::const_iterator f = state.fleets.begin(); f != state.fleets.end(); ++f) {
 		Point sPos = planetPos[f->sourcePlanet];
 		Point dPos = planetPos[f->destinationPlanet];
 		double tripProgress = 1.0 - (double(f->turnsRemaining) - offset) / f->totalTripLength;
@@ -201,5 +200,5 @@ void Viewer::frame(SDL_Surface* surf, long dt) {
 	
 	double offset = ((Offset(1) - offsetToGo % 1) % 1).asDouble();
 	//if(oldOffsetToGo != 0) cout << ", doffset=" << offset << endl;
-	DrawGame(*currentState, surf, offset);
+	DrawGame(gameDesc, *currentState, surf, offset);
 }

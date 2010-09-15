@@ -21,6 +21,7 @@
 #include <iterator>
 #include <fstream>
 #include <cstdlib>
+#include <iostream>
 #include "game.h"
 #include "utils.h"
 
@@ -34,13 +35,14 @@
 // they are player number 1.
 std::string Game::PovRepresentation(int pov) {
 	std::ostringstream s;
-	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+	for (size_t i = 0; i < desc.planets.size(); ++i) {
 		s
-		<< "P " << p->x << " " << p->y << " "
-		<< PovSwitch(pov, p->owner) << " "
-		<< p->numShips << " " << p->growthRate << std::endl;
+		<< "P " << desc.planets[i].x << " " << desc.planets[i].y << " "
+		<< PovSwitch(pov, state.planets[i].owner) << " "
+		<< state.planets[i].numShips << " "
+		<< desc.planets[i].growthRate << std::endl;
 	}
-	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+	for (GameState::Fleets::iterator f = state.fleets.begin(); f != state.fleets.end(); ++f) {
 		s
 		<< "F " << PovSwitch(pov, f->owner) << " "
 		<< f->numShips << " " << f->sourcePlanet << " "
@@ -66,21 +68,10 @@ int Game::PovSwitch(int pov, int playerID) {
 	return playerID;
 }
 
-// Returns the distance between two planets, rounded up to the next highest
-// integer. This is the number of discrete time steps it takes to get
-// between the two planets.
-int Game::Distance(int sourcePlanet, int destinationPlanet) {
-	const Planet& source = planets[sourcePlanet];
-	const Planet& destination = planets[destinationPlanet];
-	double dx = source.x - destination.x;
-	double dy = source.y - destination.y;
-	return (int)ceil(sqrt(dx * dx + dy * dy));
-}
-
 //Resolves the battle at planet p, if there is one.
 //* Removes all fleets involved in the battle
 //* Sets the number of ships and owner of the planet according the outcome
-void Game::__FightBattle(Planet& p) {
+void GameState::__FightBattle(PlanetState& p) {
 	std::map<int,int> participants;	
 	participants[p.owner] = p.numShips;
 	
@@ -118,11 +109,11 @@ void Game::__FightBattle(Planet& p) {
 //   * Planet bonuses are added to non-neutral planets.
 //   * Fleets are advanced towards their destinations.
 //   * Fleets that arrive at their destination are dealt with.
-void Game::DoTimeStep() {
+void GameState::DoTimeStep(const GameDesc& desc) {
 	// Add ships to each non-neutral planet according to its growth rate.
-	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
-		if (p->owner > 0) {
-			p->numShips += p->growthRate;
+	for (size_t i = 0; i < planets.size(); ++i) {
+		if (planets[i].owner > 0) {
+			planets[i].numShips += desc.planets[i].growthRate;
 		}
 	}
 	// Advance all fleets by one time step.
@@ -133,17 +124,21 @@ void Game::DoTimeStep() {
 	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
 		__FightBattle(*p);
 	}
+}
+
+void Game::DoTimeStep() {
+	state.DoTimeStep(desc);
 	
 	if(gamePlayback) {
 		bool needcomma = false;
-		for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+		for (GameState::Planets::iterator p = state.planets.begin(); p != state.planets.end(); ++p) {
 			if(needcomma) *gamePlayback << ",";
 			*gamePlayback
 			<< p->owner << "."
 			<< p->numShips;
 			needcomma = true;
 		}
-		for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+		for (GameState::Fleets::iterator f = state.fleets.begin(); f != state.fleets.end(); ++f) {
 			*gamePlayback
 			<< ","
 			<< f->owner << "."
@@ -157,21 +152,22 @@ void Game::DoTimeStep() {
 	}
 	
 	// Check to see if the maximum number of turns has been reached.
-	++numTurns;
+	++numTurns;	
 }
 
-// Issue an order. This function takes num_ships off the source_planet,
+
+// Execute an order. This function takes num_ships off the source_planet,
 // puts them into a newly-created fleet, calculates the distance to the
 // destination_planet, and sets the fleet's total trip time to that
 // distance. Checks that the given player_id is allowed to give the given
 // order. If not, the offending player is kicked from the game. If the
 // order was carried out without any issue, and everything is peachy, then
 // 0 is returned. Otherwise, -1 is returned.
-int Game::IssueOrder(int playerID,
-					 int sourcePlanet,
-					 int destinationPlanet,
-					 int numShips) {
-	Planet& source = planets[sourcePlanet];
+int Game::ExecuteOrder(int playerID,
+					   int sourcePlanet,
+					   int destinationPlanet,
+					   int numShips) {
+	PlanetState& source = state.planets[sourcePlanet];
 	if (source.owner != playerID ||
 		numShips > source.numShips ||
 		numShips < 0) {
@@ -179,37 +175,37 @@ int Game::IssueOrder(int playerID,
 						". source.Owner() = " + to_string(source.owner) + ", playerID = " +
 						to_string(playerID) + ", numShips = " + to_string(numShips) +
 						", source.NumShips() = " + to_string(source.numShips));
-		DropPlayer(playerID);
+		state.DropPlayer(playerID);
 		return -1;
 	}
 	source.numShips -= numShips;
-	int distance = Distance(sourcePlanet, destinationPlanet);
+	int distance = desc.Distance(sourcePlanet, destinationPlanet);
 	Fleet f(source.owner,
 			numShips,
 			sourcePlanet,
 			destinationPlanet,
 			distance,
 			distance);
-	fleets.push_back(f);
+	state.fleets.push_back(f);
 	return 0;
 }
 
 // Behaves just like the longer form of IssueOrder, but takes a string
 // of the form "source_planet destination_planet num_ships". That is, three
 // integers separated by space characters.
-int Game::IssueOrder(int playerID, const std::string& order) {
+int Game::ExecuteOrder(int playerID, const std::string& order) {
 	std::vector<std::string> tokens = Tokenize(order, " ");
 	if (tokens.size() != 3) return -1;
 	
 	int sourcePlanet = atoi(tokens[0].c_str());
 	int destinationPlanet = atoi(tokens[1].c_str());
 	int numShips = atoi(tokens[2].c_str());
-	return IssueOrder(playerID, sourcePlanet, destinationPlanet, numShips);
+	return ExecuteOrder(playerID, sourcePlanet, destinationPlanet, numShips);
 }
 
 // Kicks a player out of the game. This is used in cases where a player
 // tries to give an illegal order or runs over the time limit.
-void Game::DropPlayer(int playerID) {
+void GameState::DropPlayer(int playerID) {
 	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
 		if (p->owner == playerID)
 			p->owner = 0;
@@ -222,7 +218,7 @@ void Game::DropPlayer(int playerID) {
 
 // Returns true if the named player owns at least one planet or fleet.
 // Otherwise, the player is deemed to be dead and false is returned.
-bool Game::IsAlive(int playerID) {
+bool GameState::IsAlive(int playerID) {
 	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
 		if (p->owner == playerID)
 			return true;
@@ -238,7 +234,7 @@ bool Game::IsAlive(int playerID) {
 // fleets remaining), returns -1. If the game is over (ie: only one player
 // is left) then that player's number is returned. If there are no
 // remaining players, then the game is a draw and 0 is returned.
-int Game::Winner() {
+int GameState::Winner(bool maxTurnsReached) {
 	std::set<int> remainingPlayers;
 	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
 		remainingPlayers.insert(p->owner);
@@ -247,7 +243,7 @@ int Game::Winner() {
 		remainingPlayers.insert(f->owner);
 	}
 	remainingPlayers.erase(0);
-	if (numTurns > maxGameLength) {
+	if (maxTurnsReached) {
 		int leadingPlayer = -1;
 		int mostShips = -1;
 		for (std::set<int>::iterator p = remainingPlayers.begin(); p != remainingPlayers.end(); ++p) {
@@ -273,7 +269,7 @@ int Game::Winner() {
 
 // Returns the number of ships that the current player has, either located
 // on planets or in flight.
-int Game::NumShips(int playerID) {
+int GameState::NumShips(int playerID) {
 	int numShips = 0;
 	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
 		if (p->owner == playerID)
@@ -289,8 +285,7 @@ int Game::NumShips(int playerID) {
 
 // Parses a game state from a string. On success, returns true. On failure, returns false.
 bool Game::ParseGameState(const std::string& s) {
-	planets.clear();
-	fleets.clear();
+	clear();
 	std::vector<std::string> lines = Tokenize(s, "\n");
 	for (size_t i = 0; i < lines.size(); ++i) {
 		std::string& line = lines[i];
@@ -310,15 +305,16 @@ bool Game::ParseGameState(const std::string& s) {
 			int owner = atoi(tokens[3].c_str());
 			int numShips = atoi(tokens[4].c_str());
 			int growthRate = atoi(tokens[5].c_str());
-			int planet_id = planets.size();
 
 			if(gamePlayback) {
-				if (planets.size() > 0) *gamePlayback << ":";
+				if (desc.planets.size() > 0) *gamePlayback << ":";
 				*gamePlayback << x << "," << y << "," << owner << "," << numShips << "," << growthRate;				
 			}
 			
-			Planet p(planet_id, owner, numShips, growthRate, x, y);
-			planets.push_back(p);
+			PlanetDesc planetDesc(growthRate, x, y);
+			PlanetState planetState(owner, numShips);
+			desc.planets.push_back(planetDesc);
+			state.planets.push_back(planetState);
 
 		} else if (tokens[0] == "F") {
 			if (tokens.size() != 7) return 0;
@@ -336,7 +332,7 @@ bool Game::ParseGameState(const std::string& s) {
 					destination,
 					totalTripLength,
 					turnsRemaining);
-			fleets.push_back(f);
+			state.fleets.push_back(f);
 
 		} else
 			return false;
@@ -346,8 +342,7 @@ bool Game::ParseGameState(const std::string& s) {
 }
 
 bool Game::ParseGamePlaybackInitial(const std::string& s) {
-	planets.clear();
-	fleets.clear();
+	clear();
 	std::vector<std::string> toks = Tokenize(s, ":");
 	for (size_t i = 0; i < toks.size(); ++i) {
 		std::vector<std::string> planetData = Tokenize(toks[i], ",");		
@@ -358,36 +353,47 @@ bool Game::ParseGamePlaybackInitial(const std::string& s) {
 		int owner = atoi(planetData[2].c_str());
 		int numShips = atoi(planetData[3].c_str());
 		int growthRate = atoi(planetData[4].c_str());
-		int planet_id = planets.size();
-					
-		Planet p(planet_id, owner, numShips, growthRate, x, y);
-		planets.push_back(p);
+
+		PlanetDesc planetDesc(growthRate, x, y);
+		PlanetState planetState(owner, numShips);
+		desc.planets.push_back(planetDesc);
+		state.planets.push_back(planetState);
 	}
 	return true;	
 }
 
-bool Game::ParseGamePlaybackChunk(const std::string& s, const Game& initialGame) {
-	*this = initialGame;
-	
+bool GameState::ParseGamePlaybackChunk(const std::string& s) {
+	fleets.clear();
 	std::vector<std::string> items = Tokenize(s, ",");
-	for (size_t j = 0; j < planets.size(); ++j) {
-        Planet& p = planets[j];
+	
+	size_t numPlanets = 0;
+	for (size_t j = 0; j < items.size(); ++j) {
 		std::vector<std::string> fields = Tokenize(items[j], ".");
+		switch(fields.size()) {
+			case 2: // planet
+				if(numPlanets + 1 > planets.size()) return false;
+				planets[numPlanets].owner = atoi(fields[0].c_str());
+				planets[numPlanets].numShips = atoi(fields[1].c_str());
+				numPlanets++;
+				break;
+			case 6: { // fleet
+				Fleet f(atoi(fields[0].c_str()),
+						atoi(fields[1].c_str()),
+						atoi(fields[2].c_str()),
+						atoi(fields[3].c_str()),
+						atoi(fields[4].c_str()),
+						atoi(fields[5].c_str()));
+				fleets.push_back(f);
+				break;
+			}
+			default:
+				return false;
+		}
+		
 		if(fields.size() != 2) return false;
-        p.owner = atoi(fields[0].c_str());
-        p.numShips = atoi(fields[1].c_str());
 	}
-	for (size_t j = planets.size(); j < items.size(); ++j) {
-		std::vector<std::string> fields = Tokenize(items[j], ".");
-		if(fields.size() != 6) return false;
-        Fleet f(atoi(fields[0].c_str()),
-                atoi(fields[1].c_str()),
-                atoi(fields[2].c_str()),
-                atoi(fields[3].c_str()),
-                atoi(fields[4].c_str()),
-                atoi(fields[5].c_str()));
-        AddFleet(f);
-	}
+	
+	if(numPlanets < planets.size()) return false;
 	return true;
 }
 
@@ -403,3 +409,86 @@ int Game::LoadMapFromFile(const std::string& mapFilename) {
 }
 
 
+
+std::vector<Planet> Game::Planets() const {
+	std::vector<Planet> r;
+	for (size_t i = 0; i < NumPlanets(); ++i)
+		r.push_back(GetPlanet(i));
+	return r;
+}
+
+std::vector<Planet> Game::MyPlanets() const {
+	std::vector<Planet> r;
+	for (size_t i = 0; i < NumPlanets(); ++i) {
+		if (state.planets[i].owner == 1)
+			r.push_back(GetPlanet(i));
+	}
+	return r;
+}
+
+std::vector<Planet> Game::NeutralPlanets() const {
+	std::vector<Planet> r;
+	for (size_t i = 0; i < NumPlanets(); ++i) {
+		if (state.planets[i].owner == 0)
+			r.push_back(GetPlanet(i));
+	}
+	return r;
+}
+
+std::vector<Planet> Game::EnemyPlanets() const {
+	std::vector<Planet> r;
+	for (size_t i = 0; i < NumPlanets(); ++i) {
+		if (state.planets[i].owner > 1)
+			r.push_back(GetPlanet(i));
+	}
+	return r;
+}
+
+std::vector<Planet> Game::NotMyPlanets() const {
+	std::vector<Planet> r;
+	for (size_t i = 0; i < NumPlanets(); ++i) {
+		if (state.planets[i].owner != 1)
+			r.push_back(GetPlanet(i));
+	}
+	return r;
+}
+
+std::vector<Fleet> Game::Fleets() const {
+	std::vector<Fleet> r;
+	for (size_t i = 0; i < NumFleets(); ++i) {
+		r.push_back(GetFleet(i));
+	}
+	return r;
+}
+
+std::vector<Fleet> Game::MyFleets() const {
+	std::vector<Fleet> r;
+	for (size_t i = 0; i < NumFleets(); ++i) {
+		if (state.fleets[i].owner == 1)
+			r.push_back(GetFleet(i));
+	}
+	return r;
+}
+
+std::vector<Fleet> Game::EnemyFleets() const {
+	std::vector<Fleet> r;
+	for (size_t i = 0; i < NumFleets(); ++i) {
+		if (state.fleets[i].owner > 1)
+			r.push_back(GetFleet(i));
+	}
+	return r;
+}
+
+void Game::IssueOrder(int source_planet,
+                            int destination_planet,
+                            int num_ships) const {
+	std::cout << source_planet << " "
+	<< destination_planet << " "
+	<< num_ships << std::endl;
+	std::cout.flush();
+}
+
+void Game::FinishTurn() const {
+	std::cout << "go" << std::endl;
+	std::cout.flush();
+}
