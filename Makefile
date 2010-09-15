@@ -25,9 +25,6 @@ all: playgame showgame
 clean:
 	rm -rf *.o playgame showgame
 
-PlanetWars.o: PlanetWars.cpp PlanetWars.h
-	$(CPP) $(CFLAGS) $< -c -o $@
-
 engine.o: engine.cpp
 	$(CPP) $(CFLAGS) $< -c -o $@
 
@@ -54,8 +51,8 @@ SDL_picofont.o: SDL_picofont.cpp SDL_picofont.h
 	
 #%.o: %.cpp
 
-playgame: PlanetWars.o engine.o game.o utils.o
+playgame: engine.o game.o utils.o
 	$(CPP) $(LFLAGS) $^ -o $@
 
-showgame: PlanetWars.o utils.o game.o showgame.o viewer.o font.o SDL_picofont.o gfx.o
+showgame: utils.o game.o showgame.o viewer.o font.o SDL_picofont.o gfx.o
 	$(CPP) $(LFLAGS) $(SDL_LFLAGS) $^ -o $@

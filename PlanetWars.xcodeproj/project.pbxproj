@@ -9,9 +9,7 @@
 /* Begin PBXBuildFile section */
 		23915544123E4817002C2060 /* engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2391553D123E4817002C2060 /* engine.cpp */; };
 		23915545123E4817002C2060 /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2391553E123E4817002C2060 /* game.cpp */; };
-		23915546123E4817002C2060 /* PlanetWars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915540123E4817002C2060 /* PlanetWars.cpp */; };
 		23915547123E4817002C2060 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915542123E4817002C2060 /* utils.cpp */; };
-		23915552123E48C5002C2060 /* PlanetWars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915540123E4817002C2060 /* PlanetWars.cpp */; };
 		23915553123E48C5002C2060 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915542123E4817002C2060 /* utils.cpp */; };
 		2391555B123E49DB002C2060 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2391555A123E49DB002C2060 /* SDL.framework */; };
 		23915593123E5520002C2060 /* SDLmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 23915592123E5520002C2060 /* SDLmain.m */; };
@@ -29,7 +27,6 @@
 		2391553D123E4817002C2060 /* engine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cpp; sourceTree = "<group>"; };
 		2391553E123E4817002C2060 /* game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game.cpp; sourceTree = "<group>"; };
 		2391553F123E4817002C2060 /* game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = game.h; sourceTree = "<group>"; };
-		23915540123E4817002C2060 /* PlanetWars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlanetWars.cpp; sourceTree = "<group>"; };
 		23915541123E4817002C2060 /* PlanetWars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlanetWars.h; sourceTree = "<group>"; };
 		23915542123E4817002C2060 /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utils.cpp; sourceTree = "<group>"; };
 		23915543123E4817002C2060 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
@@ -101,7 +98,6 @@
 		23915548123E4827002C2060 /* common */ = {
 			isa = PBXGroup;
 			children = (
-				23915540123E4817002C2060 /* PlanetWars.cpp */,
 				23915541123E4817002C2060 /* PlanetWars.h */,
 				23915542123E4817002C2060 /* utils.cpp */,
 				23915543123E4817002C2060 /* utils.h */,
@@ -196,7 +192,6 @@
 			files = (
 				23915544123E4817002C2060 /* engine.cpp in Sources */,
 				23915545123E4817002C2060 /* game.cpp in Sources */,
-				23915546123E4817002C2060 /* PlanetWars.cpp in Sources */,
 				23915547123E4817002C2060 /* utils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -206,7 +201,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				23915610123E690F002C2060 /* game.cpp in Sources */,
-				23915552123E48C5002C2060 /* PlanetWars.cpp in Sources */,
 				23915553123E48C5002C2060 /* utils.cpp in Sources */,
 				23915593123E5520002C2060 /* SDLmain.m in Sources */,
 				239155F7123E60B2002C2060 /* viewer.cpp in Sources */,
