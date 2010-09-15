@@ -20,6 +20,7 @@
 		23917AEE123E9A48002C2060 /* showgame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23917AED123E9A48002C2060 /* showgame.cpp */; };
 		23917BD0123FF052002C2060 /* SDL_picofont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23917BCF123FF052002C2060 /* SDL_picofont.cpp */; };
 		23917BE4123FF339002C2060 /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 23917BE3123FF339002C2060 /* font.c */; };
+		23917F6F12414AFB002C2060 /* process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23917F6D12414AFB002C2060 /* process.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,8 @@
 		23917B7D123FE980002C2060 /* vec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec.h; sourceTree = "<group>"; };
 		23917BCF123FF052002C2060 /* SDL_picofont.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDL_picofont.cpp; sourceTree = "<group>"; };
 		23917BE3123FF339002C2060 /* font.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = font.c; sourceTree = "<group>"; };
+		23917F6C12414AFB002C2060 /* process.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = process.h; sourceTree = "<group>"; };
+		23917F6D12414AFB002C2060 /* process.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = process.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +104,8 @@
 				2391553F123E4817002C2060 /* game.h */,
 				23915542123E4817002C2060 /* utils.cpp */,
 				23915543123E4817002C2060 /* utils.h */,
+				23917F6C12414AFB002C2060 /* process.h */,
+				23917F6D12414AFB002C2060 /* process.cpp */,
 			);
 			name = common;
 			sourceTree = "<group>";
@@ -191,6 +196,7 @@
 				23915544123E4817002C2060 /* engine.cpp in Sources */,
 				23915545123E4817002C2060 /* game.cpp in Sources */,
 				23915547123E4817002C2060 /* utils.cpp in Sources */,
+				23917F6F12414AFB002C2060 /* process.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

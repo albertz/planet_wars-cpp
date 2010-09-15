@@ -36,6 +36,9 @@ game.o: game.cpp game.h
 utils.o: utils.cpp utils.h
 	$(CPP) $(CFLAGS) $< -c -o $@
 
+process.o: process.cpp process.h
+	$(CPP) $(CFLAGS) $< -c -o $@
+
 showgame.o: showgame.cpp
 	$(CPP) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
 
@@ -53,7 +56,7 @@ SDL_picofont.o: SDL_picofont.cpp SDL_picofont.h
 	
 #%.o: %.cpp
 
-playgame: engine.o game.o utils.o
+playgame: engine.o game.o utils.o process.o
 	$(CPP) $(LFLAGS) $^ -o $@
 
 showgame: utils.o game.o showgame.o viewer.o font.o SDL_picofont.o gfx.o
