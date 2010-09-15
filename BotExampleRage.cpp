@@ -1,52 +1,48 @@
-import java.util.*;
+#include <iostream>
+#include "game.h"
 
-public class RageBot {
-    public static void DoTurn(PlanetWars pw) {
-	for (Planet source : pw.MyPlanets()) {
-	    if (source.NumShips() < 10 * source.GrowthRate()) {
-		continue;
+static void DoTurn(const Game& pw) {
+	typedef std::vector<Planet> Planets;
+	Planets myPlanets = pw.MyPlanets();
+	Planets enemyPlanets = pw.EnemyPlanets();
+	for (Planets::iterator source = myPlanets.begin(); source != myPlanets.end(); ++source) {
+	    if (source->numShips < 10 * source->growthRate) {
+			continue;
 	    }
-	    Planet dest = null;
+	    int dest = -1;
 	    int bestDistance = 999999;
-	    for (Planet p : pw.EnemyPlanets()) {
-		int dist = pw.Distance(source, p);
-		if (dist < bestDistance) {
-		    bestDistance = dist;
-		    dest = p;
-		}
+	    for (Planets::iterator p = enemyPlanets.begin(); p != enemyPlanets.end(); ++p) {
+			int dist = pw.desc.Distance(source->planetId, p->planetId);
+			if (dist < bestDistance) {
+				bestDistance = dist;
+				dest = p->planetId;
+			}
 	    }
-	    if (dest != null) {
-		pw.IssueOrder(source, dest, source.NumShips());
+	    if (dest >= 0) {
+			pw.IssueOrder(source->planetId, dest, source->numShips);
 	    }
 	}
-    }
-
-    public static void main(String[] args) {
-	String line = "";
-	String message = "";
-	int c;
-	try {
-	    while ((c = System.in.read()) >= 0) {
-		switch (c) {
-		case '\n':
-		    if (line.equals("go")) {
-			PlanetWars pw = new PlanetWars(message);
-			DoTurn(pw);
-		        pw.FinishTurn();
-			message = "";
-		    } else {
-			message += line + "\n";
-		    }
-		    line = "";
-		    break;
-		default:
-		    line += (char)c;
-		    break;
-		}
-	    }
-	} catch (Exception e) {
-	    // Owned.
-	}
-    }
 }
 
+
+int main(int argc, char *argv[]) {
+	std::string current_line;
+	std::string map_data;
+	while (true) {
+		int c = std::cin.get();
+		current_line += (char)c;
+		if (c == '\n') {
+			if (current_line.length() >= 2 && current_line.substr(0, 2) == "go") {
+				Game game;
+				game.ParseGameState(map_data);
+				map_data = "";
+				DoTurn(game);
+				game.FinishTurn();
+			} else {
+				map_data += current_line;
+			}
+			current_line = "";
+		}
+	}
+	return 0;
+}
