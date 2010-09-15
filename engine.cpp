@@ -20,6 +20,7 @@
 #include <fstream>
 #include "utils.h"
 #include "game.h"
+#include "process.h"
 
 void KillClients(std::vector<Process*>& clients) {
 	for (size_t i = 0; i < clients.size(); ++i) {
