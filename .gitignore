@@ -8,3 +8,8 @@ build
 *.pbxuser
 *.log
 BotCppStarterpack
+BotExampleBully
+BotExampleDual
+BotExampleProspector
+BotExampleRage
+BotExampleRandom
