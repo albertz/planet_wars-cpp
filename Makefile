@@ -1,6 +1,8 @@
 CC=gcc
 CPP=g++
 
+TARGETS=playgame showgame BotCppStarterpack
+
 CFLAGS := -g -O2 -Wall
 CFLAGS := $(CFLAGS) $(shell \
 	[ "$$(uname -s)" = "Darwin" ] && echo "-arch" && uname -m; \
@@ -20,10 +22,10 @@ SDL_LFLAGS := $(shell \
 
 SDL_LFLAGS := $(SDL_CFLAGS) $(SDL_LFLAGS)
 
-all: playgame showgame
+all: $(TARGETS)
 
 clean:
-	rm -rf *.o playgame showgame
+	rm -rf *.o $(TARGETS)
 
 engine.o: engine.cpp
 	$(CPP) $(CFLAGS) $< -c -o $@
@@ -56,3 +58,6 @@ playgame: engine.o game.o utils.o
 
 showgame: utils.o game.o showgame.o viewer.o font.o SDL_picofont.o gfx.o
 	$(CPP) $(LFLAGS) $(SDL_LFLAGS) $^ -o $@
+
+Bot%: Bot%.cpp game.o utils.o
+	$(CPP) $(LFLAGS) $^ -o $@
