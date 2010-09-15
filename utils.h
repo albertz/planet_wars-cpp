@@ -55,33 +55,6 @@ std::basic_ostream<A,B>& operator<<(std::basic_ostream<A,B>& _s, const std::list
 	return *s;
 }
 
-struct Process {
-	std::string cmd;
-	bool running;
-	int forkInputFd, forkOutputFd;
-	std::string inbuffer, outbuffer;
-	pid_t forkId;
-
-	Process(const std::string& __cmd = "")
-	: cmd(__cmd), running(false),
-	forkInputFd(0), forkOutputFd(0), forkId(0) {}
-	~Process() { destroy(); }
-
-	operator bool() const { return running; }
-	void destroy();
-	void run();
-	
-	Process& operator<<(const std::string& s) { inbuffer += s; return *this; }
-	Process& operator<<(void (*func)(Process&)) { (*func)(*this); return *this; }
-
-	bool readLine(std::string& s, size_t timeout = 0);
-
-	void flush();
-};
-
-inline void flush(Process& p) { p.flush(); }
-inline void endl(Process& p) { p << "\n"; p.flush(); }
-
 template <typename T> T CLAMP(const T& num, const T& lower_bound, const T& upper_bound) {
 	return (num < lower_bound) ? lower_bound : (num > upper_bound ? upper_bound : num); }
 
