@@ -1,7 +1,13 @@
 CC=gcc
 CPP=g++
 
-TARGETS=playgame showgame BotCppStarterpack
+TARGETS=playgame showgame \
+	BotCppStarterpack \
+	BotExampleDual \
+	BotExampleRage \
+	BotExampleBully \
+	BotExampleProspector \
+	BotExampleRandom
 
 CFLAGS := -g -O2 -Wall
 CFLAGS := $(CFLAGS) $(shell \
