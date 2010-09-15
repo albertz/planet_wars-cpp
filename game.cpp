@@ -218,12 +218,12 @@ void GameState::DropPlayer(int playerID) {
 
 // Returns true if the named player owns at least one planet or fleet.
 // Otherwise, the player is deemed to be dead and false is returned.
-bool GameState::IsAlive(int playerID) {
-	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+bool GameState::IsAlive(int playerID) const {
+	for (Planets::const_iterator p = planets.begin(); p != planets.end(); ++p) {
 		if (p->owner == playerID)
 			return true;
 	}
-	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+	for (Fleets::const_iterator f = fleets.begin(); f != fleets.end(); ++f) {
 		if (f->owner == playerID)
 			return true;
 	}
@@ -234,12 +234,12 @@ bool GameState::IsAlive(int playerID) {
 // fleets remaining), returns -1. If the game is over (ie: only one player
 // is left) then that player's number is returned. If there are no
 // remaining players, then the game is a draw and 0 is returned.
-int GameState::Winner(bool maxTurnsReached) {
+int GameState::Winner(bool maxTurnsReached) const {
 	std::set<int> remainingPlayers;
-	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+	for (Planets::const_iterator p = planets.begin(); p != planets.end(); ++p) {
 		remainingPlayers.insert(p->owner);
 	}
-	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+	for (Fleets::const_iterator f = fleets.begin(); f != fleets.end(); ++f) {
 		remainingPlayers.insert(f->owner);
 	}
 	remainingPlayers.erase(0);
@@ -269,13 +269,13 @@ int GameState::Winner(bool maxTurnsReached) {
 
 // Returns the number of ships that the current player has, either located
 // on planets or in flight.
-int GameState::NumShips(int playerID) {
+int GameState::NumShips(int playerID) const {
 	int numShips = 0;
-	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
+	for (Planets::const_iterator p = planets.begin(); p != planets.end(); ++p) {
 		if (p->owner == playerID)
 			numShips += p->numShips;
 	}
-	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+	for (Fleets::const_iterator f = fleets.begin(); f != fleets.end(); ++f) {
 		if (f->owner == playerID)
 			numShips += f->numShips;
 	}
@@ -477,6 +477,15 @@ std::vector<Fleet> Game::EnemyFleets() const {
 			r.push_back(GetFleet(i));
 	}
 	return r;
+}
+
+int Game::Production(int playerID) const {
+	int prod = 0;
+	for (size_t i = 0; i < desc.planets.size(); ++i) {
+		if (state.planets[i].owner == playerID)
+			prod += desc.planets[i].growthRate;
+	}
+	return prod;
 }
 
 void Game::IssueOrder(int source_planet,

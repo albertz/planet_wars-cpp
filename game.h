@@ -108,17 +108,17 @@ struct GameState {
 	
 	// Returns true if the named player owns at least one planet or fleet.
 	// Otherwise, the player is deemed to be dead and false is returned.
-	bool IsAlive(int playerID);
+	bool IsAlive(int playerID) const;
 
 	// If the game is not yet over (ie: at least two players have planets or
 	// fleets remaining), returns -1. If the game is over (ie: only one player
 	// is left) then that player's number is returned. If there are no
 	// remaining players, then the game is a draw and 0 is returned.
-	int Winner(bool maxTurnsReached);
+	int Winner(bool maxTurnsReached) const;
 	
 	// Returns the number of ships that the current player has, either located
 	// on planets or in flight.
-	int NumShips(int playerID);	
+	int NumShips(int playerID) const;	
 };
 
 struct GameDesc {
@@ -272,6 +272,8 @@ struct Game {
 	// Return a list of all the fleets owned by enemy players.
 	std::vector<Fleet> EnemyFleets() const;
 	
+	// Returns the production of the given player.
+    int Production(int playerID) const;
 	
 	
 	// --------------- bot side control ----------------------
