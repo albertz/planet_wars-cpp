@@ -1,7 +1,11 @@
 CC=gcc
 CPP=g++
 
-CFLAGS := -arch $(shell uname -m) -g -O2 -Wall
+CFLAGS := -g -O2 -Wall
+CFLAGS := $(CFLAGS) $(shell \
+	[ "$$(uname -s)" = "Darwin" ] && echo "-arch" && uname -m; \
+)
+
 LFLAGS := $(CFLAGS)
 
 SDL_CFLAGS := $(shell \
@@ -19,7 +23,7 @@ SDL_LFLAGS := $(SDL_CFLAGS) $(SDL_LFLAGS)
 all: playgame showgame
 
 clean:
-	rm -rf *.o 
+	rm -rf *.o playgame showgame
 
 PlanetWars.o: PlanetWars.cpp PlanetWars.h
 	$(CPP) $(CFLAGS) $< -c -o $@
