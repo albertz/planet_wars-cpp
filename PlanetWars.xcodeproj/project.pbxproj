@@ -21,6 +21,17 @@
 		23917BD0123FF052002C2060 /* SDL_picofont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23917BCF123FF052002C2060 /* SDL_picofont.cpp */; };
 		23917BE4123FF339002C2060 /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 23917BE3123FF339002C2060 /* font.c */; };
 		23917F6F12414AFB002C2060 /* process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23917F6D12414AFB002C2060 /* process.cpp */; };
+		2391810912428246002C2060 /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2391553E123E4817002C2060 /* game.cpp */; };
+		2391810A12428246002C2060 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915542123E4817002C2060 /* utils.cpp */; };
+		2391810B12428246002C2060 /* SDLmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 23915592123E5520002C2060 /* SDLmain.m */; };
+		2391810C12428246002C2060 /* viewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239155F6123E60B2002C2060 /* viewer.cpp */; };
+		2391810D12428246002C2060 /* gfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915624123E6A38002C2060 /* gfx.cpp */; };
+		2391810F12428246002C2060 /* SDL_picofont.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23917BCF123FF052002C2060 /* SDL_picofont.cpp */; };
+		2391811012428246002C2060 /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 23917BE3123FF339002C2060 /* font.c */; };
+		2391811212428246002C2060 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2391555A123E49DB002C2060 /* SDL.framework */; };
+		2391811312428246002C2060 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2391559F123E55CA002C2060 /* Cocoa.framework */; };
+		2391811C1242828F002C2060 /* playnview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2391811B1242828F002C2060 /* playnview.cpp */; };
+		2391816712428B9C002C2060 /* process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23917F6D12414AFB002C2060 /* process.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +56,8 @@
 		23917BE3123FF339002C2060 /* font.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = font.c; sourceTree = "<group>"; };
 		23917F6C12414AFB002C2060 /* process.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = process.h; sourceTree = "<group>"; };
 		23917F6D12414AFB002C2060 /* process.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = process.cpp; sourceTree = "<group>"; };
+		2391811712428246002C2060 /* playnview */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = playnview; sourceTree = BUILT_PRODUCTS_DIR; };
+		2391811B1242828F002C2060 /* playnview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = playnview.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +74,15 @@
 			files = (
 				2391555B123E49DB002C2060 /* SDL.framework in Frameworks */,
 				239155A0123E55CA002C2060 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2391811112428246002C2060 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2391811212428246002C2060 /* SDL.framework in Frameworks */,
+				2391811312428246002C2060 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +103,7 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				2391811A12428277002C2060 /* playnview */,
 				2391554A123E4854002C2060 /* viewgame */,
 				23915549123E4836002C2060 /* playgame */,
 				23915548123E4827002C2060 /* common */,
@@ -93,6 +116,7 @@
 			children = (
 				23915537123E47F6002C2060 /* playgame */,
 				2391554E123E48BC002C2060 /* showgame */,
+				2391811712428246002C2060 /* playnview */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -135,6 +159,14 @@
 			name = viewgame;
 			sourceTree = "<group>";
 		};
+		2391811A12428277002C2060 /* playnview */ = {
+			isa = PBXGroup;
+			children = (
+				2391811B1242828F002C2060 /* playnview.cpp */,
+			);
+			name = playnview;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -170,6 +202,22 @@
 			productReference = 2391554E123E48BC002C2060 /* showgame */;
 			productType = "com.apple.product-type.tool";
 		};
+		2391810712428246002C2060 /* playnview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2391811412428246002C2060 /* Build configuration list for PBXNativeTarget "playnview" */;
+			buildPhases = (
+				2391810812428246002C2060 /* Sources */,
+				2391811112428246002C2060 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = playnview;
+			productName = viewgame;
+			productReference = 2391811712428246002C2060 /* playnview */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +232,7 @@
 			targets = (
 				23915536123E47F6002C2060 /* playgame */,
 				2391554D123E48BC002C2060 /* showgame */,
+				2391810712428246002C2060 /* playnview */,
 			);
 		};
 /* End PBXProject section */
@@ -212,6 +261,22 @@
 				23917AEE123E9A48002C2060 /* showgame.cpp in Sources */,
 				23917BD0123FF052002C2060 /* SDL_picofont.cpp in Sources */,
 				23917BE4123FF339002C2060 /* font.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2391810812428246002C2060 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2391816712428B9C002C2060 /* process.cpp in Sources */,
+				2391810912428246002C2060 /* game.cpp in Sources */,
+				2391810A12428246002C2060 /* utils.cpp in Sources */,
+				2391810B12428246002C2060 /* SDLmain.m in Sources */,
+				2391810C12428246002C2060 /* viewer.cpp in Sources */,
+				2391810D12428246002C2060 /* gfx.cpp in Sources */,
+				2391810F12428246002C2060 /* SDL_picofont.cpp in Sources */,
+				2391811012428246002C2060 /* font.c in Sources */,
+				2391811C1242828F002C2060 /* playnview.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,6 +371,38 @@
 			};
 			name = Release;
 		};
+		2391811512428246002C2060 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = /Library/Frameworks/SDL.framework/Headers;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = playnview;
+			};
+			name = Debug;
+		};
+		2391811612428246002C2060 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				HEADER_SEARCH_PATHS = /Library/Frameworks/SDL.framework/Headers;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = playnview;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -332,6 +429,15 @@
 			buildConfigurations = (
 				23915550123E48BC002C2060 /* Debug */,
 				23915551123E48BC002C2060 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2391811412428246002C2060 /* Build configuration list for PBXNativeTarget "playnview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2391811512428246002C2060 /* Debug */,
+				2391811612428246002C2060 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
