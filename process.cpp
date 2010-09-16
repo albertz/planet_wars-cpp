@@ -120,6 +120,8 @@ bool Process::readLine(std::string& s, size_t timeout) {
 }
 
 void Process::flush() {
-	write(forkInputFd, inbuffer.c_str(), inbuffer.size());
+	size_t n = 0;
+	while(n < inbuffer.size())
+		n += write(forkInputFd, inbuffer.c_str() + n, inbuffer.size() - n);
 	inbuffer = "";
 }
