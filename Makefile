@@ -33,28 +33,28 @@ all: $(TARGETS)
 clean:
 	rm -rf *.o $(TARGETS)
 
-engine.o: engine.cpp
+engine.o: engine.cpp utils.h process.h
 	$(CPP) $(CFLAGS) $< -c -o $@
 
-game.o: game.cpp game.h
+game.o: game.cpp game.h utils.h
 	$(CPP) $(CFLAGS) $< -c -o $@
 
 utils.o: utils.cpp utils.h
 	$(CPP) $(CFLAGS) $< -c -o $@
 
-process.o: process.cpp process.h
+process.o: process.cpp process.h utils.h
 	$(CPP) $(CFLAGS) $< -c -o $@
 
-showgame.o: showgame.cpp
+showgame.o: showgame.cpp viewer.h utils.h
 	$(CPP) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
 
-viewer.o: viewer.cpp
+viewer.o: viewer.cpp viewer.h utils.h
 	$(CPP) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
 
 font.o: font.c
 	$(CC) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
 
-gfx.o: gfx.cpp gfx.h
+gfx.o: gfx.cpp gfx.h utils.h
 	$(CPP) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
 	
 SDL_picofont.o: SDL_picofont.cpp SDL_picofont.h
