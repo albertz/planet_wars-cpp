@@ -16,6 +16,7 @@
 #include <signal.h> // kill etc
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <string.h>
 #include "process.h"
 #include "utils.h"
 
