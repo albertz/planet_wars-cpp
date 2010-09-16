@@ -220,6 +220,9 @@ int screenw = 640, screenh = 480, screenbpp = 0;
 static Viewer viewer;
 static bool pressedAnyKey = false;
 
+#define EVENT_STDIN_INITIAL 1
+#define EVENT_STDIN_CHUNK 2
+
 #define SETVIDEOMODE SDL_SetVideoMode(screenw, screenh, screenbpp, SDL_RESIZABLE)
 
 // returns false for exit
@@ -271,7 +274,7 @@ static bool HandleEvent(const SDL_Event& event) {
 
 static const Color backgroundCol(0,0,0);
 
-bool initWindow(const std::string& windowTitle) {
+bool Viewer_initWindow(const std::string& windowTitle) {
 	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
 		cerr << "init SDL failed: " << SDL_GetError() << endl;
 		return false;
@@ -294,7 +297,7 @@ bool initWindow(const std::string& windowTitle) {
 	return true;
 }
 
-void mainLoop() {
+void Viewer_mainLoop() {
 	long lastTime = currentTimeMillis();
 	while(true) {
 		bool haveEvent = false;
@@ -323,4 +326,20 @@ void mainLoop() {
 		viewer.frame(SDL_GetVideoSurface(), dt);
 		SDL_Flip(SDL_GetVideoSurface());
 	}
+}
+
+void Viewer_pushInitialGame(Game* game) {
+	SDL_Event ev; memset(&ev, 0, sizeof(SDL_Event));
+	ev.type = SDL_USEREVENT;
+	ev.user.code = EVENT_STDIN_INITIAL;
+	ev.user.data1 = game;
+	while(SDL_PushEvent(&ev) < 0) SDL_Delay(1); // repeat until pushed
+}
+
+void Viewer_pushGameState(GameState* state) {
+	SDL_Event ev; memset(&ev, 0, sizeof(SDL_Event));
+	ev.type = SDL_USEREVENT;
+	ev.user.code = EVENT_STDIN_CHUNK;
+	ev.user.data1 = state;
+	while(SDL_PushEvent(&ev) < 0) SDL_Delay(1); // repeat until pushed	
 }

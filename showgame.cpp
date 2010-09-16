@@ -81,55 +81,39 @@ void ParseParams(int argc, char** argv) {
  * separated thread where we parse them.
  */
 int ReadStdinThread(void*) {
-	int state = EVENT_STDIN_INITIAL;
+	bool gotInitial = false;
 	char c;
 	std::string buf;
 	size_t numPlanets = 0;
 	
 	while((*readFunc)(STDIN_FILENO, &c, 1) > 0) {		
-		SDL_Event ev; memset(&ev, 0, sizeof(SDL_Event));
-		ev.type = SDL_USEREVENT;
-		ev.user.code = state;
-		
-		switch (state) {
-			case EVENT_STDIN_INITIAL:
-				if(c == '|') {
-					Game* game = new Game();
-					assert(game->ParseGamePlaybackInitial(buf));
-					ev.user.data1 = game;
-					numPlanets = game->NumPlanets();
-					buf = "";
-					state = EVENT_STDIN_CHUNK;
-				}
-				else buf += c;
-				break;
-			case EVENT_STDIN_CHUNK:
-				if(c == ':') {
-					GameState* gameState = new GameState();
-					gameState->planets.resize(numPlanets);
-					assert(gameState->ParseGamePlaybackChunk(buf));
-					ev.user.data1 = gameState;
-					buf = "";
-				}
-				else buf += c;
-				break;
-			default:
-				assert(0);
+		if(!gotInitial && c == '|') {
+			Game* game = new Game();
+			assert(game->ParseGamePlaybackInitial(buf));
+			Viewer_pushInitialGame(game);
+			numPlanets = game->NumPlanets();
+			buf = "";
+			gotInitial = true;
 		}
-		
-		if(ev.user.data1)
-			while(SDL_PushEvent(&ev) < 0) SDL_Delay(1); // repeat until pushed
+		else if(gotInitial && c == ':') {
+			GameState* gameState = new GameState();
+			gameState->planets.resize(numPlanets);
+			assert(gameState->ParseGamePlaybackChunk(buf));
+			Viewer_pushGameState(gameState);
+			buf = "";
+		}
+		else buf += c;
 	}
 	return 0;
 }
 
 int main(int argc, char** argv) {
 	ParseParams(argc, argv);
-	if(!initWindow("PlanetWars visualizer"))
+	if(!Viewer_initWindow("PlanetWars visualizer"))
 		PrintHelpAndExit();
 	SDL_Thread* stdinReader = SDL_CreateThread(&ReadStdinThread, NULL);
 	
-	mainLoop();
+	Viewer_mainLoop();
 	
 	_exit(0); // for now. seems that the reader even keeps busy with the close() below
 	close(STDIN_FILENO);

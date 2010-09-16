@@ -64,11 +64,13 @@ struct Viewer {
 
 extern int screenw, screenh, screenbpp;
 
-#define EVENT_STDIN_INITIAL 1
-#define EVENT_STDIN_CHUNK 2
+bool Viewer_initWindow(const std::string& windowTitle); // returns true on success
+void Viewer_mainLoop(); // returns on exit
 
-bool initWindow(const std::string& windowTitle); // returns true on success
-void mainLoop(); // returns on exit
-
+// The viewer mainloop will get this.
+// Note that these functions takes ownership of the pointer!
+// These function are multithreading safe.
+void Viewer_pushInitialGame(Game* game);
+void Viewer_pushGameState(GameState* state);
 
 #endif
