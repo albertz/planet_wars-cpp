@@ -164,7 +164,7 @@ bool HandleEvent(const SDL_Event& event) {
 			break;
 		}
 		case SDL_KEYDOWN:
-			if(!pressedAnyKey) viewer.offsetToGo %= 1;
+			if(!pressedAnyKey) { viewer.offsetToGo %= 1; viewer.dtForAnimation = 100; }
 			pressedAnyKey = true;
 			switch(event.key.keysym.sym) {
 				case SDLK_LEFT: viewer.last(); break;
