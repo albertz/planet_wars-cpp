@@ -57,8 +57,18 @@ struct Viewer {
 	void last() { move(-1); }
 	
 	bool isCurrentlyAnimating() { return ready() && withAnimation && offsetToGo != 0; }
-	void frame(SDL_Surface* surf, long dt);
-	
+	void frame(SDL_Surface* surf, long dt);	
 };
+
+// ------- use this stuff if you want some simple SDL handling ----
+
+extern int screenw, screenh, screenbpp;
+
+#define EVENT_STDIN_INITIAL 1
+#define EVENT_STDIN_CHUNK 2
+
+bool initWindow(const std::string& windowTitle); // returns true on success
+void mainLoop(); // returns on exit
+
 
 #endif

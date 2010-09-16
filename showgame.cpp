@@ -21,7 +21,6 @@
 
 using namespace std;
 
-static int screenw = 640, screenh = 480, screenbpp = 0;
 static char* argv0 = NULL;
 
 void PrintHelpAndExit() {
@@ -71,9 +70,6 @@ void ParseParams(int argc, char** argv) {
 		}
 	}
 }
-
-#define EVENT_STDIN_INITIAL 1
-#define EVENT_STDIN_CHUNK 2
 
 /* Read stdin, parse game state and push to SDL queue.
  * We do the parsing in this thread to keep the main
@@ -127,110 +123,14 @@ int ReadStdinThread(void*) {
 	return 0;
 }
 
-static Viewer viewer;
-static bool pressedAnyKey = false;
-
-#define SETVIDEOMODE SDL_SetVideoMode(screenw, screenh, screenbpp, SDL_RESIZABLE)
-
-// returns false for exit
-bool HandleEvent(const SDL_Event& event) {
-	switch(event.type) {
-		case SDL_QUIT: return false;
-		case SDL_VIDEORESIZE:
-			screenw = event.resize.w;
-			screenh = event.resize.h;
-			SETVIDEOMODE;
-			break;
-		case SDL_USEREVENT: {
-			switch(event.user.code) {
-				case EVENT_STDIN_INITIAL: {
-					std::auto_ptr<Game> game( (Game*)event.user.data1 );
-					viewer.gameDesc = game->desc;
-					viewer.gameStates.push_back(game->state);
-					viewer.init();
-					break;
-				}
-				case EVENT_STDIN_CHUNK: {
-					std::auto_ptr<GameState> gameState( (GameState*)event.user.data1 );
-					viewer.gameStates.push_back(*gameState);
-					if(!pressedAnyKey) {
-						viewer.offsetToGo++;
-						viewer.dtForAnimation += 200;
-					}
-					break;
-				}
-				default: assert(false);
-			}
-			break;
-		}
-		case SDL_KEYDOWN:
-			if(!pressedAnyKey) { viewer.offsetToGo %= 1; viewer.dtForAnimation = 100; }
-			pressedAnyKey = true;
-			switch(event.key.keysym.sym) {
-				case SDLK_LEFT: viewer.last(); break;
-				case SDLK_RIGHT: viewer.next(); break;
-				case SDLK_q: return false;
-				default: break; // ignore
-			}
-			break;
-		default:
-			break;
-	}
-	return true;
-}
-
 int main(int argc, char** argv) {
 	ParseParams(argc, argv);
-	assert(SDL_Init(SDL_INIT_VIDEO) >= 0);
-	
-	// we want to redraw when these occur
-	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-	SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE);
-		
-	// init window
-	if(SETVIDEOMODE == NULL) {
-		cerr << "setting video mode " << screenw << "x" << screenh << "x" << screenbpp << " failed: "
-			 << SDL_GetError() << endl;
+	if(!initWindow("PlanetWars visualizer"))
 		PrintHelpAndExit();
-	}
-	Color backgroundCol(0,0,0);
-	FillSurface(SDL_GetVideoSurface(), backgroundCol);
-
-	SDL_WM_SetCaption("PlanetWars visualizer", NULL);
-	SDL_EnableKeyRepeat(100, 30);
 	SDL_Thread* stdinReader = SDL_CreateThread(&ReadStdinThread, NULL);
 	
-	// main loop
-	long lastTime = currentTimeMillis();
-	while(true) {
-		bool haveEvent = false;
-		SDL_Event event;
-		if(viewer.isCurrentlyAnimating()) {
-			SDL_Delay(10);
-			haveEvent = SDL_PollEvent(&event) > 0;
-		}
-		else {
-			haveEvent = SDL_WaitEvent(&event) > 0;
-			lastTime = currentTimeMillis();
-		}
-		while(haveEvent) {
-			if(!HandleEvent(event)) goto exit;
-			/* Read further events if there are any. It's important that we do this to keep
-			 * the SDL queue as empty as possible. The ReadStdinThread will push a lot of
-			 * events into it and we want to keep it responsible to other real input events.
-			 */
-			haveEvent = SDL_PollEvent(&event) > 0;			
-		}
-
-		long dt = currentTimeMillis() - lastTime;
-		lastTime += dt;
-				
-		FillSurface(SDL_GetVideoSurface(), backgroundCol);
-		viewer.frame(SDL_GetVideoSurface(), dt);
-		SDL_Flip(SDL_GetVideoSurface());
-	}
-
-exit:
+	mainLoop();
+	
 	_exit(0); // for now. seems that the reader even keeps busy with the close() below
 	close(STDIN_FILENO);
 	SDL_WaitThread(stdinReader, NULL);
