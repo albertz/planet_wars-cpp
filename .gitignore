@@ -2,6 +2,7 @@
 *.o
 playgame
 showgame
+playnview
 *.dSYM
 build
 *.mode2v3

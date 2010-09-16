@@ -1,7 +1,7 @@
 CC=gcc
 CPP=g++
 
-TARGETS=playgame showgame \
+TARGETS=playgame showgame playnview \
 	BotCppStarterpack \
 	BotExampleDual \
 	BotExampleRage \
@@ -48,6 +48,9 @@ process.o: process.cpp process.h utils.h
 showgame.o: showgame.cpp viewer.h utils.h
 	$(CPP) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
 
+playnview.o: playnview.cpp viewer.h utils.h process.h
+	$(CPP) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
+
 viewer.o: viewer.cpp viewer.h utils.h
 	$(CPP) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
 
@@ -66,6 +69,9 @@ playgame: engine.o game.o utils.o process.o
 	$(CPP) $(LFLAGS) $^ -o $@
 
 showgame: utils.o game.o showgame.o viewer.o font.o SDL_picofont.o gfx.o
+	$(CPP) $(LFLAGS) $(SDL_LFLAGS) $^ -o $@
+
+playnview: utils.o game.o playnview.o viewer.o font.o SDL_picofont.o gfx.o process.o
 	$(CPP) $(LFLAGS) $(SDL_LFLAGS) $^ -o $@
 
 Bot%: Bot%.cpp game.o utils.o
