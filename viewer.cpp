@@ -202,6 +202,14 @@ void Viewer::frame(SDL_Surface* surf, long dt) {
 	//if(oldOffsetToGo != 0) cout << ", doffset=" << offset << endl;
 	DrawGame(gameDesc, *currentState, surf, offset);
 	
-	DrawText(surf, to_string(currentStateNum) + "/" + to_string(gameStates.size()), Color(255,255,255),
-			 2, 2);
+	std::string txtTurn = to_string(currentStateNum) + "/" + to_string(gameStates.size()) + ":";
+	int x = 2, y = 2;
+	DrawText(surf, txtTurn, Color(255,255,255), x, y);
+	x += 10 + TextGetSize(txtTurn).x;
+	const int upperPlayer = currentState->HighestPlayerID();
+	for(int p = 1; p <= upperPlayer; ++p) {
+		std::string txtPlayer = to_string(currentState->NumShips(p)) + "/" + to_string(currentState->Production(p, gameDesc));
+		DrawText(surf, txtPlayer, GetColor(p), x, y);
+		x += 10 + TextGetSize(txtPlayer).x;
+	}
 }
