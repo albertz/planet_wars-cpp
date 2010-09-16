@@ -283,6 +283,19 @@ int GameState::NumShips(int playerID) const {
 }
 
 
+int GameState::HighestPlayerID() const {
+	int highestP = 0;
+	for (Planets::const_iterator p = planets.begin(); p != planets.end(); ++p) {
+		if (p->owner > highestP)
+			highestP = p->owner;
+	}
+	for (Fleets::const_iterator f = fleets.begin(); f != fleets.end(); ++f) {
+		if (f->owner > highestP)
+			highestP = f->owner;
+	}
+	return highestP;	
+}
+
 // Parses a game state from a string. On success, returns true. On failure, returns false.
 bool Game::ParseGameState(const std::string& s) {
 	clear();
@@ -477,10 +490,10 @@ std::vector<Fleet> Game::EnemyFleets() const {
 	return r;
 }
 
-int Game::Production(int playerID) const {
+int GameState::Production(int playerID, const GameDesc& desc) const {
 	int prod = 0;
 	for (size_t i = 0; i < desc.planets.size(); ++i) {
-		if (state.planets[i].owner == playerID)
+		if (planets[i].owner == playerID)
 			prod += desc.planets[i].growthRate;
 	}
 	return prod;

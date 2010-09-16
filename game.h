@@ -118,7 +118,12 @@ struct GameState {
 	
 	// Returns the number of ships that the current player has, either located
 	// on planets or in flight.
-	int NumShips(int playerID) const;	
+	int NumShips(int playerID) const;
+	
+	// Returns the production of the given player.
+    int Production(int playerID, const GameDesc& desc) const;
+
+	int HighestPlayerID() const;
 };
 
 struct GameDesc {
@@ -271,10 +276,7 @@ struct Game {
 	
 	// Return a list of all the fleets owned by enemy players.
 	std::vector<Fleet> EnemyFleets() const;
-	
-	// Returns the production of the given player.
-    int Production(int playerID) const;
-	
+		
 	
 	// --------------- bot side control ----------------------
 	
