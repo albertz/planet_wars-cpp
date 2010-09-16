@@ -210,8 +210,6 @@ struct Game {
     static int PovSwitch(int pov, int playerID);
 	
 	void DoTimeStep();
-
-	int Winner() { return state.Winner(numTurns > maxGameLength); }
 	
 	// Execute an order. This function takes num_ships off the source_planet,
 	// puts them into a newly-created fleet, calculates the distance to the
@@ -276,7 +274,11 @@ struct Game {
 	
 	// Return a list of all the fleets owned by enemy players.
 	std::vector<Fleet> EnemyFleets() const;
-		
+	
+	int Winner() const { return state.Winner(numTurns > maxGameLength); }
+
+	int Production(int playerID) const { return state.Production(playerID, desc); }
+	
 	
 	// --------------- bot side control ----------------------
 	
