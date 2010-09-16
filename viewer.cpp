@@ -201,4 +201,7 @@ void Viewer::frame(SDL_Surface* surf, long dt) {
 	double offset = ((Offset(1) - offsetToGo % 1) % 1).asDouble();
 	//if(oldOffsetToGo != 0) cout << ", doffset=" << offset << endl;
 	DrawGame(gameDesc, *currentState, surf, offset);
+	
+	DrawText(surf, to_string(currentStateNum) + "/" + to_string(gameStates.size()), Color(255,255,255),
+			 2, 2);
 }

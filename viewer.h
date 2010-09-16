@@ -30,26 +30,26 @@ struct Viewer {
 	GameDesc gameDesc;
 	std::list<GameState> gameStates;
 	std::list<GameState>::iterator currentState;
+	size_t currentStateNum;
 	bool withAnimation;
 	typedef FixedPointNumber<1000> Offset;
 	Offset offsetToGo;
 	long dtForAnimation;
-	long lastMoveTime;
-	Viewer() : withAnimation(true), dtForAnimation(0) {}
+	Viewer() : currentStateNum(0), withAnimation(true), dtForAnimation(0) {}
 	
-	void init() { assert(ready()); currentState = gameStates.begin(); }
+	void init() { assert(ready()); currentState = gameStates.begin(); currentStateNum = 1; }
 	bool ready() const { return !gameStates.empty(); }
 	bool isAtStart() const { return currentState == gameStates.begin(); }
 	bool isAtEnd() const { std::list<GameState>::iterator n = currentState; ++n; return n == gameStates.end(); }
 	bool _next() {
 		if(!ready()) return false;
 		if(isAtEnd()) return false;
-		++currentState; return true;
+		++currentState; ++currentStateNum; return true;
 	}
 	bool _last() {
 		if(!ready()) return false;
 		if(isAtStart()) return false;
-		--currentState; return true;
+		--currentState; --currentStateNum; return true;
 	}
 	
 	void move(int d);
