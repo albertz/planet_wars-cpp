@@ -389,8 +389,6 @@ bool GameState::ParseGamePlaybackChunk(const std::string& s) {
 			default:
 				return false;
 		}
-		
-		if(fields.size() != 2) return false;
 	}
 	
 	if(numPlanets < planets.size()) return false;
