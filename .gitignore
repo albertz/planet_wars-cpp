@@ -8,6 +8,7 @@ build
 *.mode2v3
 *.pbxuser
 *.log
+maps
 BotCppStarterpack
 BotExampleBully
 BotExampleDual
