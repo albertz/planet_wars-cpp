@@ -41,7 +41,7 @@ void Process::run() {
 		return;
 	}
 	else if(p == 0) { // fork		
-					  // close other ends of pipes
+		// close other ends of pipes
 		close(pipe_mainToFork[1]);
 		close(pipe_forkToMain[0]);
 		
@@ -77,11 +77,23 @@ void Process::run() {
 void Process::destroy() {
 	if(running) {
 		kill(forkId, SIGTERM);
+	}
+}
+
+void Process::destroyAndWait() {
+	if(running) {
+		destroy();
+		waitForExit();
+	}
+}
+
+void Process::waitForExit() {
+	if(running) {
 		waitpid(forkId, NULL, 0);
 		close(forkInputFd);
 		close(forkOutputFd);
 		*this = Process(); // reset
-	}
+	}	
 }
 
 static timeval millisecsToTimeval(size_t ms) {

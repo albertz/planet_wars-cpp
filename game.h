@@ -275,7 +275,7 @@ struct Game {
 	// Return a list of all the fleets owned by enemy players.
 	std::vector<Fleet> EnemyFleets() const;
 	
-	int Winner() const { return state.Winner(numTurns > maxGameLength); }
+	int Winner() const { return state.Winner((maxGameLength >= 0) && (numTurns > maxGameLength)); }
 
 	int Production(int playerID) const { return state.Production(playerID, desc); }
 	

@@ -23,10 +23,12 @@ struct Process {
 	Process(const std::string& __cmd = "")
 	: cmd(__cmd), running(false),
 	forkInputFd(0), forkOutputFd(0), forkId(0) {}
-	~Process() { destroy(); }
+	~Process() { destroyAndWait(); }
 	
 	operator bool() const { return running; }
+	void destroyAndWait();
 	void destroy();
+	void waitForExit();
 	void run();
 	
 	Process& operator<<(const std::string& s) { inbuffer += s; return *this; }
