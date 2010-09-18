@@ -3,6 +3,7 @@ CPP=g++
 
 TARGETS=playgame showgame playnview \
 	BotCppStarterpack \
+	BotCppStarterpackDebug \
 	BotExampleDual \
 	BotExampleRage \
 	BotExampleBully \
@@ -27,6 +28,7 @@ SDL_LFLAGS := $(shell \
 )
 
 SDL_LFLAGS := $(SDL_CFLAGS) $(SDL_LFLAGS)
+VIEWER_OBJS := viewer.o font.o SDL_picofont.o gfx.o
 
 all: $(TARGETS)
 
@@ -68,11 +70,14 @@ SDL_picofont.o: SDL_picofont.cpp SDL_picofont.h
 playgame: engine.o game.o utils.o process.o
 	$(CPP) $(LFLAGS) $^ -o $@
 
-showgame: utils.o game.o showgame.o viewer.o font.o SDL_picofont.o gfx.o
+showgame: utils.o game.o showgame.o $(VIEWER_OBJS)
 	$(CPP) $(LFLAGS) $(SDL_LFLAGS) $^ -o $@
 
-playnview: utils.o game.o playnview.o viewer.o font.o SDL_picofont.o gfx.o process.o
+playnview: utils.o game.o playnview.o $(VIEWER_OBJS) process.o
 	$(CPP) $(LFLAGS) $(SDL_LFLAGS) $^ -o $@
 
 Bot%: Bot%.cpp game.o utils.o
 	$(CPP) $(LFLAGS) $^ -o $@
+
+BotCppStarterpackDebug: BotCppStarterpack.cpp game.o utils.o $(VIEWER_OBJS)
+	$(CPP) $(LFLAGS) $(SDL_CFLAGS) $(SDL_LFLAGS) -D DEBUGGAME $^ -o $@

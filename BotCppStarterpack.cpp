@@ -1,6 +1,11 @@
 #include <iostream>
 #include "game.h"
 
+#ifdef DEBUGGAME
+#include <SDL.h>
+#include "viewer.h"
+#endif
+
 // The DoTurn function is where your code goes. The PlanetWars object contains
 // the state of the game, including information about all planets and fleets
 // that currently exist. Inside this function, you issue orders using the
@@ -50,26 +55,52 @@ void DoTurn(const Game& pw) {
 	}
 }
 
-// This is just the main game loop that takes care of communicating with the
-// game engine for you. You don't have to understand or change the code below.
-int main(int argc, char *argv[]) {
+int PlayGame(void* p = NULL) {
+	bool isFirstTurn = true;
 	std::string current_line;
 	std::string map_data;
 	while (true) {
 		int c = std::cin.get();
-		current_line += (char)c;
+		if(c < 0) break;
+		current_line += (char)(unsigned char)c;
 		if (c == '\n') {
 			if (current_line.length() >= 2 && current_line.substr(0, 2) == "go") {
 				Game game;
 				game.ParseGameState(map_data);
+#ifdef DEBUGGAME
+				if(isFirstTurn)
+					Viewer_pushInitialGame(new Game(game));
+				else
+					Viewer_pushGameState(new GameState(game.state));
+#endif
 				map_data = "";
 				DoTurn(game);
 				game.FinishTurn();
+				isFirstTurn = false;
 			} else {
 				map_data += current_line;
 			}
 			current_line = "";
 		}
 	}
+	return 0;
+}
+
+// This is just the main game loop that takes care of communicating with the
+// game engine for you. You don't have to understand or change the code below.
+int main(int argc, char *argv[]) {
+#ifdef DEBUGGAME
+	if(!Viewer_initWindow("My Bot")) return 1;
+	
+	/*SDL_Thread* player =*/ SDL_CreateThread(&PlayGame, NULL);
+	
+	Viewer_mainLoop();
+	
+	// the hard and ugly way. but the read is blocking in the player thread,
+	// so this is just the easiest way. and also doesn't really matter anyway
+	_exit(0);
+#else
+	PlayGame();
+#endif
 	return 0;
 }
