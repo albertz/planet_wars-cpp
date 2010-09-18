@@ -213,11 +213,12 @@ int PlayGameThread(void*) {
 			isAlive[i] = false;
 		}
 		++numTurns;
-		cerr << "Turn " << numTurns << endl;
+		if(!beQuiet) cerr << "Turn " << numTurns << endl;
 		game.DoTimeStep();		
 		Viewer_pushGameState(new GameState(game.state));
 	}
 	
+	if(beQuiet) cerr << "after " << numTurns << " turns: "; // so we know at least the numturns
 	if (game.Winner() > 0) {
 		cerr << "Player " << game.Winner() << " Wins!" << endl;
 	} else {
