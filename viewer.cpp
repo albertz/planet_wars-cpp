@@ -19,7 +19,7 @@
 using namespace std;
 
 // Gets a color for a player (clamped)
-static Color GetColor(int player) {
+Color GetDefaultPlayerPlanetColor(int player) {
 	static const Color colors[] = {
 		Color(68, 85, 85),
 		Color(119, 170, 204),
@@ -51,14 +51,29 @@ static double inherentRadius(const PlanetDesc& p) {
 	//return p.GrowthRate();
 }
 
+static Color getPlanetColor(const GameDebugInfo* info, int planet, int player) {
+	if(info == NULL) return GetDefaultPlayerPlanetColor(player);
+	std::map<int, Color>::const_iterator f = info->planetColor.find(planet);
+	if(f == info->planetColor.end()) return GetDefaultPlayerPlanetColor(player);
+	return f->second;
+}
+
+static std::string getPlanetDebugText(const GameDebugInfo* info, int planet) {
+	if(info == NULL) return "";
+	std::map<int, std::string>::const_iterator f = info->planetInfo.find(planet);
+	if(f == info->planetInfo.end()) return "";
+	return "\n<" + f->second + ">";
+}
+
 // Renders the current state of the game to a graphics object
 //
 // The offset is a number between 0 and 1 that specifies how far we are
 // past this game state, in units of time. As this parameter varies from
 // 0 to 1, the fleets all move in the forward direction. This is used to
 // fake smooth animation.
-void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, double offset) {
+void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, double offset, const GameDebugInfo* debugInfo) {
 	static const Color textColor(255, 255, 255);
+	static const Color dbgTextColor(200, 255, 200);
 	const int width = surf->w;
 	const int height = surf->h;
 	
@@ -110,11 +125,16 @@ void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, d
 		int r = (int)std::min(size / (right - left) * width,
 							  size / (bottom - top) * height);
 		if(r > 0) {
-			Color c = GetColor(state.planets[p].owner);
+			Color c = getPlanetColor(debugInfo, p, state.planets[p].owner);
 			DrawCircleFilled(surf, x, y, r+1, r+1, c * 1.2f);
 			DrawCircleFilled(surf, x, y, r, r, c);
 		}
 		DrawText(surf, to_string(state.planets[p].numShips), textColor, x, y, true);
+		std::string debugTxt = getPlanetDebugText(debugInfo, p);
+		if(debugTxt != "") {
+			Vec s = TextGetSize(debugTxt);
+			DrawText(surf, debugTxt, dbgTextColor, x - s.x / 2, y + 5);
+		}
 	}
 
 	// Draw fleets
@@ -125,7 +145,7 @@ void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, d
 		if (tripProgress > 0.99 || tripProgress < 0.01) continue;
 		VecD delta = dPos - sPos;
 		VecD pos = sPos + delta * tripProgress;
-		Color c = GetColor(f->owner) * 1.3;
+		Color c = GetDefaultPlayerPlanetColor(f->owner) * 1.3;
 		std::string txt = to_string(f->numShips);
 		{
 			VecD ndelta = delta.Normalize();
@@ -200,7 +220,7 @@ void Viewer::frame(SDL_Surface* surf, long dt) {
 	
 	double offset = ((Offset(1) - offsetToGo % 1) % 1).asDouble();
 	//if(oldOffsetToGo != 0) cout << ", doffset=" << offset << endl;
-	DrawGame(gameDesc, currentState->state, surf, offset);
+	DrawGame(gameDesc, currentState->state, surf, offset, &currentState->debugInfo);
 	
 	std::string txtTurn = to_string(currentState->index + 1) + "/" + to_string(gameStates.size()) + ":";
 	int x = 2, y = 2;
@@ -209,7 +229,7 @@ void Viewer::frame(SDL_Surface* surf, long dt) {
 	const int upperPlayer = currentState->state.HighestPlayerID();
 	for(int p = 1; p <= upperPlayer; ++p) {
 		std::string txtPlayer = to_string(currentState->state.NumShips(p)) + "/" + to_string(currentState->state.Production(p, gameDesc));
-		DrawText(surf, txtPlayer, GetColor(p), x, y);
+		DrawText(surf, txtPlayer, GetDefaultPlayerPlanetColor(p), x, y);
 		x += 10 + TextGetSize(txtPlayer).x;
 	}
 }

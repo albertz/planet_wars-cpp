@@ -10,8 +10,13 @@
 #ifndef __PW__GAMEDEBUG_H__
 #define __PW__GAMEDEBUG_H__
 
+#include <map>
+#include <string>
+#include "gfx.h"
+
 struct GameDebugInfo {
-	
+	std::map<int, std::string> planetInfo;
+	std::map<int, Color> planetColor;
 };
 
 #endif

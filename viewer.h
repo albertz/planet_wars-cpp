@@ -17,6 +17,7 @@
 #include "game.h"
 #include "FixedPointNumber.h"
 #include "gamedebug.h"
+#include "gfx.h"
 
 struct SDL_Surface;
 
@@ -26,7 +27,9 @@ struct SDL_Surface;
 // past this game state, in units of time. As this parameter varies from
 // 0 to 1, the fleets all move in the forward direction. This is used to
 // fake smooth animation.
-void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, double offset = 0.0);
+void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, double offset = 0.0, const GameDebugInfo* debugInfo = NULL);
+
+Color GetDefaultPlayerPlanetColor(int playerID);
 
 struct ViewerState {
 	size_t index;
