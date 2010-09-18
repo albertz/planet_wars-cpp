@@ -4,6 +4,7 @@
 #ifdef GAMEDEBUG
 #include <SDL.h>
 #include "viewer.h"
+#include "utils.h"
 #endif
 
 // The DoTurn function is where your code goes. The PlanetWars object contains
@@ -21,6 +22,9 @@ void DoTurn(const Game& pw) {
 	if (pw.MyFleets().size() >= 1) {
 		return;
 	}
+#ifdef GAMEDEBUG
+	GameDebugInfo* debugInfo = new GameDebugInfo;
+#endif
 	// (2) Find my strongest planet.
 	int source = -1;
 	double source_score = -999999.0;
@@ -29,6 +33,9 @@ void DoTurn(const Game& pw) {
 	for (size_t i = 0; i < my_planets.size(); ++i) {
 		const Planet& p = my_planets[i];
 		double score = (double)p.numShips;
+#ifdef GAMEDEBUG
+		debugInfo->planetColor[p.planetId] = Color(0,150,0) * CLAMP(2.0f - 5.0f / (float(score) + 1.0f), 0.5f, 1.5f);
+#endif
 		if (score > source_score) {
 			source_score = score;
 			source = p.planetId;
@@ -42,6 +49,9 @@ void DoTurn(const Game& pw) {
 	for (size_t i = 0; i < not_my_planets.size(); ++i) {
 		const Planet& p = not_my_planets[i];
 		double score = 1.0 / (1 + p.numShips);
+#ifdef GAMEDEBUG
+		debugInfo->planetInfo[p.planetId] = "score: " + to_string(score);
+#endif
 		if (score > dest_score) {
 			dest_score = score;
 			dest = p.planetId;
@@ -53,6 +63,9 @@ void DoTurn(const Game& pw) {
 		int num_ships = source_num_ships / 2;
 		pw.IssueOrder(source, dest, num_ships);
 	}
+#ifdef GAMEDEBUG
+	Viewer_pushGameStateDebugInfo(debugInfo);
+#endif
 }
 
 int PlayGame(void* p = NULL) {
