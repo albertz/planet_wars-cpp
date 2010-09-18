@@ -58,6 +58,7 @@
 		23917F6D12414AFB002C2060 /* process.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = process.cpp; sourceTree = "<group>"; };
 		2391811712428246002C2060 /* playnview */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = playnview; sourceTree = BUILT_PRODUCTS_DIR; };
 		2391811B1242828F002C2060 /* playnview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = playnview.cpp; sourceTree = "<group>"; };
+		2391820A12445A0A002C2060 /* gamedebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gamedebug.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +156,7 @@
 				23915592123E5520002C2060 /* SDLmain.m */,
 				23915623123E6A38002C2060 /* gfx.h */,
 				23915624123E6A38002C2060 /* gfx.cpp */,
+				2391820A12445A0A002C2060 /* gamedebug.h */,
 			);
 			name = viewgame;
 			sourceTree = "<group>";
