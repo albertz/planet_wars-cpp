@@ -15,6 +15,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <fstream>
+#include <signal.h>
 #include "utils.h"
 #include "game.h"
 #include "process.h"
@@ -22,16 +23,16 @@
 
 using namespace std;
 
-void KillClients(std::vector<Process*>& clients) {
+static int argc;
+static char** args;
+static std::vector<Process*> clients;
+
+void KillClients() {
 	for (size_t i = 0; i < clients.size(); ++i) {
 		delete clients[i];
 		clients[i] = NULL;
 	}
 }
-
-static int argc;
-static char** args;
-static std::vector<Process*> clients;
 
 int PlayGameThread(void* param) {	
 	// Initialize the game. Load the map.
@@ -122,15 +123,20 @@ int PlayGameThread(void* param) {
 		Viewer_pushGameState(new GameState(game.state));
 	}
 	
-	KillClients(clients);
-	
 	if (game.Winner() > 0) {
 		cerr << "Player " << game.Winner() << " Wins!" << endl;
 	} else {
 		cerr << "Draw!" << endl;
-	}	
+	}
 	
+	KillClients();
+
 	return 0;
+}
+
+void signalhandler(int) {
+	for (size_t i = 0; i < clients.size(); ++i)
+		clients[i]->destroy();
 }
 
 int main(int _argc, char** _args) {
@@ -146,6 +152,10 @@ int main(int _argc, char** _args) {
 		return 1;
 	}
 
+	signal(SIGHUP, &signalhandler);
+	signal(SIGINT, &signalhandler);
+	signal(SIGQUIT, &signalhandler);
+	
 	// Start the client programs (players).
 	for (int i = 5; i < argc; ++i) {
 		std::string command = args[i];
@@ -154,7 +164,7 @@ int main(int _argc, char** _args) {
 		
 		client->run();
 		if (!*client) {
-			KillClients(clients);
+			KillClients();
 			cerr << "ERROR: failed to start client: " << command << endl;
 			return 1;
 		}
