@@ -46,7 +46,7 @@ void PrintHelpAndExit() {
 	<< "<player_two> [more_players]" << endl
 	<< "or" << endl
 	<< "  " << argv[0] << " [-m <map>] [-t <turn_time>] "
-	<< "[-n <num_turns>] [-l <logfile>] [-wait] [-noout] [--] "
+	<< "[-n <num_turns>] [-l <logfile>] [-wait] [-noout] [-quiet] [--] "
 	<< "<player_one> <player_two> [more_players]" << endl
 	<< "with default values:" << endl
 	<< "  map = maps/map1.txt" << endl
@@ -55,6 +55,7 @@ void PrintHelpAndExit() {
 	<< "  logfile = \"\" = no logfile" << endl
 	<< "-wait : wait for player1 to exit (useful for debugging)" << endl
 	<< "-noout : no replay output" << endl
+	<< "-quiet : less output" << endl
 	<< "-- : needed if you specify more than 5 players" << endl
 	<< "or" << endl
 	<< "  " << argv[0] << " -h : this help" << endl
@@ -69,6 +70,7 @@ static std::string logFilename;
 static std::ofstream logStream;
 static std::ostream* replayStream = &cout;
 static bool waitForBot1 = false;
+static bool beQuiet = false;
 static std::vector<std::string> playerCommands;
 
 static bool looksLikeParamOption(const std::string& arg) {
@@ -91,6 +93,8 @@ void ParseParams() {
 			waitForBot1 = true;
 		else if(arg == "-noout")
 			replayStream = NULL;
+		else if(arg == "-quiet")
+			beQuiet = true;
 		else if(arg == "-h")
 			PrintHelpAndExit();
 		else {
@@ -236,10 +240,11 @@ int main(int _argc, char** _argv) {
 			isAlive[i] = false;
 		}
 		++numTurns;
-		cerr << "Turn " << numTurns << endl;
+		if(!beQuiet) cerr << "Turn " << numTurns << endl;
 		game.DoTimeStep();
 	}
 
+	if(beQuiet) cerr << "after " << numTurns << " turns: "; // so we know at least the numturns
 	if (game.Winner() > 0) {
 		cerr << "Player " << game.Winner() << " Wins!" << endl;
 	} else {
