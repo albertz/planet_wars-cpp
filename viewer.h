@@ -13,8 +13,10 @@
 #include <iterator>
 #include <list>
 #include <cassert>
+#include <memory>
 #include "game.h"
 #include "FixedPointNumber.h"
+#include "gamedebug.h"
 
 struct SDL_Surface;
 
@@ -26,30 +28,36 @@ struct SDL_Surface;
 // fake smooth animation.
 void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, double offset = 0.0);
 
+struct ViewerState {
+	size_t index;
+	GameState state;
+	GameDebugInfo debugInfo;
+	ViewerState(size_t _i, const GameState& _s) : index(_i), state(_s) {}
+};
+
 struct Viewer {
 	GameDesc gameDesc;
-	std::list<GameState> gameStates;
-	std::list<GameState>::iterator currentState;
-	size_t currentStateNum;
+	std::list<ViewerState> gameStates;
+	std::list<ViewerState>::iterator currentState;
 	bool withAnimation;
 	typedef FixedPointNumber<1000> Offset;
 	Offset offsetToGo;
 	long dtForAnimation;
-	Viewer() : currentStateNum(0), withAnimation(true), dtForAnimation(0) {}
+	Viewer() : withAnimation(true), dtForAnimation(0) {}
 	
-	void init() { assert(ready()); currentState = gameStates.begin(); currentStateNum = 1; }
+	void init() { assert(ready()); currentState = gameStates.begin(); }
 	bool ready() const { return !gameStates.empty(); }
 	bool isAtStart() const { return currentState == gameStates.begin(); }
-	bool isAtEnd() const { std::list<GameState>::iterator n = currentState; ++n; return n == gameStates.end(); }
+	bool isAtEnd() const { std::list<ViewerState>::iterator n = currentState; ++n; return n == gameStates.end(); }
 	bool _next() {
 		if(!ready()) return false;
 		if(isAtEnd()) return false;
-		++currentState; ++currentStateNum; return true;
+		++currentState; return true;
 	}
 	bool _last() {
 		if(!ready()) return false;
 		if(isAtStart()) return false;
-		--currentState; --currentStateNum; return true;
+		--currentState; return true;
 	}
 	
 	void move(int d);
@@ -72,5 +80,6 @@ void Viewer_mainLoop(); // returns on exit
 // These function are multithreading safe.
 void Viewer_pushInitialGame(Game* game);
 void Viewer_pushGameState(GameState* state);
+void Viewer_pushGameStateDebugInfo(GameDebugInfo* info);
 
 #endif

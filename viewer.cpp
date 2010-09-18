@@ -200,15 +200,15 @@ void Viewer::frame(SDL_Surface* surf, long dt) {
 	
 	double offset = ((Offset(1) - offsetToGo % 1) % 1).asDouble();
 	//if(oldOffsetToGo != 0) cout << ", doffset=" << offset << endl;
-	DrawGame(gameDesc, *currentState, surf, offset);
+	DrawGame(gameDesc, currentState->state, surf, offset);
 	
-	std::string txtTurn = to_string(currentStateNum) + "/" + to_string(gameStates.size()) + ":";
+	std::string txtTurn = to_string(currentState->index + 1) + "/" + to_string(gameStates.size()) + ":";
 	int x = 2, y = 2;
 	DrawText(surf, txtTurn, Color(255,255,255), x, y);
 	x += 10 + TextGetSize(txtTurn).x;
-	const int upperPlayer = currentState->HighestPlayerID();
+	const int upperPlayer = currentState->state.HighestPlayerID();
 	for(int p = 1; p <= upperPlayer; ++p) {
-		std::string txtPlayer = to_string(currentState->NumShips(p)) + "/" + to_string(currentState->Production(p, gameDesc));
+		std::string txtPlayer = to_string(currentState->state.NumShips(p)) + "/" + to_string(currentState->state.Production(p, gameDesc));
 		DrawText(surf, txtPlayer, GetColor(p), x, y);
 		x += 10 + TextGetSize(txtPlayer).x;
 	}
@@ -222,6 +222,7 @@ static bool pressedAnyKey = false;
 
 #define EVENT_STDIN_INITIAL 1
 #define EVENT_STDIN_CHUNK 2
+#define EVENT_STDIN_DEBUG 3
 
 #define SETVIDEOMODE SDL_SetVideoMode(screenw, screenh, screenbpp, SDL_RESIZABLE)
 
@@ -239,13 +240,23 @@ static bool HandleEvent(const SDL_Event& event) {
 				case EVENT_STDIN_INITIAL: {
 					std::auto_ptr<Game> game( (Game*)event.user.data1 );
 					viewer.gameDesc = game->desc;
-					viewer.gameStates.push_back(game->state);
+					viewer.gameStates.push_back(ViewerState(0, game->state));
 					viewer.init();
 					break;
 				}
 				case EVENT_STDIN_CHUNK: {
 					std::auto_ptr<GameState> gameState( (GameState*)event.user.data1 );
-					viewer.gameStates.push_back(*gameState);
+					viewer.gameStates.push_back(ViewerState(viewer.gameStates.size(), *gameState));
+					if(!pressedAnyKey) {
+						viewer.offsetToGo++;
+						viewer.dtForAnimation += 200;
+					}
+					break;
+				}
+				case EVENT_STDIN_DEBUG: {
+					std::auto_ptr<GameDebugInfo> debugInfo( (GameDebugInfo*)event.user.data1 );
+					assert(viewer.gameStates.size() > 0);
+					viewer.gameStates.back().debugInfo = *debugInfo;
 					if(!pressedAnyKey) {
 						viewer.offsetToGo++;
 						viewer.dtForAnimation += 200;
@@ -341,5 +352,13 @@ void Viewer_pushGameState(GameState* state) {
 	ev.type = SDL_USEREVENT;
 	ev.user.code = EVENT_STDIN_CHUNK;
 	ev.user.data1 = state;
+	while(SDL_PushEvent(&ev) < 0) SDL_Delay(1); // repeat until pushed	
+}
+
+void Viewer_pushGameStateDebugInfo(GameDebugInfo* info) {
+	SDL_Event ev; memset(&ev, 0, sizeof(SDL_Event));
+	ev.type = SDL_USEREVENT;
+	ev.user.code = EVENT_STDIN_DEBUG;
+	ev.user.data1 = info;
 	while(SDL_PushEvent(&ev) < 0) SDL_Delay(1); // repeat until pushed	
 }
