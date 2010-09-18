@@ -129,6 +129,11 @@ void ParseParams() {
 		playerCommands = unnamedParams;
 	}	
 	
+	if(playerCommands.size() < 2) {
+		cerr << "you need at least 2 players" << endl;
+		PrintHelpAndExit();
+	}
+	
 	if(logFilename != "")
 		logStream.open(logFilename.c_str());
 
