@@ -160,23 +160,18 @@ void Game::DoTimeStep() {
 // puts them into a newly-created fleet, calculates the distance to the
 // destination_planet, and sets the fleet's total trip time to that
 // distance. Checks that the given player_id is allowed to give the given
-// order. If not, the offending player is kicked from the game. If the
-// order was carried out without any issue, and everything is peachy, then
-// 0 is returned. Otherwise, -1 is returned.
-int Game::ExecuteOrder(int playerID,
-					   int sourcePlanet,
-					   int destinationPlanet,
-					   int numShips) {
-	PlanetState& source = state.planets[sourcePlanet];
+// order. If the order was carried out without any issue, and everything is
+// peachy, then true is returned. Otherwise, false is returned.
+bool GameState::ExecuteOrder(const GameDesc& desc,
+							 int playerID,
+							 int sourcePlanet,
+							 int destinationPlanet,
+							 int numShips) {
+	PlanetState& source = planets[sourcePlanet];
 	if (source.owner != playerID ||
 		numShips > source.numShips ||
 		numShips < 0) {
-		WriteLogMessage("Dropping player " + to_string(playerID) +
-						". source.Owner() = " + to_string(source.owner) + ", playerID = " +
-						to_string(playerID) + ", numShips = " + to_string(numShips) +
-						", source.NumShips() = " + to_string(source.numShips));
-		state.DropPlayer(playerID);
-		return -1;
+		return false;
 	}
 	source.numShips -= numShips;
 	int distance = desc.Distance(sourcePlanet, destinationPlanet);
@@ -186,21 +181,29 @@ int Game::ExecuteOrder(int playerID,
 			destinationPlanet,
 			distance,
 			distance);
-	state.fleets.push_back(f);
-	return 0;
+	fleets.push_back(f);
+	return true;
 }
 
-// Behaves just like the longer form of IssueOrder, but takes a string
-// of the form "source_planet destination_planet num_ships". That is, three
-// integers separated by space characters.
-int Game::ExecuteOrder(int playerID, const std::string& order) {
+// Parses a string of the form "source_planet destination_planet num_ships"
+// and calls state.ExecuteOrder. If that fails, the player is dropped.
+bool Game::ExecuteOrder(int playerID, const std::string& order) {
 	std::vector<std::string> tokens = Tokenize(order, " ");
 	if (tokens.size() != 3) return -1;
 	
 	int sourcePlanet = atoi(tokens[0].c_str());
 	int destinationPlanet = atoi(tokens[1].c_str());
 	int numShips = atoi(tokens[2].c_str());
-	return ExecuteOrder(playerID, sourcePlanet, destinationPlanet, numShips);
+
+	if(!state.ExecuteOrder(desc, playerID, sourcePlanet, destinationPlanet, numShips)) {
+		WriteLogMessage("Dropping player " + to_string(playerID) +
+						". source.Owner() = " + to_string(state.planets[sourcePlanet].owner) + ", playerID = " +
+						to_string(playerID) + ", numShips = " + to_string(numShips) +
+						", source.NumShips() = " + to_string(state.planets[sourcePlanet].numShips));
+		state.DropPlayer(playerID);
+		return false;
+	}
+	return true;
 }
 
 // Kicks a player out of the game. This is used in cases where a player

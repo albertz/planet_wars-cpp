@@ -101,6 +101,18 @@ struct GameState {
     //* Removes all fleets involved in the battle
     //* Sets the number of ships and owner of the planet according the outcome
     void __FightBattle(PlanetState& p);
+
+	// Execute an order. This function takes num_ships off the source_planet,
+	// puts them into a newly-created fleet, calculates the distance to the
+	// destination_planet, and sets the fleet's total trip time to that
+	// distance. Checks that the given player_id is allowed to give the given
+	// order. If the order was carried out without any issue, and everything
+	// is peachy, then true is returned. Otherwise, false is returned.
+	bool ExecuteOrder(const GameDesc& desc,
+					  int playerID,
+					  int sourcePlanet,
+					  int destinationPlanet,
+					  int numShips);		
 	
 	// Kicks a player out of the game. This is used in cases where a player
 	// tries to give an illegal order or runs over the time limit.
@@ -211,23 +223,10 @@ struct Game {
 	
 	void DoTimeStep();
 	
-	// Execute an order. This function takes num_ships off the source_planet,
-	// puts them into a newly-created fleet, calculates the distance to the
-	// destination_planet, and sets the fleet's total trip time to that
-	// distance. Checks that the given player_id is allowed to give the given
-	// order. If not, the offending player is kicked from the game. If the
-	// order was carried out without any issue, and everything is peachy, then
-	// 0 is returned. Otherwise, -1 is returned.
-	int ExecuteOrder(int playerID,
-					 int sourcePlanet,
-					 int destinationPlanet,
-					 int numShips);		
+	// Parses a string of the form "source_planet destination_planet num_ships"
+	// and calls state.ExecuteOrder. If that fails, the player is dropped.
+	bool ExecuteOrder(int playerID, const std::string& order);
 	
-	// Behaves just like the longer form of ExecuteOrder, but takes a string
-	// of the form "source_planet destination_planet num_ships". That is, three
-	// integers separated by space characters.
-	int ExecuteOrder(int playerID, const std::string& order);
-								
 	void WriteLogMessage(const std::string& message) {
 		if(logFile) *logFile << message << std::endl;
 	}
