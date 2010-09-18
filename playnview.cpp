@@ -223,6 +223,9 @@ int PlayGameThread(void*) {
 	} else {
 		cerr << "Draw!" << endl;
 	}
+
+	if(waitForBot1)
+		clients[0]->waitForExit();
 	
 	KillClients();
 
