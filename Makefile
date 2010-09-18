@@ -80,4 +80,4 @@ Bot%: Bot%.cpp game.o utils.o
 	$(CPP) $(LFLAGS) $^ -o $@
 
 BotCppStarterpackDebug: BotCppStarterpack.cpp game.o utils.o $(VIEWER_OBJS)
-	$(CPP) $(LFLAGS) $(SDL_CFLAGS) $(SDL_LFLAGS) -D DEBUGGAME $^ -o $@
+	$(CPP) $(LFLAGS) $(SDL_CFLAGS) $(SDL_LFLAGS) -D GAMEDEBUG $^ -o $@

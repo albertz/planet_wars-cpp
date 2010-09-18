@@ -1,7 +1,7 @@
 #include <iostream>
 #include "game.h"
 
-#ifdef DEBUGGAME
+#ifdef GAMEDEBUG
 #include <SDL.h>
 #include "viewer.h"
 #endif
@@ -67,7 +67,7 @@ int PlayGame(void* p = NULL) {
 			if (current_line.length() >= 2 && current_line.substr(0, 2) == "go") {
 				Game game;
 				game.ParseGameState(map_data);
-#ifdef DEBUGGAME
+#ifdef GAMEDEBUG
 				if(isFirstTurn)
 					Viewer_pushInitialGame(new Game(game));
 				else
@@ -89,7 +89,7 @@ int PlayGame(void* p = NULL) {
 // This is just the main game loop that takes care of communicating with the
 // game engine for you. You don't have to understand or change the code below.
 int main(int argc, char *argv[]) {
-#ifdef DEBUGGAME
+#ifdef GAMEDEBUG
 	if(!Viewer_initWindow("My Bot")) return 1;
 	
 	/*SDL_Thread* player =*/ SDL_CreateThread(&PlayGame, NULL);
