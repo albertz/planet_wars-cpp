@@ -10,6 +10,7 @@ build
 *.log
 maps
 BotCppStarterpack
+BotCppStarterpackDebug
 BotExampleBully
 BotExampleDual
 BotExampleProspector
