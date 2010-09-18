@@ -139,6 +139,7 @@ void ParseParams() {
 void signalhandler(int) {
 	for (size_t i = 0; i < clients.size(); ++i)
 		clients[i]->destroy();
+	_exit(0);
 }
 
 int main(int _argc, char** _argv) {
