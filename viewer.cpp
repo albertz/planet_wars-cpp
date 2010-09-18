@@ -129,14 +129,20 @@ void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, d
 			DrawCircleFilled(surf, x, y, r+1, r+1, c * 1.2f);
 			DrawCircleFilled(surf, x, y, r, r, c);
 		}
+	}
+
+	// Draw the planet texts.
+	for (size_t p = 0; p < desc.planets.size(); ++p) {
+		int x = planetPos[p].x;
+		int y = planetPos[p].y;
 		DrawText(surf, to_string(state.planets[p].numShips), textColor, x, y, true);
 		std::string debugTxt = getPlanetDebugText(debugInfo, p);
 		if(debugTxt != "") {
 			Vec s = TextGetSize(debugTxt);
-			DrawText(surf, debugTxt, dbgTextColor, x - s.x / 2, y + 5);
+			DrawText(surf, debugTxt, dbgTextColor, x - s.x / 2, y + 2);
 		}
 	}
-
+	
 	// Draw fleets
 	for (GameState::Fleets::const_iterator f = state.fleets.begin(); f != state.fleets.end(); ++f) {
 		Point sPos = planetPos[f->sourcePlanet];
