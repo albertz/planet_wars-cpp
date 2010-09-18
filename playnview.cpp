@@ -24,7 +24,7 @@
 using namespace std;
 
 static int argc;
-static char** args;
+static char** argv;
 static std::vector<Process*> clients;
 
 void KillClients() {
@@ -34,12 +34,12 @@ void KillClients() {
 	}
 }
 
-int PlayGameThread(void* param) {	
+int PlayGameThread(void*) {	
 	// Initialize the game. Load the map.
-	std::string mapFilename = args[1];
-	long maxTurnTime = atol(args[2]);
-	int maxNumTurns = atoi(args[3]);
-	std::string logFilename = args[4];	
+	std::string mapFilename = argv[1];
+	long maxTurnTime = atol(argv[2]);
+	int maxNumTurns = atoi(argv[3]);
+	std::string logFilename = argv[4];	
 	std::ofstream logStream(logFilename.c_str());
 	
 	Game game(maxNumTurns, NULL, logStream ? &logStream : NULL);	
@@ -140,9 +140,9 @@ void signalhandler(int) {
 	_exit(0);
 }
 
-int main(int _argc, char** _args) {
+int main(int _argc, char** _argv) {
 	argc = _argc;
-	args = _args;
+	argv = _argv;
 	
 	// Check the command-line arguments.
 	if (argc < 6) {
@@ -159,7 +159,7 @@ int main(int _argc, char** _args) {
 	
 	// Start the client programs (players).
 	for (int i = 5; i < argc; ++i) {
-		std::string command = args[i];
+		std::string command = argv[i];
 		Process* client = new Process(command);
 		clients.push_back(client);
 		
@@ -173,7 +173,7 @@ int main(int _argc, char** _args) {
 	
 	if(!Viewer_initWindow("PlanetWars")) return 1;
 	
-	SDL_Thread* player = SDL_CreateThread(&PlayGameThread, args);
+	SDL_Thread* player = SDL_CreateThread(&PlayGameThread, NULL);
 
 	Viewer_mainLoop();
 
