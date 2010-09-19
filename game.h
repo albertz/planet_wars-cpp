@@ -97,6 +97,11 @@ struct GameState {
 	//   * Fleets that arrive at their destination are dealt with.
 	void DoTimeStep(const GameDesc& desc);	
 
+	// several at once. we maybe can optimise this later
+	void DoTimeSteps(int n, const GameDesc& desc) {
+		while(n > 0) { DoTimeStep(desc); --n; }
+	}
+	
 	//Resolves the battle at planet p, if there is one.
     //* Removes all fleets involved in the battle
     //* Sets the number of ships and owner of the planet according the outcome
@@ -131,6 +136,8 @@ struct GameState {
 	// Returns the number of ships that the current player has, either located
 	// on planets or in flight.
 	int NumShips(int playerID) const;
+
+	int NumShipsOnPlanets(int playerID) const;
 	
 	// Returns the production of the given player.
     int Production(int playerID, const GameDesc& desc) const;

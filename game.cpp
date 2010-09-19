@@ -290,6 +290,15 @@ int GameState::NumShips(int playerID) const {
 	return numShips;
 }
 
+int GameState::NumShipsOnPlanets(int playerID) const {
+	int numShips = 0;
+	for (Planets::const_iterator p = planets.begin(); p != planets.end(); ++p) {
+		if (p->owner == playerID)
+			numShips += p->numShips;
+	}
+	return numShips;
+}
+
 
 int GameState::HighestPlayerID() const {
 	int highestP = 0;
