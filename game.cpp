@@ -173,6 +173,10 @@ bool GameState::ExecuteOrder(const GameDesc& desc,
 		numShips < 0) {
 		return false;
 	}
+	if(numShips == 0)
+		// just ignore but dont error
+		return true;
+	
 	source.numShips -= numShips;
 	int distance = desc.Distance(sourcePlanet, destinationPlanet);
 	Fleet f(source.owner,
