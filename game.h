@@ -187,8 +187,8 @@ struct Game {
 	// Loads a map from a text file. The text file contains a description of
 	// the starting state of a game. See the project wiki for a description of
 	// the file format. It should be called the Planet Wars Point-in-Time
-	// format. On success, return 1. On failure, returns 0.
-	int LoadMapFromFile(const std::string& mapFilename);
+	// format. On success, return true. On failure, returns false.
+	bool LoadMapFromFile(const std::string& mapFilename);
 		
 	// Returns the number of planets. Planets are numbered starting with 0.
 	size_t NumPlanets() const { return desc.planets.size(); }

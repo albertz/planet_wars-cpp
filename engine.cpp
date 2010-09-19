@@ -159,8 +159,8 @@ int main(int _argc, char** _argv) {
 	// Initialize the game. Load the map.	
 	Game game(maxNumTurns, replayStream, logStream ? &logStream : NULL);	
 	game.WriteLogMessage("initializing");
-	if (game.LoadMapFromFile(mapFilename) == 0) {
-		cerr << "ERROR: failed to start game. map: " << mapFilename << endl;
+	if(!game.LoadMapFromFile(mapFilename)) {
+		cerr << "ERROR: failed to load map: " << mapFilename << endl;
 		return 1;
 	}
 
