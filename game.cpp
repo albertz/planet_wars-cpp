@@ -200,6 +200,7 @@ bool Game::ExecuteOrder(int playerID, const std::string& order) {
 						". source.Owner() = " + to_string(state.planets[sourcePlanet].owner) + ", playerID = " +
 						to_string(playerID) + ", numShips = " + to_string(numShips) +
 						", source.NumShips() = " + to_string(state.planets[sourcePlanet].numShips));
+		std::cerr << "Dropping player " << playerID << " because of invalid order: " << order << std::endl;
 		state.DropPlayer(playerID);
 		return false;
 	}
