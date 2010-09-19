@@ -30,7 +30,8 @@ int main(int argc, char *argv[]) {
 	std::string map_data;
 	while (true) {
 		int c = std::cin.get();
-		current_line += (char)c;
+		if(c < 0) break;
+		current_line += (char)(unsigned char)c;
 		if (c == '\n') {
 			if (current_line.length() >= 2 && current_line.substr(0, 2) == "go") {
 				Game game;
