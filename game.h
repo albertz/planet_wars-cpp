@@ -102,6 +102,11 @@ struct GameState {
 		while(n > 0) { DoTimeStep(desc); --n; }
 	}
 	
+	// returns a copy with one timestep ahead
+	GameState NextTimeStep(const GameDesc& desc) const {
+		GameState s(*this); s.DoTimeStep(desc); return s;
+	}
+	
 	//Resolves the battle at planet p, if there is one.
     //* Removes all fleets involved in the battle
     //* Sets the number of ships and owner of the planet according the outcome
