@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "showgame", "showgame\showgame.vcproj", "{ED71BCFA-4A2C-4CEA-8CF7-3A95CD36FD35}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "playgame", "playgame\playgame.vcproj", "{67CF1C1E-EDF9-4C75-AE63-49EF0E509CA9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "playnview", "playnview\playnview.vcproj", "{E5D22DBA-2768-432A-B341-E8BB2CE3725B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ED71BCFA-4A2C-4CEA-8CF7-3A95CD36FD35}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ED71BCFA-4A2C-4CEA-8CF7-3A95CD36FD35}.Debug|Win32.Build.0 = Debug|Win32
+		{ED71BCFA-4A2C-4CEA-8CF7-3A95CD36FD35}.Release|Win32.ActiveCfg = Release|Win32
+		{ED71BCFA-4A2C-4CEA-8CF7-3A95CD36FD35}.Release|Win32.Build.0 = Release|Win32
+		{67CF1C1E-EDF9-4C75-AE63-49EF0E509CA9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{67CF1C1E-EDF9-4C75-AE63-49EF0E509CA9}.Debug|Win32.Build.0 = Debug|Win32
+		{67CF1C1E-EDF9-4C75-AE63-49EF0E509CA9}.Release|Win32.ActiveCfg = Release|Win32
+		{67CF1C1E-EDF9-4C75-AE63-49EF0E509CA9}.Release|Win32.Build.0 = Release|Win32
+		{E5D22DBA-2768-432A-B341-E8BB2CE3725B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E5D22DBA-2768-432A-B341-E8BB2CE3725B}.Debug|Win32.Build.0 = Debug|Win32
+		{E5D22DBA-2768-432A-B341-E8BB2CE3725B}.Release|Win32.ActiveCfg = Release|Win32
+		{E5D22DBA-2768-432A-B341-E8BB2CE3725B}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

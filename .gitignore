@@ -3,6 +3,9 @@
 playgame
 showgame
 playnview
+!playgame/
+!showgame/
+!playnview/
 *.dSYM
 build
 *.mode2v3
