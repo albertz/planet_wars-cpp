@@ -17,6 +17,7 @@
 #include <fstream>
 #include <limits>
 #include <signal.h>
+#include <unistd.h>
 #include "utils.h"
 #include "game.h"
 #include "process.h"
@@ -269,7 +270,8 @@ int main(int _argc, char** _argv) {
 	SDL_Thread* player = SDL_CreateThread(&PlayGameThread, NULL);
 
 	Viewer_mainLoop();
-
+	kill(getpid(), SIGQUIT); // shortcut hack. needed to avoid complicateness when you close the SDL window
+	
 	SDL_WaitThread(player, NULL);
 	SDL_Quit();
 	return 0;
