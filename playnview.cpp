@@ -15,6 +15,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <fstream>
+#include <limits>
 #include <signal.h>
 #include "utils.h"
 #include "game.h"

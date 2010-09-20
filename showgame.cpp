@@ -14,6 +14,7 @@
 #include <string>
 #include <list>
 #include <memory>
+#include <limits>
 #include "utils.h"
 #include "game.h"
 #include "gfx.h"
