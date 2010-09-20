@@ -46,7 +46,7 @@ static Point getPlanetPos(const PlanetDesc& p, double top, double left,
 // to their inherent radii. The radii are scaled for maximum aesthetic
 // appeal.
 static double inherentRadius(const PlanetDesc& p) {
-	return sqrt(p.growthRate) * 0.5;
+	return sqrt((double)p.growthRate) * 0.5;
 	//return log(p.GrowthRate() + 3.0);
 	//return p.GrowthRate();
 }
@@ -108,7 +108,7 @@ void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, d
 			double dist = sqrt(dx * dx + dy * dy);
 			//double aSize = inherentRadius(a);
 			//double bSize = inherentRadius(b);
-			double sizeFactor = dist / sqrt(a.growthRate);
+			double sizeFactor = dist / sqrt((double)a.growthRate);
 			minSizeFactor = std::min(sizeFactor, minSizeFactor);
 		}
 	}

@@ -125,7 +125,7 @@ void ParseParams() {
 		logStream.open(logFilename.c_str());
 	
 	if(maxTurnTime < 0)
-		maxTurnTime = std::numeric_limits<long>::max();
+		maxTurnTime = (std::numeric_limits<long>::max)();
 }
 
 static std::vector<Process*> clients;
@@ -246,9 +246,12 @@ int main(int _argc, char** _argv) {
 	argv = _argv;
 	ParseParams();
 	
-	signal(SIGHUP, &signalhandler);
 	signal(SIGINT, &signalhandler);
+#ifndef _WIN32
+	signal(SIGHUP, &signalhandler);
 	signal(SIGQUIT, &signalhandler);
+#endif
+	
 	
 	// Start the client programs (players).
 	clients.reserve(playerCommands.size());

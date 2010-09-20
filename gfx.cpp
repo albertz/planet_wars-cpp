@@ -13,6 +13,10 @@
 #include "SDL_picofont.h"
 #include "PixelFunctors.h"
 
+#ifdef _WIN32
+typedef unsigned short ushort;
+#endif
+
 void DrawText(SDL_Surface* surf, const std::string& txt, Color col, int x, int y, bool center) {
 	SDL_Color sdlCol = {col.r, col.g, col.b};
 	SDL_Surface* txtSurf = FNT_Render(txt.c_str(), sdlCol);

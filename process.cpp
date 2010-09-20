@@ -7,6 +7,8 @@
  *
  */
 
+#ifndef _WIN32
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -137,3 +139,5 @@ void Process::flush() {
 		n += write(forkInputFd, inbuffer.c_str() + n, inbuffer.size() - n);
 	inbuffer = "";
 }
+
+#endif // not _WIN32

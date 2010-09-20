@@ -4,8 +4,18 @@
 #include "utils.h"
 #include <iostream>
 #include <cstring>
+#ifdef _WIN32
+#include <Windows.h>
+#else
 #include <sys/time.h> // gettimeofday
+#endif
 
+
+#ifdef _WIN32
+long currentTimeMillis() {
+	return GetTickCount();
+}
+#else
 long currentTimeMillis() {
 	struct Timeval : timeval {
 		Timeval() {
@@ -24,6 +34,7 @@ long currentTimeMillis() {
 	mtime = (seconds * 1000.0 + useconds / 1000.0) + 0.5;
 	return mtime;
 }
+#endif
 
 typedef unsigned char uchar;
 

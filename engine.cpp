@@ -123,7 +123,7 @@ void ParseParams() {
 		maxTurnTime = atol(unnamedParams[1].c_str());
 		maxNumTurns = atoi(unnamedParams[2].c_str());
 		logFilename = unnamedParams[3];
-		playerCommands = std::vector<std::string>( &unnamedParams[4], &unnamedParams[unnamedParams.size()] );		
+		playerCommands = std::vector<std::string>( unnamedParams.begin() + 4, unnamedParams.end() );
 	}
 	else { // new style parameters
 		playerCommands = unnamedParams;
@@ -138,7 +138,7 @@ void ParseParams() {
 		logStream.open(logFilename.c_str());
 
 	if(maxTurnTime < 0)
-		maxTurnTime = std::numeric_limits<long>::max();
+		maxTurnTime = (std::numeric_limits<int>::max)();
 }
 
 void signalhandler(int) {
@@ -152,9 +152,11 @@ int main(int _argc, char** _argv) {
 	argv = _argv;
 	ParseParams();
 	
-	signal(SIGHUP, &signalhandler);
 	signal(SIGINT, &signalhandler);
+#ifndef _WIN32
+	signal(SIGHUP, &signalhandler);
 	signal(SIGQUIT, &signalhandler);
+#endif
 	
 	// Initialize the game. Load the map.	
 	Game game(maxNumTurns, replayStream, logStream ? &logStream : NULL);	

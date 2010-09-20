@@ -11,18 +11,44 @@
 #define __PW__PROCESS_H__
 
 #include <string>
+
+#ifdef _WIN32
+#include <windows.h> 
+#include <tchar.h>
+#include <stdio.h> 
+#include <strsafe.h>
+#else
 #include <unistd.h>
+#endif
 
 struct Process {
 	std::string cmd;
 	bool running;
 	int forkInputFd, forkOutputFd;
 	std::string inbuffer, outbuffer;
+
+#ifdef _WIN32
+	HANDLE g_hChildStd_IN_Rd;
+	HANDLE g_hChildStd_IN_Wr;
+	HANDLE g_hChildStd_OUT_Rd;
+	HANDLE g_hChildStd_OUT_Wr;
+	HANDLE hProcess;
+#else
 	pid_t forkId;
+#endif
 	
 	Process(const std::string& __cmd = "")
 	: cmd(__cmd), running(false),
-	forkInputFd(0), forkOutputFd(0), forkId(0) {}
+#ifdef _WIN32
+	g_hChildStd_IN_Rd(NULL),
+	g_hChildStd_IN_Wr(NULL),
+	g_hChildStd_OUT_Rd(NULL),
+	g_hChildStd_OUT_Wr(NULL),
+	hProcess(NULL)
+#else
+	forkInputFd(0), forkOutputFd(0), forkId(0) 
+#endif
+	{}
 	~Process() { destroyAndWait(); }
 	
 	operator bool() const { return running; }
