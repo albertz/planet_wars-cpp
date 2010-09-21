@@ -205,6 +205,7 @@ void Viewer::frame(SDL_Surface* surf, long dt) {
 	Offset oldOffsetToGo = offsetToGo;
 	offsetToGo -= dOffset;
 	if(SIGN(offsetToGo) != SIGN(oldOffsetToGo)) offsetToGo = 0;
+	if(labs(offsetToGo.number) <= 1) offsetToGo = 0;
 
 	int numAbsSteps = 
 	(
