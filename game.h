@@ -38,8 +38,8 @@ struct Fleet {
 		  int _num_ships,
 		  int _source_planet = -1,
 		  int _destination_planet = -1,
-		  int _turns_remaining = -1,
-		  int _total_trip_length = -1)
+		  int _total_trip_length = -1,
+		  int _turns_remaining = -1)
 	: owner(_owner), numShips(_num_ships), sourcePlanet(_source_planet),
 	destinationPlanet(_destination_planet),
 	turnsRemaining(_turns_remaining), totalTripLength(_total_trip_length) {}
