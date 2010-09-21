@@ -21,6 +21,7 @@
 #include <vector>
 #include <list>
 #include <cmath>
+#include "vec.h"
 
 // This class stores details about one fleet. There is one of these classes
 // for each fleet that is in flight at any given time.
@@ -50,6 +51,8 @@ struct Fleet {
             turnsRemaining = 0;
 	}
 	
+	int Age() const { return totalTripLength - turnsRemaining; }
+	
 	void Kill() { owner = numShips = turnsRemaining = 0; }
 };
 
@@ -69,6 +72,7 @@ struct PlanetDesc {
 	
 	PlanetDesc(int _growthRate, double _x, double _y)
 	: growthRate(_growthRate), x(_x), y(_y) {}
+	VecD pos() const { return VecD(x,y); }
 };
 
 // all together. this can be handy
