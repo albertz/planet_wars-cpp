@@ -30,19 +30,19 @@ struct Fleet {
 	int numShips;
 	int sourcePlanet;
 	int destinationPlanet;
-	int totalTripLength;
 	int turnsRemaining;
+	int totalTripLength;
 	
 	// Initializes a fleet.
 	Fleet(int _owner,
 		  int _num_ships,
 		  int _source_planet = -1,
 		  int _destination_planet = -1,
-		  int _total_trip_length = -1,
-		  int _turns_remaining = -1)
+		  int _turns_remaining = -1,
+		  int _total_trip_length = -1)
 	: owner(_owner), numShips(_num_ships), sourcePlanet(_source_planet),
-	destinationPlanet(_destination_planet), totalTripLength(_total_trip_length),
-	turnsRemaining(_turns_remaining) {}
+	destinationPlanet(_destination_planet),
+	turnsRemaining(_turns_remaining), totalTripLength(_total_trip_length) {}
 	
 	void TimeStep() {
 		if (turnsRemaining > 0)
@@ -56,6 +56,26 @@ struct Fleet {
 	void Kill() { owner = numShips = turnsRemaining = 0; }
 };
 
+typedef std::vector<Fleet> Fleets;
+
+inline void FleetsTimeStep(Fleets::iterator f, const Fleets::iterator& fleetEnd) {
+	for (; f != fleetEnd; ++f) f->TimeStep();
+}
+
+inline void FleetsTimeStep(Fleets& fleets) {
+	FleetsTimeStep(fleets.begin(), fleets.end());
+}
+
+inline void RemoveFinalFleets(Fleets& fleets) {
+	Fleets newFleets;
+	newFleets.reserve(fleets.size());
+	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
+		if(f->turnsRemaining > 0)
+			newFleets.push_back(*f);
+	}
+	fleets.swap(newFleets);	
+}
+
 // all gamestate relevant information about a planet
 struct PlanetState {
 	int owner;
@@ -63,6 +83,23 @@ struct PlanetState {
 	
 	PlanetState(int _owner = 0, int _num_ships = 0)
 	: owner(_owner), numShips(_num_ships) {}
+	
+	//Resolves the battle at planet p, if there is one.
+	// fleets with turnsRemaining=dt are checked here.
+    // * Sets the number of ships and owner of the planet according the outcome
+	void FightBattle(int myPlanetIndex, const Fleets& fleets, int dt = 0);
+
+	// Fleets must already be one time step ahead
+	void DoTimeStep(int myPlanetIndex, int growthRate, const Fleets& fleets, int dt = 0) {
+		if(owner > 0) numShips += growthRate;
+		FightBattle(myPlanetIndex, fleets, dt);
+	}
+		
+	PlanetState NextTimeStep(int myPlanetIndex, int growthRate, const Fleets& fleets, int dt = 0) const {
+		PlanetState state(*this);
+		state.DoTimeStep(myPlanetIndex, growthRate, fleets, dt);
+		return state;
+	}
 };
 
 // planet description. all the game global constants
@@ -87,7 +124,6 @@ struct GameDesc;
 
 struct GameState {
 	typedef std::vector<PlanetState> Planets;
-	typedef std::vector<Fleet> Fleets;
 	Planets planets;
 	Fleets fleets;
 
@@ -110,12 +146,7 @@ struct GameState {
 	GameState NextTimeStep(const GameDesc& desc) const {
 		GameState s(*this); s.DoTimeStep(desc); return s;
 	}
-	
-	//Resolves the battle at planet p, if there is one.
-    //* Removes all fleets involved in the battle
-    //* Sets the number of ships and owner of the planet according the outcome
-    void __FightBattle(PlanetState& p);
-
+		
 	// Execute an order. This function takes num_ships off the source_planet,
 	// puts them into a newly-created fleet, calculates the distance to the
 	// destination_planet, and sets the fleet's total trip time to that

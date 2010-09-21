@@ -42,7 +42,7 @@ std::string Game::PovRepresentation(int pov) {
 		<< state.planets[i].numShips << " "
 		<< desc.planets[i].growthRate << std::endl;
 	}
-	for (GameState::Fleets::iterator f = state.fleets.begin(); f != state.fleets.end(); ++f) {
+	for (Fleets::iterator f = state.fleets.begin(); f != state.fleets.end(); ++f) {
 		s
 		<< "F " << PovSwitch(pov, f->owner) << " "
 		<< f->numShips << " " << f->sourcePlanet << " "
@@ -71,17 +71,14 @@ int Game::PovSwitch(int pov, int playerID) {
 //Resolves the battle at planet p, if there is one.
 //* Removes all fleets involved in the battle
 //* Sets the number of ships and owner of the planet according the outcome
-void GameState::__FightBattle(PlanetState& p) {
+void PlanetState::FightBattle(int myPlanetIndex, const std::vector<Fleet>& fleets, int dt) {
+	PlanetState& p = *this;
 	std::map<int,int> participants;	
 	participants[p.owner] = p.numShips;
 	
-	for (Fleets::iterator it = fleets.begin(); it != fleets.end(); ) {
-		Fleet& f = *it;
-		if (f.turnsRemaining <= 0 && &planets[f.destinationPlanet] == &p) {
-			participants[f.owner] += f.numShips;
-			it = fleets.erase(it);
-		}
-		else ++it;
+	for (std::vector<Fleet>::const_iterator f = fleets.begin(); f != fleets.end(); ++f) {
+		if (f->turnsRemaining == dt && f->destinationPlanet == myPlanetIndex)
+			participants[f->owner] += f->numShips;
 	}
 	
 	Fleet winner(0, 0);
@@ -110,20 +107,12 @@ void GameState::__FightBattle(PlanetState& p) {
 //   * Fleets are advanced towards their destinations.
 //   * Fleets that arrive at their destination are dealt with.
 void GameState::DoTimeStep(const GameDesc& desc) {
-	// Add ships to each non-neutral planet according to its growth rate.
-	for (size_t i = 0; i < planets.size(); ++i) {
-		if (planets[i].owner > 0) {
-			planets[i].numShips += desc.planets[i].growthRate;
-		}
-	}
-	// Advance all fleets by one time step.
-	for (Fleets::iterator f = fleets.begin(); f != fleets.end(); ++f) {
-		f->TimeStep();
-	}
-	// Determine the result of any battles
-	for (Planets::iterator p = planets.begin(); p != planets.end(); ++p) {
-		__FightBattle(*p);
-	}
+	FleetsTimeStep(fleets);
+	
+	for (size_t p = 0; p < planets.size(); ++p)
+		planets[p].DoTimeStep(p, desc.planets[p].growthRate, fleets);
+	
+	RemoveFinalFleets(fleets);
 }
 
 void Game::DoTimeStep() {
@@ -138,7 +127,7 @@ void Game::DoTimeStep() {
 			<< p->numShips;
 			needcomma = true;
 		}
-		for (GameState::Fleets::iterator f = state.fleets.begin(); f != state.fleets.end(); ++f) {
+		for (Fleets::iterator f = state.fleets.begin(); f != state.fleets.end(); ++f) {
 			*gamePlayback
 			<< ","
 			<< f->owner << "."
