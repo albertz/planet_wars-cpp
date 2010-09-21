@@ -144,7 +144,7 @@ void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, d
 	}
 	
 	// Draw fleets
-	for (GameState::Fleets::const_iterator f = state.fleets.begin(); f != state.fleets.end(); ++f) {
+	for (Fleets::const_iterator f = state.fleets.begin(); f != state.fleets.end(); ++f) {
 		Point sPos = planetPos[f->sourcePlanet];
 		Point dPos = planetPos[f->destinationPlanet];
 		double tripProgress = 1.0 - (double(f->turnsRemaining) - offset) / f->totalTripLength;
