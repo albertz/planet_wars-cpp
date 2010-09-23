@@ -217,9 +217,10 @@ int main(int _argc, char** _argv) {
 			try {
 				while(true) {
 					long dt = currentTimeMillis() - startTime;
-					if(dt > maxTurnTime) break;
+					if((numTurns > 0) && (dt > maxTurnTime)) break;
 					std::string line;
-					if(!clients[i]->readLine(line, maxTurnTime - dt)) break;
+					const size_t timeOut = (numTurns > 0) ? (maxTurnTime - dt) : (std::numeric_limits<size_t>::max)();
+					if(!clients[i]->readLine(line, timeOut)) break;
 
 					line = ToLower(TrimSpaces(line));
 					//cerr << "P" << (i+1) << ": " << line << endl;
