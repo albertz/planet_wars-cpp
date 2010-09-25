@@ -41,6 +41,7 @@ static char** argv;
 
 static std::string mapFilename = "maps/map1.txt";
 static long maxTurnTime = -1;
+static long maxFirstTurnTime = -1;
 static int maxNumTurns = -1;
 static std::string logFilename;	
 static std::ofstream logStream;
@@ -57,11 +58,13 @@ void PrintHelpAndExit() {
 	<< "<player_two> [more_players]" << endl
 	<< "or" << endl
 	<< "  " << argv[0] << " [-m <map>] [-t <turn_time>] "
+	<< "[-ft <first_turn_time>] "
 	<< "[-n <num_turns>] [-l <logfile>] [-wait] [-noout] [-quiet] [--] "
 	<< "<player_one> <player_two> [more_players]" << endl
 	<< "with default values:" << endl
 	<< "  map = maps/map1.txt" << endl
 	<< "  turn_time = -1 = no timeout" << endl
+	<< "  first_turn_time = -1 = no timeout" << endl
 	<< "  num_turns = -1 = infinity" << endl
 	<< "  logfile = \"\" = no logfile" << endl
 	<< "-wait : wait for player1 to exit (useful for debugging)" << endl;
@@ -109,6 +112,8 @@ void ParseParams() {
 				mapFilename = argv[i];
 			else if(arg == "-t")
 				maxTurnTime = atol(argv[i]);
+			else if(arg == "-ft")
+				maxFirstTurnTime = atol(argv[i]);
 			else if(arg == "-n")
 				maxNumTurns = atoi(argv[i]);
 			else if(arg == "-l")
@@ -141,6 +146,9 @@ void ParseParams() {
 
 	if(maxTurnTime < 0)
 		maxTurnTime = (std::numeric_limits<int>::max)();
+
+	if(maxFirstTurnTime < 0)
+		maxFirstTurnTime = (std::numeric_limits<int>::max)();
 }
 
 void signalhandler(int) {
@@ -227,9 +235,9 @@ bool PW__mainloop(PWMainloopCallbacks callbacks) {
 			try {
 				while(true) {
 					long dt = currentTimeMillis() - startTime;
-					if((numTurns > 0) && (dt > maxTurnTime)) break;
+					if(dt > ((numTurns == 0) ? maxFirstTurnTime : maxTurnTime)) break;
 					std::string line;
-					const size_t timeOut = (numTurns > 0) ? (maxTurnTime - dt) : (std::numeric_limits<size_t>::max)();
+					const size_t timeOut = ((numTurns == 0) ? maxFirstTurnTime : maxTurnTime) - dt;
 					if(!clients[i]->readLine(line, timeOut)) break;
 					
 					line = ToLower(TrimSpaces(line));
