@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2384D6E4124E5F0C00A533C7 /* playgame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2384D6E3124E5F0C00A533C7 /* playgame.cpp */; };
+		2384D719124E64B000A533C7 /* engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2391553D123E4817002C2060 /* engine.cpp */; };
 		23915544123E4817002C2060 /* engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2391553D123E4817002C2060 /* engine.cpp */; };
 		23915545123E4817002C2060 /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2391553E123E4817002C2060 /* game.cpp */; };
 		23915547123E4817002C2060 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23915542123E4817002C2060 /* utils.cpp */; };
@@ -35,6 +37,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2384D6E2124E5EA400A533C7 /* engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engine.h; sourceTree = "<group>"; };
+		2384D6E3124E5F0C00A533C7 /* playgame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = playgame.cpp; sourceTree = "<group>"; };
 		23915537123E47F6002C2060 /* playgame */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = playgame; sourceTree = BUILT_PRODUCTS_DIR; };
 		2391553D123E4817002C2060 /* engine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cpp; sourceTree = "<group>"; };
 		2391553E123E4817002C2060 /* game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game.cpp; sourceTree = "<group>"; };
@@ -125,12 +129,14 @@
 		23915548123E4827002C2060 /* common */ = {
 			isa = PBXGroup;
 			children = (
+				2391553D123E4817002C2060 /* engine.cpp */,
 				2391553E123E4817002C2060 /* game.cpp */,
 				2391553F123E4817002C2060 /* game.h */,
 				23915542123E4817002C2060 /* utils.cpp */,
 				23915543123E4817002C2060 /* utils.h */,
 				23917F6C12414AFB002C2060 /* process.h */,
 				23917F6D12414AFB002C2060 /* process.cpp */,
+				2384D6E2124E5EA400A533C7 /* engine.h */,
 			);
 			name = common;
 			sourceTree = "<group>";
@@ -138,7 +144,7 @@
 		23915549123E4836002C2060 /* playgame */ = {
 			isa = PBXGroup;
 			children = (
-				2391553D123E4817002C2060 /* engine.cpp */,
+				2384D6E3124E5F0C00A533C7 /* playgame.cpp */,
 			);
 			name = playgame;
 			sourceTree = "<group>";
@@ -248,6 +254,7 @@
 				23915545123E4817002C2060 /* game.cpp in Sources */,
 				23915547123E4817002C2060 /* utils.cpp in Sources */,
 				23917F6F12414AFB002C2060 /* process.cpp in Sources */,
+				2384D6E4124E5F0C00A533C7 /* playgame.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,6 +277,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2384D719124E64B000A533C7 /* engine.cpp in Sources */,
 				2391816712428B9C002C2060 /* process.cpp in Sources */,
 				2391810912428246002C2060 /* game.cpp in Sources */,
 				2391810A12428246002C2060 /* utils.cpp in Sources */,
