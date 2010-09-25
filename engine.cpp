@@ -59,7 +59,8 @@ void PrintHelpAndExit() {
 	<< "or" << endl
 	<< "  " << argv[0] << " [-m <map>] [-t <turn_time>] "
 	<< "[-ft <first_turn_time>] "
-	<< "[-n <num_turns>] [-l <logfile>] [-wait] [-noout] [-quiet] [--] "
+	<< "[-n <num_turns>] [-l <logfile>] [-wait] "
+	<< (replayStream ? "[-noout] " : "") << "[-quiet] [--] "
 	<< "<player_one> <player_two> [more_players]" << endl
 	<< "with default values:" << endl
 	<< "  map = maps/map1.txt" << endl
