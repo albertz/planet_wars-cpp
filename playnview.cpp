@@ -28,7 +28,7 @@ static int PlayGameThread(void*) {
 }
 
 int main(int argc, char** argv) {
-	if(!PW__init(argc, argv)) return 1;		
+	if(!PW__init(argc, argv, NULL)) return 1;		
 	if(!Viewer_initWindow("PlanetWars")) return 1;
 	
 	SDL_Thread* player = SDL_CreateThread(&PlayGameThread, NULL);

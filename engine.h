@@ -10,6 +10,8 @@
 #ifndef __PW__ENGINE_H__
 #define __PW__ENGINE_H__
 
+#include <ostream>
+
 struct Game;
 
 struct PWMainloopCallbacks {
@@ -17,7 +19,7 @@ struct PWMainloopCallbacks {
 	void (*OnNextGameState)(const Game& game);
 };
 
-bool PW__init(int argc, char** argv);
+bool PW__init(int argc, char** argv, std::ostream* replayStream);
 bool PW__mainloop(PWMainloopCallbacks callbacks = PWMainloopCallbacks());
 
 #endif

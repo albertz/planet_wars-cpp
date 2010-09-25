@@ -39,6 +39,16 @@ void KillClients() {
 static int argc;
 static char** argv;
 
+static std::string mapFilename = "maps/map1.txt";
+static long maxTurnTime = -1;
+static int maxNumTurns = -1;
+static std::string logFilename;	
+static std::ofstream logStream;
+static std::ostream* replayStream = &cout;
+static bool waitForBot1 = false;
+static bool beQuiet = false;
+static std::vector<std::string> playerCommands;
+
 void PrintHelpAndExit() {
 	cerr
 	<< "usage: " << endl
@@ -54,8 +64,9 @@ void PrintHelpAndExit() {
 	<< "  turn_time = -1 = no timeout" << endl
 	<< "  num_turns = -1 = infinity" << endl
 	<< "  logfile = \"\" = no logfile" << endl
-	<< "-wait : wait for player1 to exit (useful for debugging)" << endl
-	<< "-noout : no replay output" << endl
+	<< "-wait : wait for player1 to exit (useful for debugging)" << endl;
+	if(replayStream) cerr << "-noout : no replay output" << endl;
+	cerr
 	<< "-quiet : less output" << endl
 	<< "-- : needed if you specify more than 5 players" << endl
 	<< "or" << endl
@@ -63,16 +74,6 @@ void PrintHelpAndExit() {
 	;
 	_exit(0);
 }
-
-static std::string mapFilename = "maps/map1.txt";
-static long maxTurnTime = -1;
-static int maxNumTurns = -1;
-static std::string logFilename;	
-static std::ofstream logStream;
-static std::ostream* replayStream = &cout;
-static bool waitForBot1 = false;
-static bool beQuiet = false;
-static std::vector<std::string> playerCommands;
 
 static bool looksLikeParamOption(const std::string& arg) {
 	if(arg.size() == 0) return false;
@@ -148,9 +149,10 @@ void signalhandler(int) {
 	exit(0);
 }
 
-bool PW__init(int _argc, char** _argv) {
+bool PW__init(int _argc, char** _argv, std::ostream* _replayStream) {
 	argc = _argc;
 	argv = _argv;
+	replayStream = _replayStream;
 	ParseParams();
 	
 	signal(SIGINT, &signalhandler);
