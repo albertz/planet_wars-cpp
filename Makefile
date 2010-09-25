@@ -47,10 +47,13 @@ utils.o: utils.cpp utils.h
 process.o: process.cpp process.h utils.h
 	$(CPP) $(CFLAGS) $< -c -o $@
 
+playgame.o: playgame.cpp engine.h
+	$(CPP) $(CFLAGS) $< -c -o $@
+
 showgame.o: showgame.cpp viewer.h utils.h
 	$(CPP) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
 
-playnview.o: playnview.cpp viewer.h utils.h process.h
+playnview.o: playnview.cpp viewer.h engine.h
 	$(CPP) $(CFLAGS) $(SDL_CFLAGS) $< -c -o $@
 
 viewer.o: viewer.cpp viewer.h utils.h
@@ -67,13 +70,13 @@ SDL_picofont.o: SDL_picofont.cpp SDL_picofont.h
 	
 #%.o: %.cpp
 
-playgame: engine.o game.o utils.o process.o
+playgame: engine.o playgame.o game.o utils.o process.o
 	$(CPP) $(LFLAGS) $^ -o $@
 
 showgame: utils.o game.o showgame.o $(VIEWER_OBJS)
 	$(CPP) $(LFLAGS) $(SDL_LFLAGS) $^ -o $@
 
-playnview: utils.o game.o playnview.o $(VIEWER_OBJS) process.o
+playnview: utils.o game.o playnview.o engine.o $(VIEWER_OBJS) process.o
 	$(CPP) $(LFLAGS) $(SDL_LFLAGS) $^ -o $@
 
 Bot%: Bot%.cpp game.o utils.o

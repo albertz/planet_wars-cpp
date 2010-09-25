@@ -23,6 +23,7 @@
 #include "utils.h"
 #include "game.h"
 #include "process.h"
+#include "engine.h"
 
 using namespace std;
 
@@ -147,7 +148,7 @@ void signalhandler(int) {
 	exit(0);
 }
 
-int main(int _argc, char** _argv) {
+bool PW__init(int _argc, char** _argv) {
 	argc = _argc;
 	argv = _argv;
 	ParseParams();
@@ -157,14 +158,6 @@ int main(int _argc, char** _argv) {
 	signal(SIGHUP, &signalhandler);
 	signal(SIGQUIT, &signalhandler);
 #endif
-	
-	// Initialize the game. Load the map.	
-	Game game(maxNumTurns, replayStream, logStream ? &logStream : NULL);	
-	game.WriteLogMessage("initializing");
-	if(!game.LoadMapFromFile(mapFilename)) {
-		cerr << "ERROR: failed to load map: " << mapFilename << endl;
-		return 1;
-	}
 
 	// Start the client programs (players).
 	clients.reserve(playerCommands.size());
@@ -172,14 +165,29 @@ int main(int _argc, char** _argv) {
 		std::string command = playerCommands[i];
 		Process* client = new Process(command);
 		clients.push_back(client);
-
+		
 		client->run();
 		if (!*client) {
 			cerr << "ERROR: failed to start client: " << command << endl;
 			KillClients();
-			return 1;
+			return false;
 		}
 	}
+	
+	return true;
+}
+
+bool PW__mainloop(PWMainloopCallbacks callbacks) {
+	// Initialize the game. Load the map.
+	Game game(maxNumTurns, replayStream, logStream ? &logStream : NULL);	
+	game.WriteLogMessage("initializing");
+	if(!game.LoadMapFromFile(mapFilename)) {
+		cerr << "ERROR: failed to load map: " << mapFilename << endl;
+		return false;
+	}
+	
+	if(callbacks.OnInitialGame)
+		(*callbacks.OnInitialGame)(game);
 	
 	std::vector<bool> isAlive(clients.size());
 	for (size_t i = 0; i < clients.size(); ++i) {
@@ -221,7 +229,7 @@ int main(int _argc, char** _argv) {
 					std::string line;
 					const size_t timeOut = (numTurns > 0) ? (maxTurnTime - dt) : (std::numeric_limits<size_t>::max)();
 					if(!clients[i]->readLine(line, timeOut)) break;
-
+					
 					line = ToLower(TrimSpaces(line));
 					//cerr << "P" << (i+1) << ": " << line << endl;
 					game.WriteLogMessage("player" + to_string(i + 1) + " > engine: " + line);
@@ -242,7 +250,7 @@ int main(int _argc, char** _argv) {
 		for (size_t i = 0; i < clients.size(); ++i) {
 			if (!isAlive[i] || !game.state.IsAlive(i + 1)) continue;
 			if (clientDone[i]) continue;
-
+			
 			cerr << "WARNING: player " << (i+1) << " timed out." << endl;
 			clients[i]->destroy();
 			game.state.DropPlayer(i + 1);
@@ -251,19 +259,20 @@ int main(int _argc, char** _argv) {
 		++numTurns;
 		if(!beQuiet) cerr << "Turn " << numTurns << endl;
 		game.DoTimeStep();
+		if(callbacks.OnNextGameState)
+			(*callbacks.OnNextGameState)(game);
 	}
-
+	
 	if(beQuiet) cerr << "after " << numTurns << " turns: "; // so we know at least the numturns
 	if (game.Winner() > 0) {
 		cerr << "Player " << game.Winner() << " Wins!" << endl;
 	} else {
 		cerr << "Draw!" << endl;
-	}	
+	}
 	
 	if(waitForBot1)
 		clients[0]->waitForExit();
 	
 	KillClients();
-	return 0;
+	return true;
 }
-
