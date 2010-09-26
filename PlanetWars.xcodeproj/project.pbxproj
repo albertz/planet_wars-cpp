@@ -39,6 +39,7 @@
 /* Begin PBXFileReference section */
 		2384D6E2124E5EA400A533C7 /* engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engine.h; sourceTree = "<group>"; };
 		2384D6E3124E5F0C00A533C7 /* playgame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = playgame.cpp; sourceTree = "<group>"; };
+		2384D763124F7F2B00A533C7 /* process_win32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = process_win32.cpp; sourceTree = "<group>"; };
 		23915537123E47F6002C2060 /* playgame */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = playgame; sourceTree = BUILT_PRODUCTS_DIR; };
 		2391553D123E4817002C2060 /* engine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cpp; sourceTree = "<group>"; };
 		2391553E123E4817002C2060 /* game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game.cpp; sourceTree = "<group>"; };
@@ -129,6 +130,7 @@
 		23915548123E4827002C2060 /* common */ = {
 			isa = PBXGroup;
 			children = (
+				2384D763124F7F2B00A533C7 /* process_win32.cpp */,
 				2391553D123E4817002C2060 /* engine.cpp */,
 				2391553E123E4817002C2060 /* game.cpp */,
 				2391553F123E4817002C2060 /* game.h */,
