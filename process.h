@@ -49,10 +49,9 @@ struct Process {
 	forkInputFd(0), forkOutputFd(0), forkId(0) 
 #endif
 	{}
-	~Process() { destroyAndWait(); }
+	~Process() { destroy(); }
 	
 	operator bool() const { return running; }
-	void destroyAndWait();
 	void destroy();
 	void waitForExit();
 	void run();

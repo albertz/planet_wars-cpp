@@ -145,15 +145,9 @@ void Process::destroy() {
 	running = false;
 }
 
-void Process::destroyAndWait() {
-	if(running) {
-		destroy();
-		waitForExit();
-	}
-}
-
 void Process::waitForExit() {
-
+	if (running)
+		WaitForSingleObject(hProcess, INFINITE);
 }
 
 static timeval millisecsToTimeval(size_t ms) {

@@ -82,13 +82,6 @@ void Process::destroy() {
 	}
 }
 
-void Process::destroyAndWait() {
-	if(running) {
-		destroy();
-		waitForExit();
-	}
-}
-
 void Process::waitForExit() {
 	if(running) {
 		waitpid(forkId, NULL, 0);
