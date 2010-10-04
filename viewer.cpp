@@ -72,6 +72,7 @@ static std::string getPlanetDebugText(const GameDebugInfo* info, int planet) {
 // 0 to 1, the fleets all move in the forward direction. This is used to
 // fake smooth animation.
 void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, double offset, const GameDebugInfo* debugInfo) {
+	static const Color planetIdColor(255, 228, 0);
 	static const Color textColor(255, 255, 255);
 	static const Color dbgTextColor(200, 255, 200);
 	const int width = surf->w;
@@ -136,6 +137,7 @@ void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, d
 		int x = planetPos[p].x;
 		int y = planetPos[p].y;
 		DrawText(surf, to_string(state.planets[p].numShips), textColor, x, y, true);
+		DrawText(surf, to_string(p), planetIdColor, x, y-10, true);
 		std::string debugTxt = getPlanetDebugText(debugInfo, p);
 		if(debugTxt != "") {
 			Vec s = TextGetSize(debugTxt);
