@@ -156,16 +156,18 @@ bool GameState::ExecuteOrder(const GameDesc& desc,
 							 int sourcePlanet,
 							 int destinationPlanet,
 							 int numShips) {
-	PlanetState& source = planets[sourcePlanet];
-	if (source.owner != playerID ||
-		numShips > source.numShips ||
-		numShips < 0) {
+	if (numShips <= 0 ||
+		sourcePlanet < 0 || planets.size() <= (Planets::size_type)sourcePlanet ||
+		destinationPlanet < 0 || planets.size() <= (Planets::size_type)destinationPlanet ||
+		sourcePlanet == destinationPlanet) {
 		return false;
 	}
-	if(numShips == 0)
-		// just ignore but dont error
-		return true;
-	
+	PlanetState& source = planets[sourcePlanet];
+	if (source.owner != playerID ||
+		numShips > source.numShips) {
+		return false;
+	}
+
 	source.numShips -= numShips;
 	int distance = desc.Distance(sourcePlanet, destinationPlanet);
 	Fleet f(source.owner,
