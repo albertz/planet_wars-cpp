@@ -174,7 +174,19 @@ bool GameState::ExecuteOrder(const GameDesc& desc,
 			destinationPlanet,
 			distance,
 			distance);
-	fleets.push_back(f);
+	bool done = false;
+	for (Fleets::iterator fi = fleets.begin(); !done && (fi != fleets.end()); ++fi) {
+		if (fi->owner == playerID &&
+			fi->sourcePlanet == sourcePlanet &&
+			fi->destinationPlanet == destinationPlanet &&
+			fi->turnsRemaining == distance) {
+			fi->numShips += numShips;
+			done = true;
+		}
+	}
+	if (!done) {
+		fleets.push_back(f);
+	}
 	return true;
 }
 
