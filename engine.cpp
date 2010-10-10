@@ -40,9 +40,9 @@ static int argc;
 static char** argv;
 
 static std::string mapFilename = "maps/map1.txt";
-static long maxTurnTime = -1;
+static long maxTurnTime = 5000;
 static long maxFirstTurnTime = -1;
-static int maxNumTurns = -1;
+static int maxNumTurns = 200;
 static std::string logFilename;	
 static std::ofstream logStream;
 static std::ostream* replayStream = &cout;
@@ -64,9 +64,9 @@ void PrintHelpAndExit() {
 	<< "<player_one> <player_two> [more_players]" << endl
 	<< "with default values:" << endl
 	<< "  map = maps/map1.txt" << endl
-	<< "  turn_time = -1 = no timeout" << endl
+	<< "  turn_time = 5 = timeout in seconds" << endl
 	<< "  first_turn_time = -1 = no timeout" << endl
-	<< "  num_turns = -1 = infinity" << endl
+	<< "  num_turns = 200" << endl
 	<< "  logfile = \"\" = no logfile" << endl
 	<< "-wait : wait for player1 to exit (useful for debugging)" << endl;
 	if(replayStream) cerr << "-noout : no replay output" << endl;
@@ -112,9 +112,9 @@ void ParseParams() {
 			if(arg == "-m")
 				mapFilename = argv[i];
 			else if(arg == "-t")
-				maxTurnTime = atol(argv[i]);
+				maxTurnTime = atol(argv[i])*1000;
 			else if(arg == "-ft")
-				maxFirstTurnTime = atol(argv[i]);
+				maxFirstTurnTime = atol(argv[i])*1000;
 			else if(arg == "-n")
 				maxNumTurns = atoi(argv[i]);
 			else if(arg == "-l")
@@ -149,7 +149,7 @@ void ParseParams() {
 		maxTurnTime = (std::numeric_limits<int>::max)();
 
 	if(maxFirstTurnTime < 0)
-		maxFirstTurnTime = (std::numeric_limits<int>::max)();
+		maxFirstTurnTime = maxTurnTime;
 }
 
 void signalhandler(int) {
