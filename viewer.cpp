@@ -45,7 +45,7 @@ static Point getPlanetPos(const PlanetDesc& p, double top, double left,
 // to their inherent radii. The radii are scaled for maximum aesthetic
 // appeal.
 static double inherentRadius(const PlanetDesc& p) {
-	return sqrt((double)p.growthRate) * 0.4+0.3;
+	return sqrt((double)p.growthRate) * 0.4 + 0.3;
 	//return sqrt((double)p.growthRate) * 0.5;
 	//return log(p.GrowthRate() + 3.0);
 	//return p.GrowthRate();
@@ -75,7 +75,7 @@ void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, d
 	static const Color planetIdColor(255, 228, 0);
 	static const Color textColor(255, 255, 255);
 	static const Color dbgTextColor(200, 255, 200);
-	const int map_size = surf->w < surf->h ? surf->w : surf->h;
+	const int map_size = (surf->w < surf->h) ? surf->w : surf->h;
 	
 	// Determine the dimensions of the viewport in game coordinates.
 	double top = std::numeric_limits<double>::max();
