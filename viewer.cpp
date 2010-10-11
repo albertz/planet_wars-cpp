@@ -243,7 +243,12 @@ void Viewer::frame(SDL_Surface* surf, long dt) {
 }
 
 
-int screenw = 640, screenh = 480, screenbpp = 0;
+int screenw = 500, screenh = 500, screenbpp = 0;
+
+static void fixScreenWH() {
+	screenw = (screenw + screenh) / 2;
+	screenh = screenw;
+}
 
 static Viewer viewer;
 static bool pressedAnyKey = false;
@@ -261,6 +266,7 @@ static bool HandleEvent(const SDL_Event& event) {
 		case SDL_VIDEORESIZE:
 			screenw = event.resize.w;
 			screenh = event.resize.h;
+			fixScreenWH();
 			SETVIDEOMODE;
 			break;
 		case SDL_USEREVENT: {
