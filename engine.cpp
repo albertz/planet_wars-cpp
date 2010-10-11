@@ -149,7 +149,7 @@ void ParseParams() {
 		maxTurnTime = (std::numeric_limits<int>::max)();
 
 	if(maxFirstTurnTime < 0)
-		maxFirstTurnTime = maxTurnTime;
+		maxFirstTurnTime = (std::numeric_limits<int>::max)();
 }
 
 void signalhandler(int) {
