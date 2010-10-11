@@ -145,6 +145,18 @@ void Game::DoTimeStep() {
 }
 
 
+Fleet* GameState::MatchingExistingFleet(const Fleet& f) {
+	for (Fleets::iterator fi = fleets.begin(); fi != fleets.end(); ++fi) {
+		if (fi->owner == f.owner &&
+			fi->sourcePlanet == f.sourcePlanet &&
+			fi->destinationPlanet == f.destinationPlanet &&
+			fi->turnsRemaining == f.turnsRemaining)
+			return &*fi;
+	}
+	return NULL;
+}
+
+
 // Execute an order. This function takes num_ships off the source_planet,
 // puts them into a newly-created fleet, calculates the distance to the
 // destination_planet, and sets the fleet's total trip time to that
@@ -176,19 +188,10 @@ bool GameState::ExecuteOrder(const GameDesc& desc,
 			destinationPlanet,
 			distance,
 			distance);
-	bool done = false;
-	for (Fleets::iterator fi = fleets.begin(); !done && (fi != fleets.end()); ++fi) {
-		if (fi->owner == playerID &&
-			fi->sourcePlanet == sourcePlanet &&
-			fi->destinationPlanet == destinationPlanet &&
-			fi->turnsRemaining == distance) {
-			fi->numShips += numShips;
-			done = true;
-		}
-	}
-	if (!done) {
+	if(Fleet* existingFleet = MatchingExistingFleet(f))
+		existingFleet->numShips += numShips;
+	else 
 		fleets.push_back(f);
-	}
 	return true;
 }
 

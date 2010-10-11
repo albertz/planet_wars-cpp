@@ -183,6 +183,9 @@ struct GameState {
     int Production(int playerID, const GameDesc& desc) const;
 
 	int HighestPlayerID() const;
+	
+	// checks owner, source, dest, turns-remaining
+	Fleet* MatchingExistingFleet(const Fleet& f);
 };
 
 struct GameDesc {
