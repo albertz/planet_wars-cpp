@@ -41,7 +41,7 @@ static char** argv;
 
 static std::string mapFilename = "maps/map1.txt";
 static long maxTurnTime = 5000;
-static long maxFirstTurnTime = -1;
+static long maxFirstTurnTime = 10000;
 static int maxNumTurns = 200;
 static std::string logFilename;	
 static std::ofstream logStream;
