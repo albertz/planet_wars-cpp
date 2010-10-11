@@ -34,9 +34,10 @@ Color GetDefaultPlayerPlanetColor(int player) {
 }
 
 static Point getPlanetPos(const PlanetDesc& p, double top, double left,
-						  double right, double bottom, int map_size) {
-	int x = (int)((p.x - left) / (right - left) * map_size);
-	int y = map_size - (int)((p.y - top) / (bottom - top) * map_size);
+						  double right, double bottom, int width,
+						  int height) {
+	int x = (int)((p.x - left) / (right - left) * width);
+	int y = height - (int)((p.y - top) / (bottom - top) * height);
 	return Point(x, y);
 }
 
@@ -75,7 +76,8 @@ void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, d
 	static const Color planetIdColor(255, 228, 0);
 	static const Color textColor(255, 255, 255);
 	static const Color dbgTextColor(200, 255, 200);
-	const int map_size = (surf->w < surf->h) ? surf->w : surf->h;
+	const int width = surf->w;
+	const int height = surf->h;
 	
 	// Determine the dimensions of the viewport in game coordinates.
 	double top = std::numeric_limits<double>::max();
@@ -117,13 +119,13 @@ void DrawGame(const GameDesc& desc, const GameState& state, SDL_Surface* surf, d
 	// Draw the planets.
 	size_t i = 0;
 	for (size_t p = 0; p < desc.planets.size(); ++p) {
-		Point pos = getPlanetPos(desc.planets[p], top, left, right, bottom, map_size);
+		Point pos = getPlanetPos(desc.planets[p], top, left, right, bottom, width, height);
 		planetPos[i++] = pos;
 		int x = pos.x;
 		int y = pos.y;
 		double size = minSizeFactor * inherentRadius(desc.planets[p]);
-		int r = (int)std::min(size / (right - left) * map_size,
-							  size / (bottom - top) * map_size);
+		int r = (int)std::min(size / (right - left) * width,
+							  size / (bottom - top) * height);
 		if(r > 0) {
 			Color c = getPlanetColor(debugInfo, p, state.planets[p].owner);
 			DrawCircleFilled(surf, x, y, r+1, r+1, c * 1.2f);
