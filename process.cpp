@@ -53,12 +53,13 @@ void Process::run() {
 		
 		// run
 		std::vector<std::string> paramsS = Tokenize(cmd, " ");
+		if(paramsS.size() == 0) paramsS.push_back("");
 		char** params = new char*[paramsS.size() + 1];
 		for(size_t i = 0; i < paramsS.size(); ++i)
 			params[i] = (char*)paramsS[i].c_str();
 		params[paramsS.size()] = NULL;
 		execvp(params[0], params);
-		cerr << "ERROR: cannot run " << params[0] << ": " << strerror(errno) << endl;
+		cerr << "ERROR: cannot run '" << cmd << "': " << strerror(errno) << endl;
 		_exit(0);
 	}
 	else { // parent
