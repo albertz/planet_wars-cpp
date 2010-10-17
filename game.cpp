@@ -73,23 +73,25 @@ int Game::PovSwitch(int pov, int playerID) {
 //* Sets the number of ships and owner of the planet according the outcome
 void PlanetState::FightBattle(int myPlanetIndex, const std::vector<Fleet>& fleets, int dt) {
 	PlanetState& p = *this;
-	std::map<int,int> participants;	
+	std::vector<int> participants( std::max(3, p.owner + 1) ); // index = owner
 	participants[p.owner] = p.numShips;
 	
 	for (std::vector<Fleet>::const_iterator f = fleets.begin(); f != fleets.end(); ++f) {
-		if (f->turnsRemaining == dt && f->destinationPlanet == myPlanetIndex)
+		if (f->turnsRemaining == dt && f->destinationPlanet == myPlanetIndex) {
+			participants.resize( std::max(participants.size(), (size_t)f->owner + 1) );
 			participants[f->owner] += f->numShips;
+		}
 	}
 	
 	Fleet winner(0, 0);
 	Fleet second(0, 0);
-	for (std::map<int,int>::iterator f = participants.begin(); f != participants.end(); ++f) {
-		if (f->second > second.numShips) {
-			if(f->second > winner.numShips) {
+	for (size_t i = 0; i < participants.size(); ++i) {
+		if (participants[i] > second.numShips) {
+			if(participants[i] > winner.numShips) {
 				second = winner;
-				winner = Fleet(f->first, f->second);
+				winner = Fleet(i, participants[i]);
 			} else {
-				second = Fleet(f->first, f->second);
+				second = Fleet(i, participants[i]);
 			}
 		}
 	}
